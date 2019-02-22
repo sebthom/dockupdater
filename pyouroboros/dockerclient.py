@@ -4,7 +4,8 @@ from docker import DockerClient, tls
 from os.path import isdir, isfile, join
 from docker.errors import DockerException, APIError, NotFound
 
-from pyouroboros.helpers import set_properties
+from pyouroboros.helpers import set_properties, remove_sha_prefix
+from pyouroboros.notifiers import ContainerUpdateMessage, ServiceUpdateMessage
 
 
 class Docker(object):
@@ -55,7 +56,7 @@ class Docker(object):
         return client
 
 
-class Container(object):
+class BaseImageObject(object):
     def __init__(self, docker_client):
         self.docker = docker_client
         self.logger = self.docker.logger
@@ -67,6 +68,45 @@ class Container(object):
         self.notification_manager = self.docker.notification_manager
 
         self.monitored = self.monitor_filter()
+
+    def _pull(self, tag):
+        """Docker pull image tag"""
+        self.logger.debug('Checking tag: %s', tag)
+        try:
+            if self.config.auth_json:
+                self.client.login(self.config.auth_json.get(
+                    "username"), self.config.auth_json.get("password"))
+
+            if self.config.dry_run:
+                # The authentification doesn't work with this call
+                # See bugs https://github.com/docker/docker-py/issues/2225
+                return self.client.images.get_registry_data(tag)
+            else:
+                return self.client.images.pull(tag)
+        except APIError as e:
+            if '<html>' in str(e):
+                self.logger.debug("Docker api issue. Ignoring")
+                raise ConnectionError
+            elif 'unauthorized' in str(e):
+                if self.config.dry_run:
+                    self.logger.error('dry run : Upstream authentication issue while checking %s. See: '
+                                      'https://github.com/docker/docker-py/issues/2225', tag)
+                    raise ConnectionError
+                else:
+                    self.logger.critical("Invalid Credentials. Exiting")
+                    exit(1)
+            elif 'Client.Timeout' in str(e):
+                self.logger.critical(
+                    "Couldn't find an image on docker.com for %s. Local Build?", tag)
+                raise ConnectionError
+            elif ('pull access' or 'TLS handshake') in str(e):
+                self.logger.critical("Couldn't pull. Skipping. Error: %s", e)
+                raise ConnectionError
+
+
+class Container(BaseImageObject):
+    def __init__(self, docker_client):
+        super().__init__(docker_client)
 
     # Container sub functions
     def stop(self, container):
@@ -135,35 +175,7 @@ class Container(object):
             raise ConnectionError
         elif ':' not in tag:
             tag = f'{tag}:latest'
-        self.logger.debug('Checking tag: %s', tag)
-        try:
-            if self.config.dry_run:
-                registry_data = self.client.images.get_registry_data(tag)
-                return registry_data
-            else:
-                if self.config.auth_json:
-                    return_image = self.client.images.pull(tag, auth_config=self.config.auth_json)
-                else:
-                    return_image = self.client.images.pull(tag)
-                return return_image
-        except APIError as e:
-            if '<html>' in str(e):
-                self.logger.debug("Docker api issue. Ignoring")
-                raise ConnectionError
-            elif 'unauthorized' in str(e):
-                if self.config.dry_run:
-                    self.logger.error('dry run : Upstream authentication issue while checking %s. See: '
-                                      'https://github.com/docker/docker-py/issues/2225', tag)
-                    raise ConnectionError
-                else:
-                    self.logger.critical("Invalid Credentials. Exiting")
-                    exit(1)
-            elif 'Client.Timeout' in str(e):
-                self.logger.critical("Couldn't find an image on docker.com for %s. Local Build?", tag)
-                raise ConnectionError
-            elif ('pull access' or 'TLS handshake') in str(e):
-                self.logger.critical("Couldn't pull. Skipping. Error: %s", e)
-                raise ConnectionError
+        return self._pull(tag)
 
     # Filters
     def running_filter(self):
@@ -271,7 +283,7 @@ class Container(object):
         return updateable, depends_on_containers, hard_depends_on_containers
 
     def update(self):
-        updated_count = 0
+        updated_container_tuples = []
         try:
             updateable, depends_on_containers, hard_depends_on_containers = self.socket_check()
         except TypeError:
@@ -288,13 +300,36 @@ class Container(object):
                     self.logger.info('dry run : %s would be updated', container.name)
                 continue
 
+            updated_container = (container, current_image, latest_image)
+
+            # com.ouroboros.notifiers may have an empty value to disable notification
+            if 'com.ouroboros.notifiers' in container.labels:
+                label = container.labels.get('com.ouroboros.notifiers')
+                if label:
+                    self.notification_manager.send(
+                        ContainerUpdateMessage(
+                            self.config,
+                            self.socket,
+                            [],
+                            self.data_manager
+                        ), notifiers=label.split(' ')
+                    )
+            else:
+                # Add to global notifications
+                updated_container_tuples.append(updated_container)
+
             if container.name in ['ouroboros', 'ouroboros-updated']:
                 self.data_manager.total_updated[self.socket] += 1
                 self.data_manager.add(label=container.name, socket=self.socket)
                 self.data_manager.add(label='all', socket=self.socket)
-                self.notification_manager.send(container_tuples=updateable,
-                                               socket=self.socket, kind='update')
-                self.update_self(old_container=container, new_image=latest_image, count=1)
+                self.notification_manager.send(
+                    ContainerUpdateMessage(
+                        self.config,
+                        self.socket,
+                        updated_container_tuples,
+                        self.data_manager
+                    )
+                )
 
             self.logger.info('%s will be updated', container.name)
 
@@ -305,7 +340,6 @@ class Container(object):
                     self.client.images.remove(current_image.id)
                 except APIError as e:
                     self.logger.error("Could not delete old image for %s, Error: %s", container.name, e)
-            updated_count += 1
 
             self.logger.debug("Incrementing total container updated count")
 
@@ -321,8 +355,15 @@ class Container(object):
         for container in hard_depends_on_containers:
             self.recreate(container, container.image)
 
-        if updated_count > 0:
-            self.notification_manager.send(container_tuples=updateable, socket=self.socket, kind='update')
+        if updated_container_tuples:
+            self.notification_manager.send(
+                ContainerUpdateMessage(
+                    self.config,
+                    self.socket,
+                    updated_container_tuples,
+                    self.data_manager
+                )
+            )
 
     def update_self(self, count=None, old_container=None, me_list=None, new_image=None):
         if count == 2:
@@ -350,28 +391,19 @@ class Container(object):
             sleep(30)
 
 
-class Service(object):
+class Service(BaseImageObject):
     def __init__(self, docker_client):
-        self.docker = docker_client
-        self.logger = self.docker.logger
-        self.config = self.docker.config
-        self.client = self.docker.client
-        self.socket = self.docker.socket
-        self.data_manager = self.docker.data_manager
-        self.data_manager.total_updated[self.socket] = 0
-        self.notification_manager = self.docker.notification_manager
-
-        self.monitored = self.monitor_filter()
+        super().__init__(docker_client)
 
     def monitor_filter(self):
         """Return filtered service objects list"""
-        services = self.client.services.list(filters={'label': 'com.ouroboros.enable'})
+        services = self.client.services.list()
 
         monitored_services = []
 
         for service in services:
             ouro_label = service.attrs['Spec']['Labels'].get('com.ouroboros.enable')
-            if ouro_label.lower() in ["true", "yes"]:
+            if not self.config.label_enable or ouro_label.lower() in ["true", "yes"]:
                 monitored_services.append(service)
 
         self.data_manager.monitored_containers[self.socket] = len(monitored_services)
@@ -381,38 +413,18 @@ class Service(object):
 
     def pull(self, tag):
         """Docker pull image tag"""
-        self.logger.debug('Checking tag: %s', tag)
-        try:
-            if self.config.dry_run:
-                registry_data = self.client.images.get_registry_data(tag)
-                return registry_data
-            else:
-                if self.config.auth_json:
-                    return_image = self.client.images.pull(tag, auth_config=self.config.auth_json)
-                else:
-                    return_image = self.client.images.pull(tag)
-                return return_image
-        except APIError as e:
-            if '<html>' in str(e):
-                self.logger.debug("Docker api issue. Ignoring")
-                raise ConnectionError
-            elif 'unauthorized' in str(e):
-                if self.config.dry_run:
-                    self.logger.error('dry run : Upstream authentication issue while checking %s. See: '
-                                      'https://github.com/docker/docker-py/issues/2225', tag)
-                    raise ConnectionError
-                else:
-                    self.logger.critical("Invalid Credentials. Exiting")
-                    exit(1)
-            elif 'Client.Timeout' in str(e):
-                self.logger.critical("Couldn't find an image on docker.com for %s. Local Build?", tag)
-                raise ConnectionError
-            elif ('pull access' or 'TLS handshake') in str(e):
-                self.logger.critical("Couldn't pull. Skipping. Error: %s", e)
-                raise ConnectionError
+        return self._pull(tag)
+
+    def _get_digest(self, image):
+        digest = image.attrs.get(
+                "Descriptor", {}
+            ).get("digest") or image.attrs.get(
+                "RepoDigests"
+            )[0].split('@')[1] or image.id
+
+        return remove_sha_prefix(digest)
 
     def update(self):
-        updated_count = 0
         updated_service_tuples = []
         self.monitored = self.monitor_filter()
 
@@ -423,7 +435,7 @@ class Service(object):
             image_string = service.attrs['Spec']['TaskTemplate']['ContainerSpec']['Image']
             if '@' in image_string:
                 tag = image_string.split('@')[0]
-                sha256 = image_string.split('@')[1][7:]
+                sha256 = remove_sha_prefix(image_string.split('@')[1])
             else:
                 self.logger.error('No image SHA for %s. Skipping', image_string)
                 continue
@@ -433,39 +445,59 @@ class Service(object):
             except ConnectionError:
                 continue
 
-            if self.config.dry_run:
-                # Ugly hack for repo digest
-                if sha256 != latest_image.id:
-                    self.logger.info('dry run : %s would be updated', service.name)
-                continue
+            latest_image_sha256 = self._get_digest(latest_image)
+            self.logger.debug('Latest sha256 for %s is %s', tag, latest_image_sha256)
 
-            if sha256 != latest_image.id:
-                updated_service_tuples.append(
-                    (service, sha256[-10:], latest_image)
-                )
+            if sha256 != latest_image_sha256:
+                if self.config.dry_run:
+                    # Ugly hack for repo digest
+                    self.logger.info('dry run : %s would be updated', service.name)
+                    continue
+
+                updated_service = (service, sha256[-10:], latest_image_sha256[-10:])
+
+                # com.ouroboros.notifiers may have an empty value to disable notification
+                if 'com.ouroboros.notifiers' in service.attrs['Spec']['Labels']:
+                    label = service.attrs['Spec']['Labels'].get('com.ouroboros.notifiers')
+                    if label:
+                        self.notification_manager.send(
+                            ServiceUpdateMessage(
+                                self.config,
+                                self.socket,
+                                [updated_service],
+                                self.data_manager
+                            ), notifiers=label.split(' ')
+                        )
+                else:
+                    # Add to global notifications
+                    updated_service_tuples.append(updated_service)
 
                 if 'ouroboros' in service.name and self.config.self_update:
                     self.data_manager.total_updated[self.socket] += 1
                     self.data_manager.add(label=service.name, socket=self.socket)
                     self.data_manager.add(label='all', socket=self.socket)
-                    self.notification_manager.send(container_tuples=updated_service_tuples,
-                                                   socket=self.socket, kind='update', mode='service')
+                    self.notification_manager.send(
+                        ServiceUpdateMessage(
+                            self.config,
+                            self.socket,
+                            updated_service_tuples,
+                            self.data_manager
+                        )
+                    )
 
                 self.logger.info('%s will be updated', service.name)
-                service.update(image=tag)
-
-                updated_count += 1
-
-                self.logger.debug("Incrementing total service updated count")
+                service.update(image=f"{tag}@sha256:{latest_image_sha256}")
 
                 self.data_manager.total_updated[self.socket] += 1
                 self.data_manager.add(label=service.name, socket=self.socket)
                 self.data_manager.add(label='all', socket=self.socket)
 
-        if updated_count > 0:
+        if updated_service_tuples:
             self.notification_manager.send(
-                container_tuples=updated_service_tuples,
-                socket=self.socket,
-                kind='update',
-                mode='service'
+                ServiceUpdateMessage(
+                    self.config,
+                    self.socket,
+                    updated_service_tuples,
+                    self.data_manager
+                )
             )

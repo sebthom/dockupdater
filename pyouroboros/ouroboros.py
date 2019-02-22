@@ -10,7 +10,7 @@ from pyouroboros.config import Config
 from pyouroboros import VERSION, BRANCH
 from pyouroboros.logger import OuroborosLogger
 from pyouroboros.dataexporters import DataManager
-from pyouroboros.notifiers import NotificationManager
+from pyouroboros.notifiers import NotificationManager, StartupMessage
 from pyouroboros.dockerclient import Docker, Container, Service
 
 
@@ -63,6 +63,12 @@ def main():
                             help='Apprise formatted notifiers\n'
                                  'EXAMPLE: -N discord://1234123412341234/jasdfasdfasdfasddfasdf '
                                  'mailto://user:pass@gmail.com')
+
+    core_group.add_argument('--skip-start-notif', default=Config.dry_run, action='store_true', dest='SKIP_START_NOTIF',
+                            help='Skip notification of ouroboros has started')
+
+    core_group.add_argument('--template-file', nargs='+', default=Config.template_file, dest='TEMPLATE_FILE',
+                            help='Use a custom template for notification')
 
     docker_group = parser.add_argument_group("Docker", "Configuration of docker functionality")
     docker_group.add_argument('-m', '--monitor', nargs='+', default=Config.monitor, dest='MONITOR',
@@ -164,7 +170,8 @@ def main():
                     hour=config.cron[1],
                     day=config.cron[2],
                     month=config.cron[3],
-                    day_of_week=config.cron[4]
+                    day_of_week=config.cron[4],
+                    misfire_grace_time=15
                 )
             else:
                 if config.run_once:
@@ -190,7 +197,8 @@ def main():
         now = datetime.now(timezone.utc).astimezone()
         next_run = (now + timedelta(0, config.interval)).strftime("%Y-%m-%d %H:%M:%S")
 
-    notification_manager.send(kind='startup', next_run=next_run)
+    if not config.skip_start_notif:
+        notification_manager.send(StartupMessage(config.hostname, next_run=next_run))
 
     while scheduler.get_jobs():
         sleep(1)
