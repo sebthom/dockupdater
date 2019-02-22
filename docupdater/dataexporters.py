@@ -1,8 +1,8 @@
-import prometheus_client
-
-from logging import getLogger
-from influxdb import InfluxDBClient
 from datetime import datetime, timezone
+from logging import getLogger
+
+import prometheus_client
+from influxdb import InfluxDBClient
 
 
 class DataManager(object):
@@ -104,13 +104,13 @@ class InfluxClient(object):
         now = datetime.now(timezone.utc).astimezone().isoformat()
         influx_payload = [
             {
-                "measurement": "Ouroboros",
+                "measurement": "pyupdater",
                 "tags": {'socket': clean_socket},
                 "time": now,
                 "fields": {}
             },
             {
-                "measurement": "Ouroboros",
+                "measurement": "pyupdater",
                 "tags": {'configuration': self.config.hostname},
                 "time": now,
                 "fields": {key: (value if not isinstance(value, list) else ' '.join(value)) for key, value in

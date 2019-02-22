@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from pyouroboros import VERSION
+from docupdater import VERSION
 
 
 def read(filename):
@@ -14,21 +14,21 @@ def get_requirements(filename="requirements.txt"):
 
 
 setup(
-    name='ouroboros-cli',
+    name='docupdater',
     version=VERSION,
-    maintainer='circa10a',
-    maintainer_email='caleblemoine@gmail.com',
-    description='Automatically update running docker containers',
+    maintainer='mathcan',
+    maintainer_email='harcher81@gmail.com',
+    description='Automatically update running docker containers or services',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
-    url='https://github.com/pyouroboros/ouroboros',
+    url='https://github.com/docupdater/docupdater',
     license='MIT',
     classifiers=['Programming Language :: Python',
                  'Programming Language :: Python :: 3.6',
                  'Programming Language :: Python :: 3.7'],
     packages=find_packages(),
     include_package_data=True,
-    scripts=['ouroboros'],
+    scripts=['entrypoint'],
     install_requires=get_requirements(),
     python_requires='>=3.6.2'
 )

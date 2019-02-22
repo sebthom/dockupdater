@@ -1,8 +1,8 @@
+from datetime import datetime, timezone
+from logging import getLogger
+
 import apprise
 from jinja2 import Environment, BaseLoader
-
-from logging import getLogger
-from datetime import datetime, timezone
 
 
 class BaseMessage(object):
@@ -14,7 +14,7 @@ class BaseMessage(object):
 class StartupMessage(BaseMessage):
     def __init__(self, hostname, next_run=None):
         now = datetime.now(timezone.utc).astimezone()
-        title = f'Ouroboros has started'
+        title = f'pyupdater has started'
         body_fields = [
             f'Host: {hostname}',
             f'Time: {now.strftime("%Y-%m-%d %H:%M:%S")}',
@@ -37,7 +37,7 @@ class TemplateMessage(BaseMessage):
 
 class ContainerUpdateMessage(TemplateMessage):
     def __init__(self, config, socket, tuples, data_manager):
-        title = f'Ouroboros has updated containers!'
+        title = f'pyupdater has updated containers!'
         tuples = [(container,
                    old_image.short_id.split(':')[1],
                    new_image.short_id.split(':')[1])
@@ -47,7 +47,7 @@ class ContainerUpdateMessage(TemplateMessage):
 
 class ServiceUpdateMessage(TemplateMessage):
     def __init__(self, config, socket, tuples, data_manager):
-        title = f'Ouroboros has updated services!'
+        title = f'pyupdater has updated services!'
         super().__init__(title, config, socket, tuples, data_manager)
 
 
@@ -61,14 +61,14 @@ class NotificationManager(object):
 
     def build_apprise(self, notifiers):
         asset = apprise.AppriseAsset(
-            image_url_mask='https://bin.cajun.pro/images/ouroboros/notifications/ouroboros-logo-{XY}{EXTENSION}',
+            image_url_mask='https://bin.cajun.pro/images/pyupdater/notifications/pyupdater-logo-{XY}{EXTENSION}',
             default_extension='.png'
         )
-        asset.app_id = "Ouroboros"
-        asset.app_desc = "Ouroboros"
-        asset.app_url = "https://github.com/pyouroboros/ouroboros"
+        asset.app_id = "pyupdater"
+        asset.app_desc = "pyupdater"
+        asset.app_url = "https://github.com/pypyupdater/pyupdater"
         asset.html_notify_map['info'] = '#5F87C6'
-        asset.image_url_logo = 'https://bin.cajun.pro/images/ouroboros/notifications/ouroboros-logo-256x256.png'
+        asset.image_url_logo = 'https://bin.cajun.pro/images/pyupdater/notifications/pyupdater-logo-256x256.png'
 
         apprise_obj = apprise.Apprise(asset=asset)
 

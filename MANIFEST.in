@@ -1,1 +1,1 @@
-recursive-include pyouroboros/templates *
+recursive-include docupdater/templates *

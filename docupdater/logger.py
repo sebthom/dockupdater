@@ -26,7 +26,7 @@ class BlacklistFilter(Filter):
         return True
 
 
-class OuroborosLogger(object):
+class DocupdaterLogger(object):
     def __init__(self, level='INFO'):
         # Create the Logger
         self.logger = getLogger()

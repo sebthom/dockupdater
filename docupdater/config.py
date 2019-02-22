@@ -1,7 +1,8 @@
+from logging import getLogger
 from os import environ
 from pathlib import Path
-from logging import getLogger
-from pyouroboros.logger import BlacklistFilter
+
+from .logger import BlacklistFilter
 
 
 class Config(object):
@@ -140,7 +141,7 @@ class Config(object):
                               "influxdb data export.")
 
         if self.data_export == 'prometheus' and self.self_update:
-            self.logger.warning("If you bind a port to ouroboros, it will be lost when it updates itself.")
+            self.logger.warning("If you bind a port to pyupdater, it will be lost when it updates itself.")
 
         if self.dry_run and not self.run_once:
             self.logger.warning("Dry run is designed to be ran with run once. Setting for you.")
@@ -157,9 +158,9 @@ class Config(object):
         if not self.template_file:
             dir_path = Path().absolute()
             if self.swarm:
-                self.template_file = dir_path.joinpath("pyouroboros/templates/services.j2")
+                self.template_file = dir_path.joinpath("pypyupdater/templates/services.j2")
             else:
-                self.template_file = dir_path.joinpath("pyouroboros/templates/containers.j2")
+                self.template_file = dir_path.joinpath("pypyupdater/templates/containers.j2")
 
         if Path(self.template_file).exists():
             with open(self.template_file) as f:

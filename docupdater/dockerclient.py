@@ -1,11 +1,12 @@
-from time import sleep
 from logging import getLogger
-from docker import DockerClient, tls
 from os.path import isdir, isfile, join
+from time import sleep
+
+from docker import DockerClient, tls
 from docker.errors import DockerException, APIError, NotFound
 
-from pyouroboros.helpers import set_properties, remove_sha_prefix
-from pyouroboros.notifiers import ContainerUpdateMessage, ServiceUpdateMessage
+from .helpers import set_properties, remove_sha_prefix
+from .notifiers import ContainerUpdateMessage, ServiceUpdateMessage
 
 
 class Docker(object):
@@ -111,7 +112,7 @@ class Container(BaseImageObject):
     # Container sub functions
     def stop(self, container):
         self.logger.debug('Stopping container: %s', container.name)
-        stop_signal = container.labels.get('com.ouroboros.stop_signal', False)
+        stop_signal = container.labels.get('com.pyupdater.stop_signal', False)
         if stop_signal:
             try:
                 container.kill(signal=stop_signal)
@@ -179,7 +180,7 @@ class Container(BaseImageObject):
 
     # Filters
     def running_filter(self):
-        """Return running container objects list, except ouroboros itself"""
+        """Return running container objects list, except pyupdater itself"""
         running_containers = []
         try:
             for container in self.client.containers.list(filters={'status': 'running'}):
@@ -187,7 +188,7 @@ class Container(BaseImageObject):
                     running_containers.append(container)
                 else:
                     try:
-                        if 'ouroboros' not in container.image.tags[0]:
+                        if 'pyupdater' not in container.image.tags[0]:
                             running_containers.append(container)
                     except IndexError:
                         self.logger.error("%s has no tags.. you should clean it up! Ignoring.", container.id)
@@ -205,7 +206,7 @@ class Container(BaseImageObject):
         monitored_containers = []
 
         for container in running_containers:
-            ouro_label = container.labels.get('com.ouroboros.enable', False)
+            ouro_label = container.labels.get('com.pyupdater.enable', False)
             # if labels enabled, use the label. 'true/yes' trigger monitoring.
             if self.config.label_enable and ouro_label:
                 if ouro_label.lower() in ["true", "yes"]:
@@ -235,7 +236,7 @@ class Container(BaseImageObject):
             self.logger.info('No containers are running or monitored on %s', self.socket)
             return
 
-        me_list = [c for c in self.client.api.containers() if 'ouroboros' in c['Names'][0].strip('/')]
+        me_list = [c for c in self.client.api.containers() if 'pyupdater' in c['Names'][0].strip('/')]
         if len(me_list) > 1:
             self.update_self(count=2, me_list=me_list)
 
@@ -256,8 +257,8 @@ class Container(BaseImageObject):
                 continue
 
             # Get container list to restart after update complete
-            depends_on = container.labels.get('com.ouroboros.depends_on', False)
-            hard_depends_on = container.labels.get('com.ouroboros.hard_depends_on', False)
+            depends_on = container.labels.get('com.pyupdater.depends_on', False)
+            hard_depends_on = container.labels.get('com.pyupdater.hard_depends_on', False)
             if depends_on:
                 depends_on_names.extend([name.strip() for name in depends_on.split(',')])
             if hard_depends_on:
@@ -302,9 +303,9 @@ class Container(BaseImageObject):
 
             updated_container = (container, current_image, latest_image)
 
-            # com.ouroboros.notifiers may have an empty value to disable notification
-            if 'com.ouroboros.notifiers' in container.labels:
-                label = container.labels.get('com.ouroboros.notifiers')
+            # com.pyupdater.notifiers may have an empty value to disable notification
+            if 'com.pyupdater.notifiers' in container.labels:
+                label = container.labels.get('com.pyupdater.notifiers')
                 if label:
                     self.notification_manager.send(
                         ContainerUpdateMessage(
@@ -318,7 +319,7 @@ class Container(BaseImageObject):
                 # Add to global notifications
                 updated_container_tuples.append(updated_container)
 
-            if container.name in ['ouroboros', 'ouroboros-updated']:
+            if container.name in ['pyupdater', 'pyupdater-updated']:
                 self.data_manager.total_updated[self.socket] += 1
                 self.data_manager.add(label=container.name, socket=self.socket)
                 self.data_manager.add(label='all', socket=self.socket)
@@ -380,8 +381,8 @@ class Container(BaseImageObject):
 
             self.monitored = self.monitor_filter()
         elif count == 1:
-            self.logger.debug('I need to update! Starting the ouroboros ;)')
-            self_name = 'ouroboros-updated' if old_container.name == 'ouroboros' else 'ouroboros'
+            self.logger.debug('I need to update! Starting the pyupdater ;)')
+            self_name = 'pyupdater-updated' if old_container.name == 'pyupdater' else 'pyupdater'
             new_config = set_properties(old=old_container, new=new_image, self_name=self_name)
             me_created = self.client.api.create_container(**new_config)
             new_me = self.client.containers.get(me_created.get("Id"))
@@ -402,7 +403,7 @@ class Service(BaseImageObject):
         monitored_services = []
 
         for service in services:
-            ouro_label = service.attrs['Spec']['Labels'].get('com.ouroboros.enable')
+            ouro_label = service.attrs['Spec']['Labels'].get('com.pyupdater.enable')
             if not self.config.label_enable or ouro_label.lower() in ["true", "yes"]:
                 monitored_services.append(service)
 
@@ -417,10 +418,10 @@ class Service(BaseImageObject):
 
     def _get_digest(self, image):
         digest = image.attrs.get(
-                "Descriptor", {}
-            ).get("digest") or image.attrs.get(
-                "RepoDigests"
-            )[0].split('@')[1] or image.id
+            "Descriptor", {}
+        ).get("digest") or image.attrs.get(
+            "RepoDigests"
+        )[0].split('@')[1] or image.id
 
         return remove_sha_prefix(digest)
 
@@ -456,9 +457,9 @@ class Service(BaseImageObject):
 
                 updated_service = (service, sha256[-10:], latest_image_sha256[-10:])
 
-                # com.ouroboros.notifiers may have an empty value to disable notification
-                if 'com.ouroboros.notifiers' in service.attrs['Spec']['Labels']:
-                    label = service.attrs['Spec']['Labels'].get('com.ouroboros.notifiers')
+                # com.pyupdater.notifiers may have an empty value to disable notification
+                if 'com.pyupdater.notifiers' in service.attrs['Spec']['Labels']:
+                    label = service.attrs['Spec']['Labels'].get('com.pyupdater.notifiers')
                     if label:
                         self.notification_manager.send(
                             ServiceUpdateMessage(
@@ -472,7 +473,7 @@ class Service(BaseImageObject):
                     # Add to global notifications
                     updated_service_tuples.append(updated_service)
 
-                if 'ouroboros' in service.name and self.config.self_update:
+                if 'pyupdater' in service.name and self.config.self_update:
                     self.data_manager.total_updated[self.socket] += 1
                     self.data_manager.add(label=service.name, socket=self.socket)
                     self.data_manager.add(label='all', socket=self.socket)

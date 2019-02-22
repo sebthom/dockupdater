@@ -1,10 +1,10 @@
 pipeline {
     agent none
     environment {
-        DOCKER_REPO = "pyouroboros/ouroboros"
-        GIT_REPO = 'pyouroboros/ouroboros'
-        VERSION_FILE = "pyouroboros/__init__.py"
-        FLAKE_FILES = "ouroboros *.py pyouroboros/*.py"
+        DOCKER_REPO = "pypyupdater/pyupdater"
+        GIT_REPO = 'pypyupdater/pyupdater'
+        VERSION_FILE = "pypyupdater/__init__.py"
+        FLAKE_FILES = "pyupdater *.py pypyupdater/*.py"
         TAG = ""
         GIT_TOKEN = credentials('github-jenkins-token')
         PYPI_CREDS = credentials('pypi-creds-dirtycajunrice')
@@ -15,7 +15,7 @@ pipeline {
             steps {
                 sh """
                     python3 -m venv venv && venv/bin/pip install flake8 && venv/bin/python -m flake8 --max-line-length 120 ${FLAKE_FILES}
-                    venv/bin/python -m pip install -r requirements.txt && venv/bin/python ouroboros --log-level debug --run-once
+                    venv/bin/python -m pip install -r requirements.txt && venv/bin/python pyupdater --log-level debug --run-once
                     rm -rf venv/
                 """
                 script {

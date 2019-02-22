@@ -1,23 +1,23 @@
-from time import sleep
-from os import environ
-
-from requests.exceptions import ConnectionError
-from datetime import datetime, timezone, timedelta
 from argparse import ArgumentParser, RawTextHelpFormatter
-from apscheduler.schedulers.background import BackgroundScheduler
+from datetime import datetime, timezone, timedelta
+from os import environ
+from time import sleep
 
-from pyouroboros.config import Config
-from pyouroboros import VERSION, BRANCH
-from pyouroboros.logger import OuroborosLogger
-from pyouroboros.dataexporters import DataManager
-from pyouroboros.notifiers import NotificationManager, StartupMessage
-from pyouroboros.dockerclient import Docker, Container, Service
+from apscheduler.schedulers.background import BackgroundScheduler
+from requests.exceptions import ConnectionError
+
+from . import VERSION, BRANCH
+from .config import Config
+from .dataexporters import DataManager
+from .dockerclient import Docker, Container, Service
+from .logger import DocupdaterLogger
+from .notifiers import NotificationManager, StartupMessage
 
 
 def main():
     """Declare command line options"""
-    parser = ArgumentParser(description='ouroboros', formatter_class=RawTextHelpFormatter,
-                            epilog='EXAMPLE: ouroboros -d tcp://1.2.3.4:5678 -i 20 -m container1 container2 -l warn')
+    parser = ArgumentParser(description='pyupdater', formatter_class=RawTextHelpFormatter,
+                            epilog='EXAMPLE: pyupdater -d tcp://1.2.3.4:5678 -i 20 -m container1 container2 -l warn')
 
     core_group = parser.add_argument_group("Core", "Configuration of core functionality")
     core_group.add_argument('-v', '--version', action='version', version=VERSION)
@@ -48,10 +48,10 @@ def main():
                                                                              'DEFAULT: info')
 
     core_group.add_argument('-u', '--self-update', default=Config.self_update, dest='SELF_UPDATE', action='store_true',
-                            help='Let ouroboros update itself')
+                            help='Let pyupdater update itself')
 
     core_group.add_argument('-S', '--swarm', default=Config.swarm, dest='SWARM', action='store_true',
-                            help='Put ouroboros in swarm mode')
+                            help='Put pyupdater in swarm mode')
 
     core_group.add_argument('-o', '--run-once', default=Config.run_once, action='store_true', dest='RUN_ONCE',
                             help='Single run')
@@ -65,7 +65,7 @@ def main():
                                  'mailto://user:pass@gmail.com')
 
     core_group.add_argument('--skip-start-notif', default=Config.dry_run, action='store_true', dest='SKIP_START_NOTIF',
-                            help='Skip notification of ouroboros has started')
+                            help='Skip notification of pyupdater has started')
 
     core_group.add_argument('--template-file', nargs='+', default=Config.template_file, dest='TEMPLATE_FILE',
                             help='Use a custom template for notification')
@@ -80,7 +80,7 @@ def main():
                                    'EXAMPLE: -n container1 container2')
 
     docker_group.add_argument('-k', '--label-enable', default=Config.label_enable, dest='LABEL_ENABLE',
-                              action='store_true', help='Enable label monitoring for ouroboros label options\n'
+                              action='store_true', help='Enable label monitoring for pyupdater label options\n'
                                                         'Note: labels take precedence'
                                                         'DEFAULT: False')
 
@@ -114,19 +114,19 @@ def main():
 
     data_group.add_argument('-I', '--influx-url', default=Config.influx_url, dest='INFLUX_URL',
                             help='URL for influxdb\n'
-                                  'DEFAULT: 127.0.0.1')
+                                 'DEFAULT: 127.0.0.1')
 
     data_group.add_argument('-P', '--influx-port', type=int, default=Config.influx_port, dest='INFLUX_PORT',
                             help='PORT for influxdb\n'
-                                  'DEFAULT: 8086')
+                                 'DEFAULT: 8086')
 
     data_group.add_argument('-U', '--influx-username', default=Config.influx_username, dest='INFLUX_USERNAME',
                             help='Username for influxdb\n'
-                                  'DEFAULT: root')
+                                 'DEFAULT: root')
 
     data_group.add_argument('-x', '--influx-password', default=Config.influx_password, dest='INFLUX_PASSWORD',
                             help='Password for influxdb\n'
-                                  'DEFAULT: root')
+                                 'DEFAULT: root')
 
     data_group.add_argument('-X', '--influx-database', default=Config.influx_database, dest='INFLUX_DATABASE',
                             help='Influx database name. Required if using influxdb')
@@ -143,11 +143,11 @@ def main():
         log_level = environ.get('LOG_LEVEL')
     else:
         log_level = args.LOG_LEVEL
-    ol = OuroborosLogger(level=log_level)
+    ol = DocupdaterLogger(level=log_level)
     ol.logger.info('Version: %s-%s', VERSION, BRANCH)
     config = Config(environment_vars=environ, cli_args=args)
     config_dict = {key: value for key, value in vars(config).items() if key.upper() in config.options}
-    ol.logger.debug("Ouroboros configuration: %s", config_dict)
+    ol.logger.debug("pyupdater configuration: %s", config_dict)
 
     data_manager = DataManager(config)
     notification_manager = NotificationManager(config, data_manager)
