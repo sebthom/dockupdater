@@ -7,11 +7,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from requests.exceptions import ConnectionError
 
 from . import VERSION, BRANCH
-from .config import Config
-from .dataexporters import DataManager
-from .dockerclient import Docker, Container, Service
-from .logger import DocupdaterLogger
-from .notifiers import NotificationManager, StartupMessage
+from .lib.config import Config
+from .lib.dataexporters import DataManager
+from .lib.dockerclient import Docker, Container, Service
+from .lib.logger import DocupdaterLogger
+from .lib.notifiers import NotificationManager, StartupMessage
 
 
 def main():
