@@ -3,160 +3,97 @@ from datetime import datetime, timezone, timedelta
 from os import environ
 from time import sleep
 
+import click
 from apscheduler.schedulers.background import BackgroundScheduler
 from requests.exceptions import ConnectionError
 
 from . import VERSION, BRANCH
-from .lib.config import Config
-from .lib.dataexporters import DataManager
+from .lib.config import DefaultConfig, Config
 from .lib.dockerclient import Docker, Container, Service
 from .lib.logger import DocupdaterLogger
 from .lib.notifiers import NotificationManager, StartupMessage
 
 
-def main():
+@click.command()
+@click.version_option(version=VERSION)
+@click.option("-d", "--docker-socket", "docker_socket",
+              default=DefaultConfig.docker_socket, show_default=True,
+              help='Socket for docker management. EXAMPLE: -d unix://var/run/docker.sock')
+@click.option("-t", "--docker-tls", "docker_tls",
+              is_flag=True, default=DefaultConfig.docker_tls, show_default=True,
+              help='Enable docker TLS. REQUIRES: docker cert mount')
+@click.option("-T", "--docker-tls-verify", "docker_tls_verify",
+              is_flag=True, default=DefaultConfig.docker_tls_verify, show_default=True,
+              help='Verify the CA Certificate mounted for TLS')
+@click.option("-i", "--interval", "interval",
+              type=int, default=DefaultConfig.interval, show_default=True,
+              help='Interval in seconds between checking for updates')
+@click.option("-C", "--cron", "cron",
+              default=DefaultConfig.cron,
+              help='Cron formatted string for scheduling. EXAMPLE: "*/5 * * * *"')
+@click.option("-l", "--log-level", "log_level",
+              type=click.Choice(['debug', 'info', 'warn', 'error', 'critical']), default=DefaultConfig.log_level,
+              show_default=True, help='Set logging level')
+@click.option("-o", "--run-once", "run_once",
+              is_flag=True, default=DefaultConfig.run_once, show_default=True,
+              help='Single run')
+@click.option("-N", "--notifiers", "notifiers",
+              default=DefaultConfig.notifiers, multiple=True,
+              help='Apprise formatted notifiers\n'
+                   'EXAMPLE: -N discord://1234123412341234/jasdfasdfasdfasddfasdf '
+                   'mailto://user:pass@gmail.com')
+@click.option("--skip-start-notif", "skip_start_notif",
+              default=DefaultConfig.skip_start_notif, is_flag=True, show_default=True,
+              help='Skip notification of pyupdater has started')
+@click.option("--template-file", "template_file",
+              default=DefaultConfig.template_file, type=click.Path(),
+              help='Use a custom template for notification')
+@click.option("-k", "--label", "label",
+              default=DefaultConfig.label, is_flag=True, show_default=True,
+              help='Enable label monitoring for pyupdater instead of monitoring all containers/services')
+@click.option("-c", "--cleanup", "cleanup",
+              default=DefaultConfig.cleanup, is_flag=True, show_default=True,
+              help='Remove old images after updating')
+@click.option("-r", "--repo-user", "repo_user",
+              default=DefaultConfig.repo_user,
+              help='Private docker registry username\n'
+                   'EXAMPLE: foo@bar.baz')
+@click.option("-R", "--repo-pass", "repo_pass",
+              default=DefaultConfig.repo_pass,
+              help='Private docker registry password')
+def cli(docker_socket, docker_tls, docker_tls_verify, interval, cron, log_level, run_once, notifiers,
+        skip_start_notif, label, cleanup, repo_user, repo_pass):
     """Declare command line options"""
-    parser = ArgumentParser(description='pyupdater', formatter_class=RawTextHelpFormatter,
-                            epilog='EXAMPLE: pyupdater -d tcp://1.2.3.4:5678 -i 20 -m container1 container2 -l warn')
 
-    core_group = parser.add_argument_group("Core", "Configuration of core functionality")
-    core_group.add_argument('-v', '--version', action='version', version=VERSION)
+    # Create App logger
+    log = DocupdaterLogger(level=log_level)
+    log.logger.info('Version: %s-%s', VERSION, BRANCH)
 
-    core_group.add_argument('-d', '--docker-sockets', nargs='+', default=Config.docker_sockets, dest='DOCKER_SOCKETS',
-                            help='Sockets for docker management\n'
-                                 'DEFAULT: "unix://var/run/docker.sock"\n'
-                                 'EXAMPLE: -d unix://var/run/docker.sock tcp://192.168.1.100:2376')
+    config = Config(docker_socket=docker_socket,
+                    docker_tls=docker_tls,
+                    docker_tls_verify=docker_tls_verify,
+                    interval=interval,
+                    cron=cron,
+                    log_level=log_level,
+                    run_once=run_once,
+                    notifiers=notifiers,
+                    skip_start_notif=skip_start_notif,
+                    label=label,
+                    cleanup=cleanup,
+                    repo_user=repo_user,
+                    repo_pass=repo_pass)
 
-    core_group.add_argument('-t', '--docker-tls', default=Config.docker_tls, dest='DOCKER_TLS',
-                            action='store_true', help='Enable docker TLS\n'
-                                                      'REQUIRES: docker cert mount')
+    log.logger.debug("pyupdater configuration: %s", config.options)
 
-    core_group.add_argument('-T', '--docker-tls-verify', default=Config.docker_tls_verify, dest='DOCKER_TLS_VERIFY',
-                            action='store_false', help='Verify the CA Certificate mounted for TLS\n'
-                                                       'DEFAULT: True')
-
-    core_group.add_argument('-i', '--interval', type=int, default=Config.interval, dest='INTERVAL',
-                            help='Interval in seconds between checking for updates\n'
-                                 'DEFAULT: 300')
-
-    core_group.add_argument('-C', '--cron', default=Config.cron, dest='CRON',
-                            help='Cron formatted string for scheduling\n'
-                                 'EXAMPLE: "*/5 * * * *"')
-
-    core_group.add_argument('-l', '--log-level', choices=['debug', 'info', 'warn', 'error', 'critical'],
-                            dest='LOG_LEVEL', default=Config.log_level, help='Set logging level\n'
-                                                                             'DEFAULT: info')
-
-    core_group.add_argument('-u', '--self-update', default=Config.self_update, dest='SELF_UPDATE', action='store_true',
-                            help='Let pyupdater update itself')
-
-    core_group.add_argument('-S', '--swarm', default=Config.swarm, dest='SWARM', action='store_true',
-                            help='Put pyupdater in swarm mode')
-
-    core_group.add_argument('-o', '--run-once', default=Config.run_once, action='store_true', dest='RUN_ONCE',
-                            help='Single run')
-
-    core_group.add_argument('-A', '--dry-run', default=Config.dry_run, action='store_true', dest='DRY_RUN',
-                            help='Run without making changes. Best used with run-once')
-
-    core_group.add_argument('-N', '--notifiers', nargs='+', default=Config.notifiers, dest='NOTIFIERS',
-                            help='Apprise formatted notifiers\n'
-                                 'EXAMPLE: -N discord://1234123412341234/jasdfasdfasdfasddfasdf '
-                                 'mailto://user:pass@gmail.com')
-
-    core_group.add_argument('--skip-start-notif', default=Config.dry_run, action='store_true', dest='SKIP_START_NOTIF',
-                            help='Skip notification of pyupdater has started')
-
-    core_group.add_argument('--template-file', nargs='+', default=Config.template_file, dest='TEMPLATE_FILE',
-                            help='Use a custom template for notification')
-
-    docker_group = parser.add_argument_group("Docker", "Configuration of docker functionality")
-    docker_group.add_argument('-m', '--monitor', nargs='+', default=Config.monitor, dest='MONITOR',
-                              help='Which container(s) to monitor\n'
-                                   'DEFAULT: All')
-
-    docker_group.add_argument('-n', '--ignore', nargs='+', default=Config.ignore, dest='IGNORE',
-                              help='Container(s) to ignore\n'
-                                   'EXAMPLE: -n container1 container2')
-
-    docker_group.add_argument('-k', '--label-enable', default=Config.label_enable, dest='LABEL_ENABLE',
-                              action='store_true', help='Enable label monitoring for pyupdater label options\n'
-                                                        'Note: labels take precedence'
-                                                        'DEFAULT: False')
-
-    docker_group.add_argument('-M', '--labels-only', default=Config.labels_only, dest='LABELS_ONLY',
-                              action='store_true', help='Only watch containers that utilize labels\n'
-                                                        'This allows a more strict compliance for environments'
-                                                        'DEFAULT: False')
-
-    docker_group.add_argument('-c', '--cleanup', default=Config.cleanup, dest='CLEANUP', action='store_true',
-                              help='Remove old images after updating')
-
-    docker_group.add_argument('-r', '--repo-user', default=Config.repo_user, dest='REPO_USER',
-                              help='Private docker registry username\n'
-                                   'EXAMPLE: foo@bar.baz')
-
-    docker_group.add_argument('-R', '--repo-pass', default=Config.repo_pass, dest='REPO_PASS',
-                              help='Private docker registry password\n'
-                                   'EXAMPLE: MyPa$$w0rd')
-
-    data_group = parser.add_argument_group('Data Export', 'Configuration of data export functionality')
-    data_group.add_argument('-D', '--data-export', choices=['prometheus', 'influxdb'], default=Config.data_export,
-                            dest='DATA_EXPORT', help='Enable exporting of data for chosen option')
-
-    data_group.add_argument('-a', '--prometheus-addr', default=Config.prometheus_addr,
-                            dest='PROMETHEUS_ADDR', help='Bind address to run Prometheus exporter on\n'
-                                                         'DEFAULT: 127.0.0.1')
-
-    data_group.add_argument('-p', '--prometheus-port', type=int, default=Config.prometheus_port,
-                            dest='PROMETHEUS_PORT', help='Port to run Prometheus exporter on\n'
-                                                         'DEFAULT: 8000')
-
-    data_group.add_argument('-I', '--influx-url', default=Config.influx_url, dest='INFLUX_URL',
-                            help='URL for influxdb\n'
-                                 'DEFAULT: 127.0.0.1')
-
-    data_group.add_argument('-P', '--influx-port', type=int, default=Config.influx_port, dest='INFLUX_PORT',
-                            help='PORT for influxdb\n'
-                                 'DEFAULT: 8086')
-
-    data_group.add_argument('-U', '--influx-username', default=Config.influx_username, dest='INFLUX_USERNAME',
-                            help='Username for influxdb\n'
-                                 'DEFAULT: root')
-
-    data_group.add_argument('-x', '--influx-password', default=Config.influx_password, dest='INFLUX_PASSWORD',
-                            help='Password for influxdb\n'
-                                 'DEFAULT: root')
-
-    data_group.add_argument('-X', '--influx-database', default=Config.influx_database, dest='INFLUX_DATABASE',
-                            help='Influx database name. Required if using influxdb')
-
-    data_group.add_argument('-s', '--influx-ssl', default=Config.influx_ssl, dest='INFLUX_SSL', action='store_true',
-                            help='Use SSL when connecting to influxdb')
-
-    data_group.add_argument('-V', '--influx-verify-ssl', default=Config.influx_verify_ssl, dest='INFLUX_VERIFY_SSL',
-                            action='store_true', help='Verify SSL certificate when connecting to influxdb')
-
-    args = parser.parse_args()
-
-    if environ.get('LOG_LEVEL'):
-        log_level = environ.get('LOG_LEVEL')
-    else:
-        log_level = args.LOG_LEVEL
-    ol = DocupdaterLogger(level=log_level)
-    ol.logger.info('Version: %s-%s', VERSION, BRANCH)
-    config = Config(environment_vars=environ, cli_args=args)
-    config_dict = {key: value for key, value in vars(config).items() if key.upper() in config.options}
-    ol.logger.debug("pyupdater configuration: %s", config_dict)
-
-    data_manager = DataManager(config)
-    notification_manager = NotificationManager(config, data_manager)
+    notification_manager = NotificationManager(config)
     scheduler = BackgroundScheduler()
     scheduler.start()
 
     for socket in config.docker_sockets:
         try:
-            docker = Docker(socket, config, data_manager, notification_manager)
+            docker = Docker(socket, config, notification_manager)
+
+
             if config.swarm:
                 mode = Service(docker)
             else:
@@ -187,7 +124,7 @@ def main():
                         trigger='interval', seconds=config.interval
                     )
         except ConnectionError:
-            ol.logger.error("Could not connect to socket %s. Check your config", socket)
+            log.logger.error("Could not connect to socket %s. Check your config", socket)
 
     if config.run_once:
         next_run = None
@@ -204,6 +141,10 @@ def main():
         sleep(1)
 
     scheduler.shutdown()
+
+
+def main():
+    cli(auto_envvar_prefix="DOCUPDATER")
 
 
 if __name__ == "__main__":
