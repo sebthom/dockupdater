@@ -1,3 +1,5 @@
+from docker.errors import APIError
+
 from .config import DISABLE_LABEL, ENABLE_LABEL
 from .notifiers import TemplateMessage
 from .update import Container, Service
@@ -50,8 +52,13 @@ class Scanner(object):
         if not self.config.disable_containers_check:
             monitored.extend(self._scan_containers())
 
-        if not self.config.disable_services_check:
-            monitored.extend(self._scan_services())
+        try:
+            if not self.config.disable_services_check:
+                monitored.extend(self._scan_services())
+        except APIError as e:
+            if "This node is not a swarm manager" in str(e):
+                self.logger.debug("Your are not running in swarm mode, skip services")
+            raise e
 
         return monitored
 
