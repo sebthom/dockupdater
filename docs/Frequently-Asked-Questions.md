@@ -1,10 +1,16 @@
-**If you can't find a solution here, on the [Usage](Usage) page, or in [Issues](https://github.com/pyouroboros/ouroboros/issues), feel free to ask in [Issues](https://github.com/pyouroboros/ouroboros/issues) or on [Discord](https://discord.gg/qHNByUW)**
 
 ## Configuration
 
-* [Webhook URLs arent working anymore!](#configuration-q1)
+* [Timezone Configuration](#timezone-configuration)
 
-### Configuration
+### Timezone Configuration
 
-#### <a id="configuration-q1">Q:</a> Webhook URLs arent working anymore!
-**A:** WEBHOOK_URLS were replaced with NOTIFIERS when we switched to apprise. Please refer to [Notifications](#notifications) for current configuration
+To more closely monitor docupdater' actions and for accurate log ingestion, you can change the timezone of the container from UTC by setting the [`TZ`](http://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html) environment variable like so:
+
+```
+docker run -d --name docupdater \
+  -e TZ=America/Chicago \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  docupdater/docupdater
+```
+

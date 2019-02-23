@@ -1,4 +1,4 @@
-Ouroboros uses [apprise](https://github.com/caronc/apprise) to support a large variety of notification platforms.
+Docupdater uses [apprise](https://github.com/caronc/apprise) to support a large variety of notification platforms.
 
 ### Example email/webhook usage
 
@@ -14,6 +14,7 @@ docker run -d --name ouroboros \
 Some examples:
 - Email
 - Webhooks
+- Slack
 - Discord
 - Pushover
 
@@ -23,4 +24,4 @@ See all notification integrations [supported by apprise](https://github.com/caro
 
 ### Startup notifications
 
-If notifications are enabled, all notification platforms will be fired with a body stating that ouroboros has started with the current time set in the container and the timestamp of when ouroboros will next check for updates.
+If notifications are enabled, all notification platforms will be fired with a body stating that ouroboros has started with the current time set in the container and the timestamp of when docupdater will next check for updates.

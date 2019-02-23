@@ -5,6 +5,6 @@ Welcome to the docupdater wiki!
  - [Custimize usage with labels](Labels.md)
  - [Private Registries](Private-Registries.md)
  - [Customized Scheduling](Customized-Scheduling.md)
- - [Timezone Configuration](Timezone-Configuration.md)
  - [Notifications](Notifications.md)
  - [Frequently Asked Questions (FAQ)](Frequently-Asked-Questions.md)
+   - [Timezone Configuration](Frequently-Asked-Questions.md#timezone-configuration)
