@@ -42,25 +42,8 @@ services:
 
 > This is image is compatible for amd64, arm32, and arm64 CPU architectures
 
-
-### Pip
-
-pyupdater can also be installed via `pip`:
-
-```bash
-pip install pyupdater-cli
-```
-
-And can then be invoked using the `pyupdater` command:
-
-```bash
-$ pyupdater --interval 300 --log-level debug
-```
-
-> This can be useful if you would like to create a `systemd` service or similar daemon that doesn't run in a container
-
 ## Examples
-Per-command and scenario examples can be found in the [docs](hhttps://github.com/docupdater/docupdater/blob/master/docs/Options.md)
+Per-command and scenario examples can be found in the [docs](https://github.com/docupdater/docupdater/blob/master/docs/Options.md)
 
 ## Contributing
 
