@@ -121,6 +121,24 @@ Verify CA certificate for docker deamon
 
 This flag allows a more strict control over docupdater's updates. If the container or service does not have a `docupdater.enable` label, it will be ignored completely. See [Labels](Labels.md) for a list of all available labels.
 
+### Disable services check (swarm)
+**Type:** Boolean  
+**Command Line:**  `--disable-services-check`  
+**Environment Variable:** `DOCUPDATER_DISABLE_SERVICES_CHECK`  
+**Default:** `False`  
+**Example:** `-e DOCUPDATER_DISABLE_SERVICES_CHECK=true`  
+
+Disable the scan for services (swarm). With this flag only standalone container will be updated.
+
+### Disable containers check
+**Type:** Boolean  
+**Command Line:**  `--disable-containers-check`  
+**Environment Variable:** `DOCUPDATER_DISABLE_CONTAINERS_CHECK`  
+**Default:** `False`  
+**Example:** `-e DOCUPDATER_DISABLE_CONTAINERS_CHECK=true`  
+
+Disable the scan for standalone containers.
+
 ### Cleanup
 **Type:** Boolean  
 **Command Line:**  `-c, --cleanup`  
@@ -157,16 +175,50 @@ Define a username for repository authentication. Will be ignored without definin
 
 Define a password for repository authentication. Will be ignored without defining a repository username.
 
-## Notifications
+### Stop signal
+**Type:** Int  
+**Command Line:**  `--stop-signal`  
+**Environment Variable:** `DOCUPDATER_STOP_SIGNAL`  
+**Default:** `None`  
+**Example:** `-e DOCUPDATER_STOP_SIGNAL=12`  
 
+Define a stop signal to send to the container instead of SIGKILL. Default behavior is to use default docker stop command. Only for standalone container. Can be override with the label `docupdater.stop_signal`.
+
+## Notifications
+### Notifiers
 **Type:** List - Space separated  
 **Command Line:**  `-N, --notifiers`  
-**Environment Variable:** `NOTIFIERS`  
+**Environment Variable:** `DOCUPDATER_NOTIFIERS`  
 **Default:** `None`  
-**Example:** `-n NOTIFIERS="mailtos://myUsername:myPassword@gmail.com?to=receivingAddress@gmail.com jsons://webhook.site/something"`  
+**Example:** `-e DOCUPDATER_NOTIFIERS="mailtos://myUsername:myPassword@gmail.com?to=receivingAddress@gmail.com jsons://webhook.site/something"`  
 
 Docupdater uses [apprise](https://github.com/caronc/apprise) to support a large variety of notification platforms.
 
 Notifications are sent per socket, per run. The notification contains the socket, the containers updated since last start, and a list of containers updated this pass with from/to SHA.
 
-More information can be found in the [notifications docs](Notifications.md).
+More information can be found in the [notifications docs](Notifications.md). Can be override or disable with the label `docupdater.notifiers`.
+
+### Template file
+**Type:** Path  
+**Command Line:**  `--template-file`  
+**Environment Variable:** `DOCUPDATER_TEMPLATE_FILE`  
+**Default:** `None`  
+**Example:** `-e DOCUPDATER_TEMPLATE_FILE="/template.j2"`  
+
+Use this template instead of default template file. We use jinja2 template style to parse the template. Must be a valid path, don't forget to mount the template in the container.
+
+See this example of template file:
+```
+{{ object.name }} ({{ object.get_image_name() }}:{{ object.get_tag() }}) updated from {{ object.get_current_id() }} to {{ object.get_latest_id() }}
+```
+
+Can be override with the label `docupdater.template_file`.
+
+### Skip start notification
+**Type:**  Boolean
+**Command Line:**  `--skip-start-notif`  
+**Environment Variable:** `DOCUPDATER_SKIP_START_NOTIF`  
+**Default:** `False`  
+**Example:** `-e DOCUPDATER_SKIP_START_NOTIF=true`  
+
+Docupdater send a notification when it start. That option disable this notification.
