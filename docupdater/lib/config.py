@@ -4,11 +4,13 @@ from os import environ
 from pathlib import Path
 
 from .logger import BlacklistFilter
+from ..helpers.helpers import convert_to_boolean
 
 ENABLE_LABEL = "docupdater.enable"
 DISABLE_LABEL = "docupdater.disable"
 
 LABELS_MAPPING = {
+    "docupdater.latest": "latest",
     "docupdater.notifiers": "notifiers",
     "docupdater.stop_signal": "stop_signal",
     "docupdater.cleanup": "cleanup",
@@ -46,6 +48,25 @@ class Config(object):
         self.compute_args()
         self.filtered_strings = None
         self.config_blacklist()
+
+    @classmethod
+    def from_labels(cls, config, labels):
+        options = deepcopy(config.options)
+
+        if labels:
+            for label, value in labels.items():
+                if label in LABELS_MAPPING:
+                    if label in ["docupdater.notifiers"]:
+                        options[LABELS_MAPPING[label]] = value.split(" ")
+                    elif label in ["docupdater.latest", "docupdater.cleanup"]:
+                        options[LABELS_MAPPING[label]] = convert_to_boolean(value)
+                    else:
+                        options[LABELS_MAPPING[label]] = value
+                    if label == "docupdater.template_file":
+                        # Reload template
+                        options["template"] = Config.load_template(options.get('template_file'))
+
+        return cls(**options)
 
     @property
     def hostname(self):
@@ -207,22 +228,13 @@ class Config(object):
     def auth_json(self, value):
         self.options["auth_json"] = value
 
-    @classmethod
-    def from_labels(cls, config, labels):
-        options = deepcopy(config.options)
+    @property
+    def latest(self):
+        return self.options.get("latest")
 
-        if labels:
-            for label, value in labels.items():
-                if label in LABELS_MAPPING:
-                    if label == "docupdater.notifiers":
-                        options[LABELS_MAPPING[label]] = value.split(" ")
-                    else:
-                        options[LABELS_MAPPING[label]] = value
-                    if label == "docupdater.template_file":
-                        # Reload template
-                        options["template"] = Config.load_template(options.get('template_file'))
-
-        return cls(**options)
+    @latest.setter
+    def latest(self, value):
+        self.options["latest"] = value
 
     def config_blacklist(self):
         filtered_strings = [getattr(self, key.lower()) for key, value in self.options.items()

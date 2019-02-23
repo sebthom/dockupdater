@@ -89,9 +89,14 @@ class Container(AbstractObject):
         return get_id_from_image(self._latest_image)[10:]
 
     def has_new_version(self):
+        self.config = Config.from_labels(self.config, self.container.labels)
+
         current_image_name = self.get_image_name()
         current_tag = self.get_tag()
         self._current_id = remove_sha_prefix(self.container.attrs.get('Image', self.container.id))
+
+        if self.config.latest:
+            current_tag = "latest"
 
         try:
             latest_image = self._pull(f"{current_image_name}:{current_tag}")
@@ -104,8 +109,6 @@ class Container(AbstractObject):
         return self._current_id != latest_id
 
     def update(self):
-        self.config = Config.from_labels(self.config, self.container.labels)
-
         if not self._current_id or not self._latest_image:
             self.has_new_version()
 
@@ -212,6 +215,8 @@ class Service(AbstractObject):
         return self._latest_sha[:10]
 
     def has_new_version(self):
+        self.config = Config.from_labels(self.config, self.service.attrs.get('Spec', dict()).get('Labels'))
+
         current_image_name = self.get_image_name()
         current_tag = self.get_tag()
 
@@ -220,6 +225,9 @@ class Service(AbstractObject):
         current_sha = self.get_sha()
         if not current_sha:
             self.logger.error('No image SHA for %s. Update it for next time', current_image_name)
+
+        if self.config.latest:
+            current_tag = "latest"
 
         try:
             latest_image = self._pull(f"{current_image_name}:{current_tag}")
@@ -232,8 +240,6 @@ class Service(AbstractObject):
         return current_sha != latest_sha
 
     def update(self):
-        self.config = Config.from_labels(self.config, self.service.attrs.get('Spec', dict()).get('Labels'))
-
         if not self._latest_sha:
             self.has_new_version()
 
