@@ -205,10 +205,10 @@ class Service(AbstractObject):
         return self.object
 
     def get_current_id(self):
-        return self._current_sha[10:]
+        return self._current_sha[:10]
 
     def get_latest_id(self):
-        return self._latest_sha[10:]
+        return self._latest_sha[:10]
 
     def has_new_version(self):
         current_image_name = self.get_image_name()
