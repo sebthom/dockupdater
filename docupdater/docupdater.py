@@ -63,8 +63,15 @@ from .lib.scanner import Scanner
 @click.option("--stop-signal", "stop_signal",
               type=int, default=DefaultConfig.stop_signal,
               help='Override the stop signal send to container')
+@click.option("--disable-services-check", "disable_services_check",
+              default=DefaultConfig.disable_services_check, is_flag=True, show_default=True,
+              help='Disable services (swarm) check')
+@click.option("--disable-containers-check", "disable_containers_check",
+              default=DefaultConfig.disable_containers_check, is_flag=True, show_default=True,
+              help='Disable standalone containers check')
 def cli(docker_socket, docker_tls, docker_tls_verify, interval, cron, log_level, run_once, notifiers,
-        skip_start_notif, label, cleanup, repo_user, repo_pass, stop_signal):
+        skip_start_notif, label, cleanup, repo_user, repo_pass, stop_signal, disable_services_check,
+        disable_containers_check):
     """Declare command line options"""
 
     # Create App logger
@@ -84,7 +91,9 @@ def cli(docker_socket, docker_tls, docker_tls_verify, interval, cron, log_level,
                     cleanup=cleanup,
                     repo_user=repo_user,
                     repo_pass=repo_pass,
-                    stop_signal=stop_signal)
+                    stop_signal=stop_signal,
+                    disable_services_check=disable_services_check,
+                    disable_containers_check=disable_containers_check)
 
     log.logger.debug("pyupdater configuration: %s", config.options)
 

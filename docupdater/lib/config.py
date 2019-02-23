@@ -28,6 +28,8 @@ class DefaultConfig(object):
     run_once = False
     label = False
     stop_signal = None
+    disable_containers_check = False
+    disable_services_check = False
 
     repo_user = None
     repo_pass = None
@@ -87,12 +89,6 @@ class Config(object):
         # Added matching for ports
         ports = [string.split(':')[0] for string in self.filtered_strings if ':' in string]
         self.filtered_strings.extend(ports)
-        # Added matching for tcp sockets. ConnectionPool ignores the tcp://
-        tcp_sockets = [string.split('//')[1] for string in self.filtered_strings if '//' in string]
-        self.filtered_strings.extend(tcp_sockets)
-        # Get JUST hostname from tcp//unix
-        for socket in getattr(self, 'docker_sockets'):
-            self.filtered_strings.append(socket.split('//')[1].split(':')[0])
 
         for handler in self.logger.handlers:
             handler.addFilter(BlacklistFilter(set(self.filtered_strings)))
@@ -100,6 +96,9 @@ class Config(object):
     def compute_args(self):
         if self.repo_user and self.repo_pass:
             self.config["auth_json"] = {'Username': self.repo_user, 'Password': self.repo_pass}
+
+        if self.disable_containers_check and self.disable_services_check:
+            raise AttributeError("Error you can't disable all monitoring.")
 
         if self.interval < 30:
             self.logger.warning('Minimum value for interval was 30 seconds.')

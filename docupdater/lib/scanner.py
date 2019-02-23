@@ -45,7 +45,15 @@ class Scanner(object):
 
     def scan_monitored(self):
         """Return all object update if there are a new version"""
-        return self._scan_containers() + self._scan_services()
+        monitored = []
+
+        if not self.config.disable_containers_check:
+            monitored.extend(self._scan_containers())
+
+        if not self.config.disable_services_check:
+            monitored.extend(self._scan_services())
+
+        return monitored
 
     def update(self):
         monitoreds = self.scan_monitored()
