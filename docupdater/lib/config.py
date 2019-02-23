@@ -1,8 +1,19 @@
+from copy import deepcopy
 from logging import getLogger
 from os import environ
 from pathlib import Path
 
 from .logger import BlacklistFilter
+
+ENABLE_LABEL = "docupdater.enable"
+DISABLE_LABEL = "docupdater.disable"
+
+LABELS_MAPPING = {
+    "docupdater.notifiers": "notifiers",
+    "docupdater.stop_signal": "stop_signal",
+    "docupdater.cleanup": "cleanup",
+    "docupdater.template_file": "template_file"
+}
 
 
 class DefaultConfig(object):
@@ -16,6 +27,7 @@ class DefaultConfig(object):
     cleanup = False
     run_once = False
     label = False
+    stop_signal = None
 
     repo_user = None
     repo_pass = None
@@ -47,6 +59,20 @@ class Config(object):
             self.config[attr] = value
         else:
             super().__setattr__(attr, value)
+
+    @classmethod
+    def from_labels(cls, config, labels):
+        options = deepcopy(config.options)
+
+        if labels:
+            for label, value in labels.items():
+                if label in LABELS_MAPPING:
+                    options[LABELS_MAPPING[label]] = value
+                    if label == "docupdater.template_file":
+                        # Reload template
+                        options["template"] = Config.load_template(options.get('template_file'))
+
+        return cls(**options)
 
     def config_blacklist(self):
         filtered_strings = [getattr(self, key.lower()) for key in Config.options
@@ -90,17 +116,17 @@ class Config(object):
                 self.cron = cron_times
                 self.interval = None
 
-        # Load default template file
-        if not self.template_file:
-            dir_path = Path().absolute()
-            if self.swarm:
-                self.template_file = dir_path.joinpath("pypyupdater/templates/services.j2")
-            else:
-                self.template_file = dir_path.joinpath("pypyupdater/templates/containers.j2")
+        self.template = Config.load_template(self.template_file)
 
-        if Path(self.template_file).exists():
-            with open(self.template_file) as f:
-                self.option["template"] = f.read()
+    @staticmethod
+    def load_template(template_file):
+        # Load default template file
+        if not template_file:
+            dir_path = Path().absolute()
+            template_file = dir_path.joinpath("docupdater/templates/services.j2")
+
+        if Path(template_file).exists():
+            with open(template_file) as f:
+                return f.read()
         else:
-            self.logger.critical("Template file %s not found", self.template_file)
-            raise AttributeError(f"Template file {self.template_file} not found")
+            raise AttributeError(f"Template file {template_file} not found")

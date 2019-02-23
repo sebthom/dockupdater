@@ -29,3 +29,11 @@ def remove_sha_prefix(digest):
     if digest.startswith("sha256:"):
         return digest[7:]
     return digest
+
+
+def convert_to_boolean(value):
+    return str(value).lower() in ["yes", "y", "true"]
+
+
+def get_id_from_image(image):
+    return remove_sha_prefix(image.attrs.get('Image', image.attrs.get(id, image.id)))
