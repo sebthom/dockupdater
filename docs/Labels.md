@@ -71,6 +71,15 @@ Shows the current version number then exits
 
 Allows you to define a list of docker sockets. If defined, it does not include the local socket by default.
 
+### Docker TLS
+**Type:** Boolean  
+**Command Line:**  `-t, --docker-tls`  
+**Environment Variable:** `DOCKER_TLS_VERIFY`  
+**Default:** `False`  
+**Example:** `-e DOCKER_TLS_VERIFY=true -v $DOCKER_CERT_FOLDER:/root/.docker/`  
+
+Enables docker TLS secure client connections by certificate
+
 ### Docker TLS Verify
 **Type:** Boolean  
 **Command Line:**  `-t, --docker-tls-verify`  
