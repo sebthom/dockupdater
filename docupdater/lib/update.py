@@ -113,11 +113,12 @@ class Container(AbstractObject):
         self.logger.info('%s will be updated', self.container.name)
         self.recreate()
 
-        if self.config.cleanup:
-            try:
-                self.client.images.remove(self._current_id)
-            except APIError as e:
-                self.logger.error("Could not delete old image for %s, Error: %s", self.container.name, e)
+        if not self.container.attrs.get('HostConfig', dict()).get('AutoRemove'):
+            if self.config.cleanup:
+                try:
+                    self.client.images.remove(self._current_id)
+                except APIError as e:
+                    self.logger.error("Could not delete old image for %s, Error: %s", self.container.name, e)
 
     def stop(self):
         self.logger.debug('Stopping container: %s', self.object.name)
