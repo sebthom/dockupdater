@@ -43,13 +43,13 @@ from .lib.scanner import Scanner
                    'mailto://user:pass@gmail.com')
 @click.option("--skip-start-notif", "skip_start_notif",
               default=DefaultConfig.skip_start_notif, is_flag=True, show_default=True,
-              help='Skip notification of pyupdater has started')
+              help='Skip notification of docupdater has started')
 @click.option("--template-file", "template_file",
               default=DefaultConfig.template_file, type=click.Path(),
               help='Use a custom template for notification')
 @click.option("-k", "--label", "label",
               default=DefaultConfig.label, is_flag=True, show_default=True,
-              help='Enable label monitoring for pyupdater instead of monitoring all containers/services')
+              help='Enable label monitoring for docupdater instead of monitoring all containers/services')
 @click.option("-c", "--cleanup", "cleanup",
               default=DefaultConfig.cleanup, is_flag=True, show_default=True,
               help='Remove old images after updating')
