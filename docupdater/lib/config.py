@@ -214,7 +214,10 @@ class Config(object):
         if labels:
             for label, value in labels.items():
                 if label in LABELS_MAPPING:
-                    options[LABELS_MAPPING[label]] = value
+                    if label == "docupdater.notifiers":
+                        options[LABELS_MAPPING[label]] = value.split(" ")
+                    else:
+                        options[LABELS_MAPPING[label]] = value
                     if label == "docupdater.template_file":
                         # Reload template
                         options["template"] = Config.load_template(options.get('template_file'))
