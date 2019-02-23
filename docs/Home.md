@@ -8,3 +8,4 @@ Welcome to the docupdater wiki!
  - [Notifications](Notifications.md)
  - [Frequently Asked Questions (FAQ)](Frequently-Asked-Questions.md)
    - [Timezone Configuration](Frequently-Asked-Questions.md#timezone-configuration)
+   - [Exclude docupdater to be updated](Frequently-Asked-Questions.md#exclude-docupdater-to-be-updated)
