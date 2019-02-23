@@ -83,10 +83,10 @@ class Container(AbstractObject):
         return self.object
 
     def get_current_id(self):
-        return self._current_id
+        return self._current_id[10:]
 
     def get_latest_id(self):
-        return get_id_from_image(self._latest_image)
+        return get_id_from_image(self._latest_image)[10:]
 
     def has_new_version(self):
         current_image_name = self.get_image_name()
