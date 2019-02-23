@@ -69,9 +69,12 @@ from .lib.scanner import Scanner
 @click.option("--disable-containers-check", "disable_containers_check",
               default=DefaultConfig.disable_containers_check, is_flag=True, show_default=True,
               help='Disable standalone containers check')
+@click.option("--hostname", "hostname",
+              default=DefaultConfig.hostname, envvar="HOSTNAME",
+              help='Set hostname (for debugging only)')
 def cli(docker_socket, docker_tls, docker_tls_verify, interval, cron, log_level, run_once, notifiers,
         skip_start_notif, label, cleanup, repo_user, repo_pass, stop_signal, disable_services_check,
-        disable_containers_check):
+        disable_containers_check, template_file, hostname):
     """Declare command line options"""
 
     # Create App logger
@@ -93,7 +96,9 @@ def cli(docker_socket, docker_tls, docker_tls_verify, interval, cron, log_level,
                     repo_pass=repo_pass,
                     stop_signal=stop_signal,
                     disable_services_check=disable_services_check,
-                    disable_containers_check=disable_containers_check)
+                    disable_containers_check=disable_containers_check,
+                    template_file=template_file,
+                    hostname=hostname)
 
     log.logger.debug("pyupdater configuration: %s", config.options)
 
@@ -142,7 +147,7 @@ def cli(docker_socket, docker_tls, docker_tls_verify, interval, cron, log_level,
         next_run = (now + timedelta(0, config.interval)).strftime("%Y-%m-%d %H:%M:%S")
 
     if not config.skip_start_notif:
-        notification_manager.send(StartupMessage(config.hostname, next_run=next_run))
+        notification_manager.send(StartupMessage(config.hostname, next_run=next_run), config.notifiers)
 
     while scheduler.get_jobs():
         sleep(10)

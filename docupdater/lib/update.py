@@ -16,6 +16,7 @@ class AbstractObject(ABC):
 
         self.object = object
 
+    @property
     def name(self):
         return self.object.name
 
@@ -72,10 +73,10 @@ class Container(AbstractObject):
         self._current_id = None
 
     def get_image_name(self):
-        return self.container.attrs['Config']['Image'].rsplit(":", 2)[0]
+        return self.container.attrs['Config']['Image'].split(":", 1)[0]
 
     def get_tag(self):
-        return self.container.attrs['Config']['Image'].rsplit(":", 2)[1]
+        return self.container.attrs['Config']['Image'].split(":", 1)[1]
 
     @property
     def container(self):
@@ -184,10 +185,20 @@ class Service(AbstractObject):
         self._current_sha = None
 
     def get_image_name(self):
-        return self.service.attrs['Spec']['TaskTemplate']['ContainerSpec']['Image'].rsplit(":", 2)[0]
+        return self.service.attrs['Spec']['TaskTemplate']['ContainerSpec']['Image'].split(":", 1)[0]
 
     def get_tag(self):
-        return self.service.attrs['Spec']['TaskTemplate']['ContainerSpec']['Image'].rsplit(":", 2)[1]
+        tag = self.service.attrs['Spec']['TaskTemplate']['ContainerSpec']['Image'].split(":", 1)[1]
+        if ":" in tag and "@" in tag:
+            tag = tag.split("@")[0]
+        return tag
+
+    def get_sha(self):
+        tag = self.service.attrs['Spec']['TaskTemplate']['ContainerSpec']['Image'].split(":", 1)[1]
+        sha = ""
+        if ":" in tag and "@" in tag:
+            sha = tag.split("@")[1]
+        return remove_sha_prefix(sha)
 
     @property
     def service(self):
@@ -203,11 +214,10 @@ class Service(AbstractObject):
         current_image_name = self.get_image_name()
         current_tag = self.get_tag()
 
-        current_sha = None
-        if '@' in current_tag:
-            current_tag = current_tag.split('@')[0]
-            current_sha = remove_sha_prefix(current_tag.split('@')[1])
-        else:
+        self.logger.debug("%s:%s", current_image_name, current_tag)
+
+        current_sha = self.get_sha()
+        if not current_sha:
             self.logger.error('No image SHA for %s. Update it for next time', current_image_name)
 
         try:
