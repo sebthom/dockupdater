@@ -10,8 +10,8 @@ env:
   - IMAGE_NAME=docupdater/docupdater
 
 install:
-  - pip install --user -r requirements.txt
-  - pip install --user -U flake8
+  - pip install -r requirements.txt
+  - pip install -U flake8
 
 before_script: []
 
