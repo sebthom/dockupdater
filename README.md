@@ -16,7 +16,7 @@ Docupdater will monitor (all or specified by a label) running docker containers 
 - Notify you via many platforms courtesy of [Apprise](https://github.com/caronc/apprise) 
 - Use with docker swarm to update services on the latest available version
 - Limit your server SSH access
-- Usefull to keep 3rd party container up-to-date
+- Useful to keep 3rd party container up-to-date
 
 ## Getting Started
 
