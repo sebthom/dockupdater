@@ -33,6 +33,9 @@ from .lib.scanner import Scanner
 @click.option("-l", "--log-level", "log_level",
               type=click.Choice(['debug', 'info', 'warn', 'error', 'critical']), default=DefaultConfig.log_level,
               show_default=True, help='Set logging level')
+@click.option("-L", "--latest", "latest",
+              default=DefaultConfig.latest, show_default=True, is_flag=True,
+              help='Pull the :latest tags and update all containers to it.')
 @click.option("-o", "--run-once", "run_once",
               is_flag=True, default=DefaultConfig.run_once, show_default=True,
               help='Single run')
@@ -74,7 +77,7 @@ from .lib.scanner import Scanner
               help='Set hostname (for debugging only)')
 def cli(docker_socket, docker_tls, docker_tls_verify, interval, cron, log_level, run_once, notifiers,
         skip_start_notif, label, cleanup, repo_user, repo_pass, stop_signal, disable_services_check,
-        disable_containers_check, template_file, hostname):
+        disable_containers_check, template_file, hostname, latest):
     """Declare command line options"""
 
     # Create App logger
@@ -98,7 +101,8 @@ def cli(docker_socket, docker_tls, docker_tls_verify, interval, cron, log_level,
                     disable_services_check=disable_services_check,
                     disable_containers_check=disable_containers_check,
                     template_file=template_file,
-                    hostname=hostname)
+                    hostname=hostname,
+                    latest=latest)
 
     log.logger.debug("pyupdater configuration: %s", config.options)
 
