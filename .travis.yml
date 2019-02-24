@@ -6,9 +6,6 @@ python: 3.7
 services:
   - docker
 
-env:
-  - IMAGE_NAME=docupdater/docupdater
-
 install:
   - pip install -r requirements.txt
   - pip install -U flake8
@@ -17,9 +14,16 @@ before_script: []
 
 script:
   - python -m flake8 --max-line-length 120 docupdater
+  - python setup.py bdist_wheel
 
 before_deploy:
-  - python setup.py bdist_wheel
-  - docker build -f Dockerfile --pull --tag "docupdater/$TRAVIS_BRANCH" .
-  - docker build -f Dockerfile.arm --pull --tag "docupdater/$TRAVIS_BRANCH-arm" .
-  - docker build -f Dockerfile.arm64 --pull --tag "docupdater/$TRAVIS_BRANCH-arm64" .
+  - docker build -f Dockerfile --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH" .
+  - docker build -f Dockerfile.arm --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm" .
+  - docker build -f Dockerfile.arm64 --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm64" .
+  - docker manifest create docupdater/docupdater:$TRAVIS_BRANCH docupdater/docupdater:$TRAVIS_BRANCH-amd64 docupdater/docupdater:$TRAVIS_BRANCH-arm64 docupdater/docupdater:$TRAVIS_BRANCH-arm
+
+deploy:
+  - provider: script
+    script: docker manifest push -p docupdater/docupdater:$TRAVIS_BRANCH
+    on:
+      branch: master
