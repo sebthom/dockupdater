@@ -15,8 +15,8 @@ from .lib.scanner import Scanner
 
 @click.command()
 @click.version_option(version=VERSION)
-@click.option("-d", "--docker-socket", "docker_socket",
-              default=DefaultConfig.docker_socket, show_default=True,
+@click.option("-d", "--docker-sockets", "docker_sockets",
+              default=DefaultConfig.docker_sockets, show_default=True, multiple=True,
               help='Socket for docker management. EXAMPLE: -d unix://var/run/docker.sock')
 @click.option("-t", "--docker-tls", "docker_tls",
               is_flag=True, default=DefaultConfig.docker_tls, show_default=True,
@@ -75,7 +75,7 @@ from .lib.scanner import Scanner
 @click.option("--hostname", "hostname",
               default=DefaultConfig.hostname, envvar="HOSTNAME",
               help='Set hostname (for debugging only)')
-def cli(docker_socket, docker_tls, docker_tls_verify, interval, cron, log_level, run_once, notifiers,
+def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level, run_once, notifiers,
         skip_start_notif, label, cleanup, repo_user, repo_pass, stop_signal, disable_services_check,
         disable_containers_check, template_file, hostname, latest):
     """Declare command line options"""
@@ -84,7 +84,7 @@ def cli(docker_socket, docker_tls, docker_tls_verify, interval, cron, log_level,
     log = DocupdaterLogger(level=log_level)
     log.logger.info('Version: %s-%s', VERSION, BRANCH)
 
-    config = Config(docker_socket=docker_socket,
+    config = Config(docker_sockets=docker_sockets,
                     docker_tls=docker_tls,
                     docker_tls_verify=docker_tls_verify,
                     interval=interval,
@@ -110,37 +110,38 @@ def cli(docker_socket, docker_tls, docker_tls_verify, interval, cron, log_level,
     scheduler = BackgroundScheduler()
     scheduler.start()
 
-    try:
-        docker = Docker(config.docker_socket, config, notification_manager)
-        scanner = Scanner(docker)
+    for socket in config.docker_sockets:
+        try:
+            docker = Docker(socket, config, notification_manager)
+            scanner = Scanner(docker)
 
-        if config.cron:
-            scheduler.add_job(
-                scanner.update,
-                name=f'Cron container update for {config.docker_socket}',
-                trigger='cron',
-                minute=config.cron[0],
-                hour=config.cron[1],
-                day=config.cron[2],
-                month=config.cron[3],
-                day_of_week=config.cron[4],
-                misfire_grace_time=20
-            )
-        else:
-            if config.run_once:
-                scheduler.add_job(scanner.update, name=f'Run Once container update for {config.docker_socket}')
+            if config.cron:
+                scheduler.add_job(
+                    scanner.update,
+                    name=f'Cron container update for {socket}',
+                    trigger='cron',
+                    minute=config.cron[0],
+                    hour=config.cron[1],
+                    day=config.cron[2],
+                    month=config.cron[3],
+                    day_of_week=config.cron[4],
+                    misfire_grace_time=20
+                )
             else:
-                scheduler.add_job(
-                    scanner.update,
-                    name=f'Initial run interval container update for {config.docker_socket}'
-                )
-                scheduler.add_job(
-                    scanner.update,
-                    name=f'Interval container update for {config.docker_socket}',
-                    trigger='interval', seconds=config.interval
-                )
-    except ConnectionError:
-        log.logger.error("Could not connect to socket %s. Check your config", config.docker_socket)
+                if config.run_once:
+                    scheduler.add_job(scanner.update, name=f'Run Once container update for {socket}')
+                else:
+                    scheduler.add_job(
+                        scanner.update,
+                        name=f'Initial run interval container update for {socket}'
+                    )
+                    scheduler.add_job(
+                        scanner.update,
+                        name=f'Interval container update for {socket}',
+                        trigger='interval', seconds=config.interval
+                    )
+        except ConnectionError:
+            log.logger.error("Could not connect to socket %s. Check your config", config.socket)
 
     if config.run_once:
         next_run = None

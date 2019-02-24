@@ -86,11 +86,11 @@ Docupdater will only do a single pass of all container checks, and then exit. Th
 
 ## Docker Specifics
 ### Docker Socket
-**Type:** String
-**Command Line:**  `-d, --docker-socket`  
+**Type:** List - Space separated
+**Command Line:**  `-d, --docker-sockets`  
 **Environment Variable:** `DOCUPDATER_DOCKER_SOCKETS`  
 **Default:** `unix://var/run/docker.sock`  
-**Example:** `-e DOCUPDATER_DOCKER_SOCKETS="unix://var/run/docker.sock"`  
+**Example:** `-e DOCUPDATER_DOCKER_SOCKETS="unix://var/run/docker.sock tcp://192.168.1.100:2376"`  
 
 Allows you to define the docker socket.
 

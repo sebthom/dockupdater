@@ -22,7 +22,7 @@ class DefaultConfig(object):
     hostname = environ.get('HOSTNAME')
     interval = 300
     cron = None
-    docker_socket = 'unix://var/run/docker.sock'
+    docker_sockets = ['unix://var/run/docker.sock']
     docker_tls = False
     docker_tls_verify = True
     log_level = 'info'
@@ -90,12 +90,18 @@ class Config(object):
         self.filtered_strings = list(filter(None, filtered_strings))
         # take lists inside of list and append to list
         for index, value in enumerate(self.filtered_strings, 0):
-            if isinstance(value, list):
+            if isinstance(value, list) or isinstance(value, tuple):
                 self.filtered_strings.extend(self.filtered_strings.pop(index))
                 self.filtered_strings.insert(index, self.filtered_strings[-1:][0])
         # Added matching for ports
         ports = [string.split(':')[0] for string in self.filtered_strings if ':' in string]
         self.filtered_strings.extend(ports)
+        # Added matching for tcp sockets. ConnectionPool ignores the tcp://
+        tcp_sockets = [string.split('//')[1] for string in self.filtered_strings if '//' in string]
+        self.filtered_strings.extend(tcp_sockets)
+        # Get JUST hostname from tcp//unix
+        for socket in getattr(self, 'docker_sockets'):
+            self.filtered_strings.append(socket.split('//')[1].split(':')[0])
 
         for handler in self.logger.handlers:
             handler.addFilter(BlacklistFilter(set(self.filtered_strings)))
