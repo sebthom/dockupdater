@@ -1,20 +1,22 @@
 [![Release](https://img.shields.io/github/release/docupdater/docupdater.svg?style=flat-square)](https://hub.docker.com/r/docupdater/docupdater/)
 [![Pypi Downloads](https://img.shields.io/pypi/dm/docupdater-cli.svg?style=flat-square)](https://pypi.org/project/docupdater-cli/)
-[![Python Version](https://img.shields.io/pypi/pyversions/pyupdater-cli.svg?style=flat-square)](https://pypi.org/project/pyupdater-cli/)
+[![Python Version](https://img.shields.io/pypi/pyversions/docupdater-cli.svg?style=flat-square)](https://pypi.org/project/pyupdater-cli/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/docupdater/docupdater.svg?style=flat-square)](https://hub.docker.com/r/docupdater/docupdater/)
 [![Layers](https://images.microbadger.com/badges/image/docupdater/docupdater.svg)](https://microbadger.com/images/docupdater/docupdater)  
 
-Automatically update your running Docker containers and service to the latest available image.
+Automatically keep your docker services and your docker containers up-to-date with the latest version
 
 A fork of Ouroboros.
 
 ## Overview
 
-Docupdater will monitor (all or specified) running docker containers and running service (in swarm) and update them to the (latest or tagged) available image in the remote registry.
+Docupdater will monitor (all or specified by a label) running docker containers and running service (in docker swarm) and update them to the (latest or tagged) available image in the remote registry.
 
 - Push your image to your registry and simply wait your defined interval for docupdater to find the new image and redeploy your container autonomously.
 - Notify you via many platforms courtesy of [Apprise](https://github.com/caronc/apprise) 
-- Limit your server ssh access
+- Use with docker swarm to update services on the latest available version
+- Limit your server SSH access
+- Usefull to keep 3rd party container up-to-date
 
 ## Getting Started
 
@@ -22,12 +24,12 @@ More detailed usage and configuration can be found on [the docs](https://github.
 
 ### Docker
 
-docupdater is deployed via docker image like so:
+Docupdater is deployed via docker image in a standalone container like so:
 
 ```bash
-docker run -d --name pyupdater \
+docker run -d --name docupdater \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  pypyupdater/pyupdater
+  docupdater/docupdater
 ```
 
 or via a stack file (docker swarm):
@@ -43,7 +45,7 @@ services:
 > This is image is compatible for amd64, arm32, and arm64 CPU architectures
 
 ## Examples
-Per-command and scenario examples can be found in the [docs](https://github.com/docupdater/docupdater/blob/master/docs/Options.md)
+Per-command and scenario examples can be found in the [docs](https://github.com/docupdater/docupdater/blob/master/docs/Home.md).
 
 ## Contributing
 
