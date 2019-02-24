@@ -11,14 +11,18 @@ install:
   - pip install -U flake8
 
 before_script:
-  - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+  - sudo apt-get update
+  - sudo apt-get install -y wget git
+  - docker run --rm --privileged multiarch/qemu-user-static:register
+  - wget https://github.com/multiarch/qemu-user-static/releases/download/v2.9.1/qemu-ppc64le-static.tar.gz -O /tmp/qemu-ppc64le-static.tar.gz
+  - tar zxvf /tmp/qemu-ppc64le-static.tar.gz -C /tmp
 
 script:
   - python -m flake8 --max-line-length 120 docupdater
   - python setup.py bdist_wheel
   - docker build -f Dockerfile --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH" .
-  - docker build -f Dockerfile.arm --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm" .
-  - docker build -f Dockerfile.arm64 --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm64" .
+  - docker build --volume type=bind,source=/tmp/qemu-ppc64le-static,target=/usr/bin/qemu-ppc64le-static -f Dockerfile.arm --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm" .
+  - docker build --volume type=bind,source=/tmp/qemu-ppc64le-static,target=/usr/bin/qemu-ppc64le-static -f Dockerfile.arm64 --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm64" .
 
 before_deploy:
   - docker manifest create docupdater/docupdater:$TRAVIS_BRANCH docupdater/docupdater:$TRAVIS_BRANCH-amd64 docupdater/docupdater:$TRAVIS_BRANCH-arm64 docupdater/docupdater:$TRAVIS_BRANCH-arm
