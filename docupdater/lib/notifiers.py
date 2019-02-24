@@ -1,3 +1,4 @@
+from abc import ABC
 from datetime import datetime, timezone
 from logging import getLogger
 
@@ -7,7 +8,9 @@ from jinja2 import Environment, BaseLoader
 from .update import Service
 
 
-class BaseMessage(object):
+class BaseMessage(ABC):
+    """Abstract message to send with apprise"""
+
     def __init__(self, title, body):
         self.title = title
         self.body = body
@@ -25,6 +28,8 @@ class StartupMessage(BaseMessage):
 
 
 class TemplateMessage(BaseMessage):
+    """Load and parse message to send from template file"""
+
     def __init__(self, container_or_service):
         if isinstance(container_or_service, Service):
             title = f'docupdater has updated services!'

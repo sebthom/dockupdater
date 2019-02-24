@@ -34,10 +34,12 @@ class AbstractObject(ABC):
 
     @abstractmethod
     def get_current_id(self):
+        """Return the current id for notification"""
         pass
 
     @abstractmethod
     def get_latest_id(self):
+        """Return the latest id for notification"""
         pass
 
     def _pull(self, name_with_tag):

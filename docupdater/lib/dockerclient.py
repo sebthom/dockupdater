@@ -5,6 +5,8 @@ from docker import DockerClient, tls
 
 
 class Docker(object):
+    """Class use to connect to the docker socket"""
+
     def __init__(self, socket, config, notification_manager):
         self.config = config
         self.socket = socket

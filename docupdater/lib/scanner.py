@@ -58,8 +58,8 @@ class Scanner(object):
             if not self.config.disable_services_check:
                 monitored.extend(self._scan_services())
         except APIError as e:
-            if "This node is not a swarm manager" in str(e):
-                self.logger.debug("Your are not running in swarm mode, skip services")
+            if "this node is not a swarm manager" in str(e).lower():
+                self.logger.debug("Your aren't running in swarm mode, skip services.")
             raise e
 
         return monitored

@@ -20,6 +20,7 @@ LABELS_MAPPING = {
 
 
 class DefaultConfig(object):
+    """Default configuration"""
     hostname = environ.get('HOSTNAME')
     interval = 300
     cron = None
@@ -54,6 +55,7 @@ class Config(object):
 
     @classmethod
     def from_labels(cls, config, labels):
+        """Create a new config object from an existing config and a dict of docker labels"""
         options = deepcopy(config.options)
 
         if labels:
@@ -78,14 +80,13 @@ class Config(object):
             super().__setattr__(key, value)
 
     def __getattr__(self, attr):
-        # we don't need a special call to super here because getattr is only
-        # called when an attribute is NOT found in the instance's dictionary
         try:
             return self.options[attr]
         except KeyError:
             raise AttributeError
 
     def config_blacklist(self):
+        """Mask sensitive data from logs"""
         filtered_strings = [getattr(self, key.lower()) for key, value in self.options.items()
                             if key.lower() in BlacklistFilter.blacklisted_keys]
         # Clear None values
