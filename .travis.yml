@@ -1,5 +1,6 @@
 sudo: required
 dist: trusty
+language: python
 python: '3.7'
 
 services:
@@ -8,18 +9,17 @@ services:
 env:
   - IMAGE_NAME=docupdater/docupdater
 
-install: []
+install:
+  - pip install --user -r requirements.txt
+  - pip install --user -U flake8
 
-before_script:
-  - pip3 install --user -r requirements.txt
-  - pip3 install --user -U flake8
+before_script: []
 
 script:
-  - python3 -m flake8 --max-line-length 120 docupdater
-  - python3 setup.py bdist_wheel
+  - python -m flake8 --max-line-length 120 docupdater
+
+before_deploy:
+  - python setup.py bdist_wheel
   - docker build -f Dockerfile --pull --tag "docupdater/$TRAVIS_BRANCH" .
   - docker build -f Dockerfile.arm --pull --tag "docupdater/$TRAVIS_BRANCH-arm" .
   - docker build -f Dockerfile.arm64 --pull --tag "docupdater/$TRAVIS_BRANCH-arm64" .
-
-after_script:
-  - docker images
