@@ -1,0 +1,23 @@
+sudo: required
+dist: trusty
+python: '3.6'
+
+services:
+  - docker
+
+env:
+  - IMAGE_NAME=docupdater/docupdater
+
+install: []
+
+before_script:
+  - pip install -r requirements.txt
+  - pip install flake8
+
+script:
+  - python -m flake8 --max-line-length 120 docupdater
+  - python setup.py bdist_wheel
+  - docker build -f Dockerfile --pull --tag "docupdater/$TRAVIS_BRANCH" .
+
+after_script:
+  - docker images
