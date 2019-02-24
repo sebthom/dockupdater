@@ -25,7 +25,11 @@ docker run --rm docupdater/docupdater --help
     * [Latest](#latest)
     * [Repository User](#repository-user)
     * [Repository Password](#repository-password)
+    * [Wait time](#wait-time)
   * [Notifications](#notifications)
+    * [Notifiers](#notifiers)
+    * [Template file](#template-file)
+    * [Skip start notification](#skip-start-notification)
 
 ***
 
@@ -183,6 +187,15 @@ Define a password for repository authentication. Will be ignored without definin
 **Example:** `-e DOCUPDATER_STOP_SIGNAL=12`  
 
 Define a stop signal to send to the container instead of SIGKILL. Default behavior is to use default docker stop command. Only for standalone container. Can be override with the label `docupdater.stop_signal`.
+
+### Wait time
+**Type:** Int  
+**Command Line:**  `-w, --wait`  
+**Environment Variable:** `DOCUPDATER_WAIT`  
+**Default:** `0`  
+**Example:** `-e DOCUPDATER_WAIT=60`  
+
+Define a time in seconds to wait after an update before updating any others containers or services. Can be override with the label `docupdater.wait`.
 
 ## Notifications
 ### Notifiers

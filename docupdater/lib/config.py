@@ -14,7 +14,8 @@ LABELS_MAPPING = {
     "docupdater.notifiers": "notifiers",
     "docupdater.stop_signal": "stop_signal",
     "docupdater.cleanup": "cleanup",
-    "docupdater.template_file": "template_file"
+    "docupdater.template_file": "template_file",
+    "docupdater.wait": "wait"
 }
 
 
@@ -33,6 +34,7 @@ class DefaultConfig(object):
     disable_containers_check = False
     disable_services_check = False
     latest = False
+    wait = 0
 
     repo_user = None
     repo_pass = None

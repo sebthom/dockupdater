@@ -1,3 +1,5 @@
+from time import sleep
+
 from docker.errors import APIError
 
 from .config import DISABLE_LABEL, ENABLE_LABEL
@@ -78,5 +80,7 @@ class Scanner(object):
                 self.logger.debug('%s is updated', container_or_service.name)
                 self.notification_manager.send(
                     TemplateMessage(container_or_service), container_or_service.config.notifiers)
+                if container_or_service.config.wait:
+                    sleep(container_or_service.config.wait)
             else:
                 self.logger.debug("no new version for %s", container_or_service.name)

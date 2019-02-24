@@ -53,6 +53,12 @@ With this label, the container or service will always pull the latest tag.
 
 Define a stop signal to send to the container instead of SIGKILL. Can be string or int.
 
+### Wait time
+**Label:** `docupdater.wait`  
+**Example:** `docupdater.wait: 60`  
+
+Define a time in seconds to wait after an update before updating any others containers or services.
+
 ### Notifiers
 **Label:** `docupdater.notifiers`  
 **Example:** `docupdater.notifiers: ""`  

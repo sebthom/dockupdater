@@ -75,9 +75,12 @@ from .lib.scanner import Scanner
 @click.option("--hostname", "hostname",
               default=DefaultConfig.hostname, envvar="HOSTNAME",
               help='Set hostname (for debugging only)')
+@click.option("-w", "--wait", "wait",
+              default=DefaultConfig.wait, type=click.INT,
+              help='Define a time in seconds to wait after an update before updating any others containers/services.')
 def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level, run_once, notifiers,
         skip_start_notif, label, cleanup, repo_user, repo_pass, stop_signal, disable_services_check,
-        disable_containers_check, template_file, hostname, latest):
+        disable_containers_check, template_file, hostname, latest, wait):
     """Declare command line options"""
 
     # Create App logger
@@ -102,7 +105,8 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
                     disable_containers_check=disable_containers_check,
                     template_file=template_file,
                     hostname=hostname,
-                    latest=latest)
+                    latest=latest,
+                    wait=wait)
 
     log.logger.debug("pyupdater configuration: %s", config.options)
 
@@ -138,7 +142,8 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
                     scheduler.add_job(
                         scanner.update,
                         name=f'Interval container update for {socket}',
-                        trigger='interval', seconds=config.interval
+                        trigger='interval', seconds=config.interval,
+                        misfire_grace_time=20
                     )
         except ConnectionError:
             log.logger.error("Could not connect to socket %s. Check your config", config.socket)
