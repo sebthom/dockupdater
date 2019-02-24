@@ -16,9 +16,9 @@ def get_requirements(filename="requirements.txt"):
 setup(
     name='docupdater',
     version=VERSION,
-    maintainer='mathcan',
+    maintainer='Any github maintainer',
     maintainer_email='harcher81@gmail.com',
-    description='Automatically update running docker containers or services',
+    description='Automatically keep your docker services and your docker containers up-to-date with the latest version',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
     url='https://github.com/docupdater/docupdater',
