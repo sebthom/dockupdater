@@ -23,9 +23,9 @@ before_script:
 
 script:
   - python setup.py sdist bdist_wheel
-  - docker build -f Dockerfile --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-amd64" .
-  - docker build -f Dockerfile.arm --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm" .
-  - docker build -f Dockerfile.arm64 --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm64" .
+  - docker build --squash -f Dockerfile --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-amd64" .
+  - docker build --squash -f Dockerfile.arm --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm" .
+  - docker build --squash -f Dockerfile.arm64 --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm64" .
 
 before_deploy:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin

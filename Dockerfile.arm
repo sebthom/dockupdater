@@ -15,4 +15,6 @@ COPY /docupdater /app/docupdater
 
 RUN pip install --no-cache-dir .
 
+RUN rm /usr/bin/qemu-arm-static
+
 ENTRYPOINT ["entrypoint"]
