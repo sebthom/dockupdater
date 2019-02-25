@@ -13,8 +13,8 @@ services:
 before_install:
   - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
   - sudo service docker restart
-  - apt-get update
-  - apt-get install -qq -y qemu-user-static
+  - sudo apt-get update
+  - sudo apt-get install -qq -y qemu-user-static
 
 install:
   - pip install -r requirements.txt
