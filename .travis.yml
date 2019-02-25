@@ -12,6 +12,7 @@ services:
 
 before_install:
   - echo '{"experimental":true}' | sudo tee /etc/docker/daemon.json
+  - mkdir -p $HOME/.docker
   - echo '{"experimental":true}' | sudo tee $HOME/.docker/config.json
   - sudo service docker restart
 
