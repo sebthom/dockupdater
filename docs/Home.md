@@ -9,3 +9,4 @@ Welcome to the docupdater wiki!
  - [Frequently Asked Questions (FAQ)](Frequently-Asked-Questions.md)
    - [Timezone Configuration](Frequently-Asked-Questions.md#timezone-configuration)
    - [Exclude docupdater to be updated](Frequently-Asked-Questions.md#exclude-docupdater-to-be-updated)
+   - [How install docupdater without docker](Frequently-Asked-Questions.md#how-install-docupdater-without-docker)

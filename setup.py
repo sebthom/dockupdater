@@ -31,6 +31,6 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     scripts=['entrypoint'],
-    install_requires=get_requirements(),
+    install_requires=requirements,
     python_requires='>=3.6.2'
 )

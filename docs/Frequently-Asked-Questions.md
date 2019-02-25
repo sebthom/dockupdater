@@ -2,6 +2,8 @@
 ## Configuration
 
 * [Timezone Configuration](#timezone-configuration)
+* [Exclude docupdater to be updated](#exclude-docupdater-to-be-updated)
+* [How install docupdater without docker](#how-install-docupdater-without-docker)
 
 ### Timezone Configuration
 
@@ -36,4 +38,10 @@ services:
     deploy:
       labels:
         docupdater.disable: "true"
+```
+
+### How install docupdater without docker
+docupdater can also be installed via pip:
+```
+pip install docupdater
 ```

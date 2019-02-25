@@ -5,7 +5,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/docupdater/docupdater.svg?style=flat-square)](https://hub.docker.com/r/docupdater/docupdater/)
 [![Layers](https://images.microbadger.com/badges/image/docupdater/docupdater.svg)](https://microbadger.com/images/docupdater/docupdater)  
 
-Automatically keep your docker services and your docker containers up-to-date with the latest version
+Automatically keep your docker services and your docker containers up-to-date with the latest version.
 
 A fork of Ouroboros.
 
