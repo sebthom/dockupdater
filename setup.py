@@ -1,16 +1,18 @@
 from setuptools import setup, find_packages
+
 from docupdater import VERSION
+
+requirements = ['docker>=3.7.0',
+                'apscheduler>=3.5.3',
+                'requests>=2.21.0',
+                'apprise>=0.5.2',
+                'jinja2>=2.10',
+                'click>=7.0']
 
 
 def read(filename):
     with open(filename) as f:
         return f.read()
-
-
-def get_requirements(filename="requirements.txt"):
-    """returns a list of all requirements"""
-    requirements = read(filename)
-    return list(filter(None, [req.strip() for req in requirements.split() if not req.startswith('#')]))
 
 
 setup(

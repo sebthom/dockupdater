@@ -4,3 +4,4 @@ apprise>=0.5.2
 apscheduler>=3.5.3
 jinja2>=2.10
 click>=7.0
+flake8
