@@ -45,3 +45,6 @@ docupdater can also be installed via pip:
 ```
 pip install docupdater
 ```
+And can then be invoked using the docupdater command:
+
+$ docupdater --interval 300 --log-level debug

@@ -30,7 +30,7 @@ deploy:
     on:
       branch: master
   - provider: script
-    script: docker tags docupdater/docupdater:$TRAVIS_BRANCH docupdater/docupdater:$TRAVIS_TAG docker push docupdater/docupdater:$TRAVIS_BRANCH && docker push docupdater/docupdater:latest && docker push docupdater/docupdater:$TRAVIS_TAG
+    script: docker tags docupdater/docupdater:$TRAVIS_BRANCH docupdater/docupdater:$TRAVIS_TAG && docker push docupdater/docupdater:$TRAVIS_BRANCH && docker push docupdater/docupdater:latest && docker push docupdater/docupdater:$TRAVIS_TAG
     on:
       tags: true
   - provider: pypi
