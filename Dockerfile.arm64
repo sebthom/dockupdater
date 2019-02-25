@@ -1,5 +1,7 @@
 FROM arm64v8/python:3.7.2-alpine
 
+COPY qemu-armx64-static /usr/bin/qemu-arm-static
+
 ENV TZ UTC
 
 WORKDIR /app

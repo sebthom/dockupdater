@@ -1,5 +1,7 @@
 FROM arm32v6/python:3.7.2-alpine
 
+COPY qemu-arm-static /usr/bin
+
 ENV TZ UTC
 
 WORKDIR /app
