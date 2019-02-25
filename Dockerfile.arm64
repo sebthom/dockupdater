@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY /requirements.txt /setup.py /entrypoint /README.md /app/
 
-RUN apk add --no-cache tzdata
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY /docupdater /app/docupdater
 
