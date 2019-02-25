@@ -8,21 +8,24 @@ env:
     secure: c6wQiwgTIO9NhBEgs3zdvtHQ1OLjXfJ7mPl07apRLBYQjtuyL7YuEgcS3/g90/5v/LIMV6lA9q+oZyG8m9vwS/Sm9nYuaNbaHyfYS1AS7rGzTyaVPZkctD2DtPD00/OSKJGjn64HNEnhHQajpPEHBayBKTnGXoofQyOGlLaAbIFEV/TzO4UV0Aw2cUnRfVIP6at8ESey6JU278dgGdFqBFJLOzpdEiiVLmpCmpUXgJZqQ3PDaLBf2iqFfimXni/tZt4hfDFh3Bz9rnBxKjOqnkjhYueIKz3VtLWiBE0SZ+/GAsbgl/v01IonKzXYo9izhhMK0m1js/taFLUuj13tUKLDBKtRcH4ZGXIaImYI/TG5pk9uGS9odhFiVjTQQ7rQ95ykbiUfSWksnTZB292m4ue1XhqVM8ugY6VuNBFSZc+EDOZZJTDPENP+ZpdOTY/Y5jZhxNruP68xT5O/X0MBF3d7K7O3sVaGlo6+lMDHPjZf0LMdQaOMvOn8RoVnKr8aNn06/ZuNZecmqX2Goo9hYR9bhIuTpXnBAFUF6RtU2A5gBf3rxr+B7efSB8l+8qjKo2aSS6tHeGagARimIThMuKE151F6qPrfamSDWM5axccpdxrbx8PjShw498b+/v4Uyl5Lt0jK4uBf8MVMhmXbVc7m3IbgZHhab1k9z62X8qM=
 
 services:
-- docker
+  - docker
 
 install:
-- pip install -r requirements.txt
+  - pip install -r requirements.txt
+  - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
 before_script:
-- python -m flake8 --max-line-length 120 docupdater
+  - python -m flake8 --max-line-length 120 docupdater
 
 script:
-- python setup.py sdist bdist_wheel
-- docker build -f Dockerfile --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH" .
+  - python setup.py sdist bdist_wheel
+  - docker build -f Dockerfile --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH" .
+  - docker build -f Dockerfile.arm --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm" .
+  - docker build -f Dockerfile.arm64 --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm64" .
 
 before_deploy:
-- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-- docker tag docupdater/docupdater:$TRAVIS_BRANCH docupdater/docupdater:latest
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker tag docupdater/docupdater:$TRAVIS_BRANCH docupdater/docupdater:latest
 
 deploy:
   - provider: script
