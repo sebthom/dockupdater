@@ -4,7 +4,7 @@ ENV TZ UTC
 
 WORKDIR /app
 
-COPY /requirements.txt /setup.py /entrypoint /app/
+COPY /requirements.txt /setup.py /entrypoint /README.md /app/
 
 RUN apk add --no-cache tzdata && \
     pip install --no-cache-dir -r requirements.txt
