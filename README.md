@@ -1,6 +1,8 @@
 [![Release](https://img.shields.io/github/release/docupdater/docupdater.svg?style=flat-square)](https://hub.docker.com/r/docupdater/docupdater/)
 [![Travis (.org)](https://img.shields.io/travis/docupdater/docupdater.svg)](https://travis-ci.org/docupdater/docupdater/)
 [![Python Version](https://img.shields.io/pypi/pyversions/docupdater.svg?style=flat-square)](https://pypi.org/project/docupdater/)
+[![Pypi Version](https://img.shields.io/pypi/v/docupdater.svg?style=flat-square)](https://pypi.org/project/docupdater/)
+[![Latest version](https://images.microbadger.com/badges/version/docupdater/docupdater.svg)](https://microbadger.com/images/docupdater/docupdater)
 [![Docker Pulls](https://img.shields.io/docker/pulls/docupdater/docupdater.svg?style=flat-square)](https://hub.docker.com/r/docupdater/docupdater/)
 [![Layers](https://images.microbadger.com/badges/image/docupdater/docupdater.svg)](https://microbadger.com/images/docupdater/docupdater)  
 
