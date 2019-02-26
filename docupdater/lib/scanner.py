@@ -33,7 +33,6 @@ class Scanner(object):
 
         return monitored_containers
 
-
     def _scan_services(self):
         """Return filtered service objects list"""
         monitored_services = []
@@ -89,7 +88,6 @@ class Scanner(object):
                     sleep(container_or_service.config.wait)
             else:
                 self.logger.debug("no new version for %s", container_or_service.name)
-
 
     def self_update(self):
         if not self.config.disable_containers_check:
