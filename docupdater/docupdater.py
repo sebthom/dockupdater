@@ -78,9 +78,12 @@ from .lib.scanner import Scanner
 @click.option("-w", "--wait", "wait",
               default=DefaultConfig.wait, type=click.INT,
               help='Define a time in seconds to wait after an update before updating any others containers/services.')
+@click.option("-F", "--recreate-first", "recreate_first",
+              default=DefaultConfig.recreate_first, type=click.INT,
+              help='Create a new container before stopping the old container.')
 def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level, run_once, notifiers,
         skip_start_notif, label, cleanup, repo_user, repo_pass, stop_signal, disable_services_check,
-        disable_containers_check, template_file, hostname, latest, wait):
+        disable_containers_check, template_file, hostname, latest, wait, recreate_first):
     """Declare command line options"""
 
     # Create App logger
@@ -106,7 +109,8 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
                     template_file=template_file,
                     hostname=hostname,
                     latest=latest,
-                    wait=wait)
+                    wait=wait,
+                    recreate_first=recreate_first)
 
     log.logger.debug("pyupdater configuration: %s", config.options)
 
@@ -118,6 +122,9 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
         try:
             docker = Docker(socket, config, notification_manager)
             scanner = Scanner(docker)
+
+            # Always begin to check the self update
+            scanner.self_update()
 
             if config.cron:
                 scheduler.add_job(

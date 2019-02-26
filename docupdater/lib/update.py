@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from time import sleep
 
 from docker.errors import APIError, NotFound
 
@@ -78,7 +79,17 @@ class Container(AbstractObject):
         return self.container.attrs['Config']['Image'].split(":", 1)[0]
 
     def get_tag(self):
-        return self.container.attrs['Config']['Image'].split(":", 1)[1]
+        image = self.container.attrs['Config']['Image']
+        if ":" in image:
+            return image.split(":", 1)[1]
+        else:
+            tags = self.client.images.get(self.get_image_name()).tags
+            if tags:
+                tag = tags[0]
+                if ":" in tag:
+                    return tag.split(":", 1)[1]
+                else:
+                    return "latest"
 
     @property
     def container(self):
@@ -89,6 +100,17 @@ class Container(AbstractObject):
 
     def get_latest_id(self):
         return get_id_from_image(self._latest_image)[10:]
+
+    def is_docupdater(self):
+        docupdater = "docupdater" in self.container.attrs.get("Config", dict()).get("Image", self.name)
+        if not docupdater:
+            for history in self.container.image.history():
+                if "docupdater" in history.get("Tags", list()) or list():
+                    docupdater = True
+                    break
+        if docupdater:
+            return True
+        return False
 
     def has_new_version(self):
         self.config = Config.from_labels(self.config, self.container.labels)
@@ -111,19 +133,43 @@ class Container(AbstractObject):
         return self._current_id != latest_id
 
     def update(self):
+        if self.is_docupdater():
+            self.logger.info("Docupdater container is ready to update")
+            self.config.recreate_first = True  # Always recreate docupdater container first
+        elif self.container.attrs['Config'].get('ExposedPorts') and self.config.recreate_first:
+            self.config.recreate_first = False
+            self.logger.warning(
+                "Option recreate_first isn't compatible when container has exposed ports. Option is set to False."
+            )
+
         if not self._current_id or not self._latest_image:
             self.has_new_version()
 
-        self.stop()
+        if self.config.recreate_first:
+            new_name = f"{self.name}_old"
+            if self.is_docupdater():
+                new_name = f"{self.name}_old_docupdater"
+                self.container.rename(new_name)
+        else:
+            self.stop()
+            self.remove()
+
         self.logger.info('%s will be updated', self.container.name)
         self.recreate()
 
-        if not self.container.attrs.get('HostConfig', dict()).get('AutoRemove'):
-            if self.config.cleanup:
-                try:
-                    self.client.images.remove(self._current_id)
-                except APIError as e:
-                    self.logger.error("Could not delete old image for %s, Error: %s", self.container.name, e)
+        if self.is_docupdater():
+            self.logger.info('Waiting for new docupdater container')
+            sleep(600)
+
+        if self.config.recreate_first:
+            self.stop()
+            self.remove()
+
+        if self.config.cleanup:
+            try:
+                self.client.images.remove(self._current_id)
+            except APIError as e:
+                self.logger.error("Could not delete old image for %s, Error: %s", self.container.name, e)
 
     def stop(self):
         self.logger.debug('Stopping container: %s', self.object.name)
@@ -140,18 +186,26 @@ class Container(AbstractObject):
 
     def remove(self):
         self.logger.debug('Removing container: %s', self.container.name)
-        try:
-            self.container.remove()
-        except NotFound as e:
-            self.logger.error("Could not remove container. Error: %s", e)
-            return
+        if not self.container.attrs.get('HostConfig', dict()).get('AutoRemove'):
+            try:
+                self.container.remove()
+            except NotFound as e:
+                self.logger.error("Could not remove container. Error: %s", e)
+                return
+        else:
+            # Docker will remove container, but some time that take few seconds
+            try:
+                while True:
+                    self.client.containers.get(self.name)
+            except NotFound:
+                pass
 
     def recreate(self):
-        new_config = set_properties(old=self.container, new=self._latest_image)
-
-        self.stop()
-        self.remove()
-
+        new_config = set_properties(
+            old=self.container,
+            new=self._latest_image,
+            self_update=self.is_docupdater()
+        )
         created = self.client.api.create_container(**new_config)
         new_container = self.client.containers.get(created.get("Id"))
 

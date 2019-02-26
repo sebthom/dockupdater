@@ -1,15 +1,27 @@
-def set_properties(old, new, self_name=None):
+def set_properties(old, new, self_update=False):
     """Store object for spawning new container in place of the one with outdated image"""
+    labels = old.attrs['Config']['Labels']
+    ports = None if not old.attrs['Config'].get('ExposedPorts') else [
+        (p.split('/')[0], p.split('/')[1]) for p in old.attrs['Config']['ExposedPorts'].keys()
+    ]
+
+    if self_update:
+        if ports:
+            labels["docupdater.updater_port"] = ":".join(["{},{}".format(a, b) for a, b in ports])
+            ports = None
+        elif labels.get("docupdater.updater_port"):
+            ports = [(int(port.split(",")[0]), port.split(",")[1])
+                     for port in labels.get("docupdater.updater_port").split(":")]
+            del labels["docupdater.updater_port"]
+
     properties = {
-        'name': self_name if self_name else old.name,
+        'name': old.name,
         'hostname': old.attrs['Config']['Hostname'],
         'user': old.attrs['Config']['User'],
         'detach': True,
         'domainname': old.attrs['Config']['Domainname'],
         'tty': old.attrs['Config']['Tty'],
-        'ports': None if not old.attrs['Config'].get('ExposedPorts') else [
-            (p.split('/')[0], p.split('/')[1]) for p in old.attrs['Config']['ExposedPorts'].keys()
-        ],
+        'ports': ports,
         'volumes': None if not old.attrs['Config'].get('Volumes') else [
             v for v in old.attrs['Config']['Volumes'].keys()
         ],
@@ -17,7 +29,7 @@ def set_properties(old, new, self_name=None):
         'image': new.tags[0],
         'command': old.attrs['Config']['Cmd'],
         'host_config': old.attrs['HostConfig'],
-        'labels': old.attrs['Config']['Labels'],
+        'labels': labels,
         'entrypoint': old.attrs['Config']['Entrypoint'],
         'environment': old.attrs['Config']['Env']
     }
