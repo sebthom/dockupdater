@@ -1,3 +1,5 @@
+# **Doc**ker + **Updater** = **Docupdater**
+
 [![Release](https://img.shields.io/github/release/docupdater/docupdater.svg?style=flat-square)](https://hub.docker.com/r/docupdater/docupdater/)
 [![Travis (.org)](https://img.shields.io/travis/docupdater/docupdater.svg)](https://travis-ci.org/docupdater/docupdater/)
 [![Python Version](https://img.shields.io/pypi/pyversions/docupdater.svg?style=flat-square)](https://pypi.org/project/docupdater/)
@@ -8,15 +10,13 @@
 
 Automatically keep your docker services and your docker containers up-to-date with the latest version.
 
-A fork of Ouroboros.
-
 ## Overview
 
-Docupdater will monitor (all or specified by a label) running docker containers and running service (in docker swarm) and update them to the (latest or tagged) available image in the remote registry.
+**Docupdater** will monitor (all or specified by a label) running docker containers and running service (in docker swarm) and update them to the (latest or tagged) available image in the remote registry.
 
 - Push your image to your registry and simply wait your defined interval for docupdater to find the new image and redeploy your container autonomously.
 - Notify you via many platforms courtesy of [Apprise](https://github.com/caronc/apprise) 
-- Use with docker swarm to update services on the latest available version
+- Use with Docker swarm to update services on the latest available version
 - Limit your server SSH access
 - Useful to keep 3rd party container up-to-date
 
@@ -24,9 +24,9 @@ Docupdater will monitor (all or specified by a label) running docker containers 
 
 More detailed usage and configuration can be found on [the docs](https://github.com/docupdater/docupdater/blob/master/docs/Home.md).
 
-### Docker
+### Docker container
 
-Docupdater is deployed via docker image in a standalone container like so:
+**Docupdater** is deployed via docker image in a standalone container like so:
 
 ```bash
 docker run -d --name docupdater \
@@ -34,7 +34,11 @@ docker run -d --name docupdater \
   docupdater/docupdater
 ```
 
-or via a stack file (docker swarm):
+> This is image is compatible for amd64, arm32, and arm64 CPU architectures
+
+### Docker swarm (service)
+
+**Docupdater** can be deploy on a service like that:
 
 ```bash
 version: "3.6"
@@ -44,11 +48,17 @@ services:
     image: docupdater/docupdater
 ```
 
-> This is image is compatible for amd64, arm32, and arm64 CPU architectures
+> Docupdater need to run on a manager node
 
-## Examples
-Per-command and scenario examples can be found in the [docs](https://github.com/docupdater/docupdater/blob/master/docs/Home.md).
+## Getting helps
 
-## Contributing
+* [Issues list](https://github.com/docupdater/docupdater/issues)
+* [Documentation](https://github.com/docupdater/docupdater/blob/master/docs/Home.md)
+* [Frequently Asked Questions](https://github.com/docupdater/docupdater/blob/master/docs/Frequently-Asked-Questions.md)
+
+## Reporting bugs and contributing
 
 All contributions are welcome!
+
+* Want to report a bug or request a feature? Please open [an issue](https://github.com/docupdater/docupdater/issues/new).
+* Want to help us? Your contribution and your pull request are welcome. We need all the help we can get!
