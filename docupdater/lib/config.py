@@ -118,7 +118,7 @@ class Config(object):
             self.options['auth_json'] = None
 
         if self.disable_containers_check and self.disable_services_check:
-            raise AttributeError("Error you can't disable all monitoring.")
+            raise AttributeError("Error you can't disable all monitoring (containers/services).")
 
         if self.interval < 30:
             self.logger.warning('Minimum value for interval was 30 seconds.')

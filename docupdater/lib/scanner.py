@@ -54,25 +54,41 @@ class Scanner(object):
         if not self.config.disable_containers_check:
             monitored.extend(self._scan_containers())
 
-        try:
-            if not self.config.disable_services_check:
-                monitored.extend(self._scan_services())
-        except APIError as e:
-            if "this node is not a swarm manager" in str(e).lower():
-                self.logger.debug("Your aren't running in swarm mode, skip services.")
-            else:
-                raise e
+        if not self.config.disable_services_check:
+            monitored.extend(self._scan_services())
 
         return monitored
 
-    def update(self):
-        monitoreds = self.scan_monitored()
+    def check_swarm_mode(self):
+        try:
+            if not self.client.swarm:  # Docker-py client has a bug, that return an exception instead of None
+                self.logger.info("Your aren't running in swarm mode, skip services check.")
+                self.config.disable_services_check = True
+        except Exception as e:
+            error_str = str(e).lower()
+            if "this node is not a swarm manager" in error_str:
+                if "worker nodes" in error_str:
+                    raise EnvironmentError(
+                        "Your running on a swarm worker, it isn't working. You must add placement constraints. "
+                        "See docs at https://github.com/docupdater/docupdater for help."
+                    )
+                else:
+                    self.logger.info("Your aren't running in swarm mode, skip services check.")
+                    self.config.disable_services_check = True
+            else:
+                raise e
 
-        if not monitoreds:
+        if self.config.disable_containers_check and self.config.disable_services_check:
+            raise AttributeError("Error you can't disable all monitoring (containers/services).")
+
+    def update(self):
+        monitored = self.scan_monitored()
+
+        if not monitored:
             self.logger.info('No containers/services are running or monitored on %s', self.socket)
             return
 
-        for container_or_service in monitoreds:
+        for container_or_service in monitored:
             self.logger.debug("checking object %s", container_or_service.name)
 
             if container_or_service.has_new_version():
