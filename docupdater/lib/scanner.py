@@ -20,7 +20,7 @@ class Scanner(object):
         """Return filtered container objects list"""
         monitored_containers = []
 
-        for container in self.client.containers.list(filters={'status': 'running'}):
+        for container in self.client.containers.list(filters={'status': 'running'}, ignore_removed=True):
             enable_label = container.labels.get(ENABLE_LABEL, False)
             disable_label = container.labels.get(DISABLE_LABEL, False)
             swarm = container.labels.get('com.docker.stack.namespace', False)
@@ -60,7 +60,8 @@ class Scanner(object):
         except APIError as e:
             if "this node is not a swarm manager" in str(e).lower():
                 self.logger.debug("Your aren't running in swarm mode, skip services.")
-            raise e
+            else:
+                raise e
 
         return monitored
 
@@ -79,8 +80,27 @@ class Scanner(object):
                 container_or_service.update()
                 self.logger.debug('%s is updated', container_or_service.name)
                 self.notification_manager.send(
-                    TemplateMessage(container_or_service), container_or_service.config.notifiers)
+                    TemplateMessage(container_or_service),
+                    container_or_service.config.notifiers
+                )
                 if container_or_service.config.wait:
+                    self.logger.info('Waiting %s before next update', container_or_service.config.wait)
                     sleep(container_or_service.config.wait)
             else:
                 self.logger.debug("no new version for %s", container_or_service.name)
+
+    def self_update(self):
+        if not self.config.disable_containers_check:
+            # Removing old docupdater
+            self.logger.debug('Looking for old docupdater on %s', self.socket)
+            for container in self.client.containers.list(all=True, ignore_removed=True):
+                if container.name.endswith("_old_docupdater"):
+                    self.logger.debug('Stopping and deleting %s', container.name)
+                    container.stop()
+                    container.remove()
+            # Fix docupdater if they need exposed port
+            for container in self.client.containers.list(all=True, ignore_removed=True):
+                if container.labels.get("docupdater.updater_port"):
+                    self.logger.info('Recreate docupdater container with exposed ports')
+                    Container(self.docker, container)
+                    container.update()

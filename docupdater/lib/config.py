@@ -15,7 +15,8 @@ LABELS_MAPPING = {
     "docupdater.stop_signal": "stop_signal",
     "docupdater.cleanup": "cleanup",
     "docupdater.template_file": "template_file",
-    "docupdater.wait": "wait"
+    "docupdater.wait": "wait",
+    "docupdater.recreate_first": "recreate_first"
 }
 
 
@@ -36,6 +37,7 @@ class DefaultConfig(object):
     disable_services_check = False
     latest = False
     wait = 0
+    recreate_first = False
 
     repo_user = None
     repo_pass = None
