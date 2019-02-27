@@ -1,7 +1,5 @@
 from time import sleep
 
-from docker.errors import APIError
-
 from .config import DISABLE_LABEL, ENABLE_LABEL
 from .notifiers import TemplateMessage
 from .update import Container, Service
