@@ -106,7 +106,7 @@ services:
 With the template file `template.j2`:
 
 ```
-"{{ object.name }}" ("{{ object.get_image_name() }}":" {{ object.get_tag() }}")
+{% raw %}{{ object.name }} ({{ object.get_image_name() }}: {{ object.get_tag() }}){% endraw %}
 ```
 
 
