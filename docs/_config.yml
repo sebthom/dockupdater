@@ -1,4 +1,4 @@
-theme: jekyll-theme-cayman
+theme: jekyll-theme-slate
 title: Docker + Updater = Docupdater
 description: Automatically keep your docker services and your docker containers up-to-date with the latest version
 show_downloads: false
