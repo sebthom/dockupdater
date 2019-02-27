@@ -15,70 +15,70 @@ from .lib.scanner import Scanner
 
 @click.command()
 @click.version_option(version=VERSION)
-@click.option("-d", "--docker-sockets", "docker_sockets",
+@click.option("-d", "--docker-sockets", "docker_sockets", envvar="DOCKER_SOCKETS",
               default=DefaultConfig.docker_sockets, show_default=True, multiple=True,
               help='Socket for docker management. EXAMPLE: -d unix://var/run/docker.sock')
-@click.option("-t", "--docker-tls", "docker_tls",
+@click.option("-t", "--docker-tls", "docker_tls", envvar="DOCKER_TLS",
               is_flag=True, default=DefaultConfig.docker_tls, show_default=True,
               help='Enable docker TLS. REQUIRES: docker cert mount')
-@click.option("-T", "--docker-tls-verify", "docker_tls_verify",
+@click.option("-T", "--docker-tls-verify", "docker_tls_verify", envvar="DOCKER_TLS_VERIFY",
               is_flag=True, default=DefaultConfig.docker_tls_verify, show_default=True,
               help='Verify the CA Certificate mounted for TLS')
-@click.option("-i", "--interval", "interval",
+@click.option("-i", "--interval", "interval", envvar="INTERVAL",
               type=int, default=DefaultConfig.interval, show_default=True,
               help='Interval in seconds between checking for updates')
-@click.option("-C", "--cron", "cron",
+@click.option("-C", "--cron", "cron", envar="CRON",
               default=DefaultConfig.cron,
               help='Cron formatted string for scheduling. EXAMPLE: "*/5 * * * *"')
-@click.option("-l", "--log-level", "log_level",
+@click.option("-l", "--log-level", "log_level", envvar="LOG_LEVEL",
               type=click.Choice(['debug', 'info', 'warn', 'error', 'critical']), default=DefaultConfig.log_level,
               show_default=True, help='Set logging level')
-@click.option("-L", "--latest", "latest",
+@click.option("-L", "--latest", "latest", envvar="LATEST",
               default=DefaultConfig.latest, show_default=True, is_flag=True,
               help='Pull the :latest tags and update all containers to it.')
-@click.option("-o", "--run-once", "run_once",
+@click.option("-o", "--run-once", "run_once", envvar="RUN_ONCE",
               is_flag=True, default=DefaultConfig.run_once, show_default=True,
               help='Single run')
-@click.option("-N", "--notifiers", "notifiers",
+@click.option("-N", "--notifiers", "notifiers", envvar="NOTIFIERS",
               default=DefaultConfig.notifiers, multiple=True,
               help='Apprise formatted notifiers\n'
                    'EXAMPLE: -N discord://1234123412341234/jasdfasdfasdfasddfasdf '
                    'mailto://user:pass@gmail.com')
-@click.option("--skip-start-notif", "skip_start_notif",
+@click.option("--skip-start-notif", "skip_start_notif", envvar="SKIP_START_NOTIF",
               default=DefaultConfig.skip_start_notif, is_flag=True, show_default=True,
               help='Skip notification of docupdater has started')
-@click.option("--template-file", "template_file",
+@click.option("--template-file", "template_file", envvar="TEMPLATE_FILE",
               default=DefaultConfig.template_file, type=click.Path(),
               help='Use a custom template for notification')
-@click.option("-k", "--label", "label",
+@click.option("-k", "--label", "label", envvar="LABEL",
               default=DefaultConfig.label, is_flag=True, show_default=True,
               help='Enable label monitoring for docupdater instead of monitoring all containers/services')
-@click.option("-c", "--cleanup", "cleanup",
+@click.option("-c", "--cleanup", "cleanup", envvar="CLEANUP",
               default=DefaultConfig.cleanup, is_flag=True, show_default=True,
               help='Remove old images after updating')
-@click.option("-r", "--repo-user", "repo_user",
+@click.option("-r", "--repo-user", "repo_user", envvar="REPO_USER",
               default=DefaultConfig.repo_user,
               help='Private docker registry username\n'
                    'EXAMPLE: foo@bar.baz')
-@click.option("-R", "--repo-pass", "repo_pass",
+@click.option("-R", "--repo-pass", "repo_pass", envvar="REPO_PASS",
               default=DefaultConfig.repo_pass,
               help='Private docker registry password')
-@click.option("--stop-signal", "stop_signal",
+@click.option("--stop-signal", "stop_signal", envvar="STOP_SIGNAL",
               type=int, default=DefaultConfig.stop_signal,
               help='Override the stop signal send to container')
-@click.option("--disable-services-check", "disable_services_check",
+@click.option("--disable-services-check", "disable_services_check", envvar="DISABLE_SERVICES_CHECK",
               default=DefaultConfig.disable_services_check, is_flag=True, show_default=True,
               help='Disable services (swarm) check')
-@click.option("--disable-containers-check", "disable_containers_check",
+@click.option("--disable-containers-check", "disable_containers_check", envvar="DISABLE_CONTAINERS_CHECK",
               default=DefaultConfig.disable_containers_check, is_flag=True, show_default=True,
               help='Disable standalone containers check')
 @click.option("--hostname", "hostname",
               default=DefaultConfig.hostname, envvar="HOSTNAME",
               help='Set hostname (for debugging only)')
-@click.option("-w", "--wait", "wait",
+@click.option("-w", "--wait", "wait", envvar="WAIT",
               default=DefaultConfig.wait, type=click.INT,
               help='Define a time in seconds to wait after an update before updating any others containers/services.')
-@click.option("-F", "--recreate-first", "recreate_first",
+@click.option("-F", "--recreate-first", "recreate_first", envvar="RECREATE_FIRST",
               default=DefaultConfig.recreate_first, type=click.INT,
               help='Create a new container before stopping the old container.')
 def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level, run_once, notifiers,
@@ -175,7 +175,7 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
 
 
 def main():
-    cli(auto_envvar_prefix="DOCUPDATER")
+    cli()
 
 
 if __name__ == "__main__":
