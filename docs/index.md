@@ -8,9 +8,10 @@ Automatically keep your docker services and your docker containers up-to-date wi
 - [Customized Scheduling](Customized-Scheduling.md)
 - [Notifications](Notifications.md)
 - [Frequently Asked Questions (FAQ)](Frequently-Asked-Questions.md)
-  - [Timezone Configuration](Frequently-Asked-Questions.md#timezone-configuration)
-  - [Exclude docupdater to be updated](Frequently-Asked-Questions.md#exclude-docupdater-to-be-updated)
-  - [How install docupdater without docker](Frequently-Asked-Questions.md#how-install-docupdater-without-docker)
+  - [How to configure Timezone](Frequently-Asked-Questions.md#how-to-configure-timezone)
+  - [How to stop Docupdater auto update](Frequently-Asked-Questions.md#how-to-stop-docupdater-auto-update)
+  - [How install Docupdater without docker](Frequently-Asked-Questions.md#how-install-docupdater-without-docker)
+  - [How to remove container after service update](Frequently-Asked-Questions.md#how-to-remove-container-after-service-update)
 
 ## Overview
 

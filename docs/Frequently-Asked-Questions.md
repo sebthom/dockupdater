@@ -1,12 +1,13 @@
 # Frequently Asked Questions
 
-* [Timezone Configuration](#timezone-configuration)
-* [Exclude docupdater to be updated](#exclude-docupdater-to-be-updated)
-* [How install docupdater without docker](#how-install-docupdater-without-docker)
+* [How to configure Timezone](#how-to-configure-timezone)
+* [How to stop Docupdater auto update](#how-to-stop-docupdater-auto-update)
+* [How install Docupdater without docker](#how-install-docupdater-without-docker)
+* [How to remove container after service update](#how-to-remove-container-after-service-update)
 
 ***
 
-## Timezone Configuration
+## How to configure Timezone
 
 To more closely monitor docupdater' actions and for accurate log ingestion, you can change the timezone of the container from UTC by setting the [`TZ`](http://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html) environment variable like so:
 
@@ -17,7 +18,7 @@ docker run -d --name docupdater \
   docupdater/docupdater
 ```
 
-## Exclude docupdater to be updated
+## How to stop Docupdater auto update
 
 Your can add label `docupdater.disable="true"` on the container or service to disable auto update.
 
@@ -43,7 +44,7 @@ services:
         docupdater.disable: "true"
 ```
 
-## How install docupdater without docker
+## How install Docupdater without docker
 
 docupdater can also be installed via pip:
 
@@ -56,3 +57,11 @@ And can then be invoked using the docupdater command:
 $ docupdater --interval 300 --log-level debug
 
 > Docupdater need Python 3.6 or up
+
+## How to remove containers after service update
+
+By default Docker swarm keep 5 stop containers by service. You can configure that number at 0 to always remove old containers.
+
+The update your docker swarm, run that command on a manager:
+
+$ docker swarm update --task-history-limit=0
