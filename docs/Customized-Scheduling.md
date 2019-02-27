@@ -15,3 +15,7 @@ Example using Docupdater to update containers every Monday at 5AM:
 ```bash
 docker run --rm -d --name docupdater -v /var/run/docker.sock:/var/run/docker.sock docupdater/docupdater --cron 0 5 * * 1
 ```
+
+***
+
+Next: [Notifications](Notifications.md)

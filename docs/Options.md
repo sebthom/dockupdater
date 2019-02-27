@@ -298,3 +298,7 @@ Can be override with the label `docupdater.template_file`.
 **Example:** `-e SKIP_START_NOTIF=true`  
 
 Docupdater send a notification when it start. That option disable this notification.
+
+***
+
+Next: [Customize usage with labels](Labels.md)

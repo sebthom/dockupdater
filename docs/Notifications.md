@@ -115,3 +115,7 @@ On this example:
 * testA will send update notifications on `#devops-monitoring` channel.
 * testB will send update notifications on `#devops-monitoring` and `#teamB` channel.
 * testC will not send update notifications.
+
+***
+
+Next: [Frequently Asked Questions (FAQ)](Frequently-Asked-Questions.md)

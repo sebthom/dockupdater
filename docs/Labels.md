@@ -88,3 +88,7 @@ This override the default notifiers. You can disable notification for a specific
 **Example:** `docupdater.template_file: "/template.j2"`  
 
 That override for this container or service the notification message to use. See [notifications docs](Notifications.md).
+
+***
+
+Next: [Private Registries](Private-Registries.md)

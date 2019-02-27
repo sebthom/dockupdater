@@ -29,3 +29,7 @@ docker run -d --name docupdater \
   -v /var/run/docker.sock:/var/run/docker.sock \
   docupdater/docupdater
 ```
+
+***
+
+Next: [Customized Scheduling](Customized-Scheduling.md)
