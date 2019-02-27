@@ -53,7 +53,7 @@ class AbstractObject(ABC):
             # The authentification doesn't work with this call
             # See bugs https://github.com/docker/docker-py/issues/2225
             # return self.client.images.get_registry_data(tag)
-            return self.client.images.pull(name_with_tag)
+            return self.client.images.pull(name_with_tag, auth_config=self.config.auth_json)
         except APIError as e:
             if '<html>' in str(e):
                 self.logger.debug("Docker api issue. Ignoring")
