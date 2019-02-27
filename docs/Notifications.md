@@ -105,9 +105,10 @@ services:
 
 With the template file `template.j2`:
 
-```bash
+```
 {{ object.name }} ({{ object.get_image_name() }}:{{ object.get_tag() }})
 ```
+
 
 On this example:
 
