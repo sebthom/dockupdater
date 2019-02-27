@@ -17,8 +17,8 @@ services:
   docupdater:
     image: docupdater/docupdater
     environment:
-        - DOCUPDATER_INTERVAL=30
-        - DOCUPDATER_LABEL=true
+        - INTERVAL=30
+        - LABEL=true
     deploy:
       labels:
         docupdater.disable: "true"
@@ -73,7 +73,7 @@ Shows the current version number then exits
 
 **Type:** String - Choice  
 **Command Line:**  `-l, --log-level`  
-**Environment Variable:** `DOCUPDATER_LOG_LEVEL`  
+**Environment Variable:** `LOG_LEVEL`  
 **Choices:**
 
 * debug
@@ -83,7 +83,7 @@ Shows the current version number then exits
 * critical
 
 **Default:** `info`  
-**Example:** `-e DOCUPDATER_LOG_LEVEL=info`  
+**Example:** `-e LOG_LEVEL=info`  
 
 Sets your logging verbosity level.
 
@@ -93,9 +93,9 @@ Sets your logging verbosity level.
 
 **Type:** Integer  
 **Command Line:**  `-i, --interval`  
-**Environment Variable:** `DOCUPDATER_INTERVAL`
+**Environment Variable:** `INTERVAL`
 **Default**: `300`  
-**Example:** `-e DOCUPDATER_INTERVAL=300`  
+**Example:** `-e INTERVAL=300`  
 
 The interval in seconds between checking for updates. There is a hard-coded 30 second minimum. Anything lower than that will set to 30. 
 
@@ -103,9 +103,9 @@ The interval in seconds between checking for updates. There is a hard-coded 30 s
 
 **Type:** String  
 **Command Line:**  `-C, --cron`  
-**Environment Variable:** `DOCUPDATER_CRON`  
+**Environment Variable:** `CRON`  
 **Default**: `None`  
-**Example:** `-e DOCUPDATER_CRON="*/5 * * * *"`   
+**Example:** `-e CRON="*/5 * * * *"`   
 
 The schedule defined when to check for updates. If not defined, runs at interval.
 
@@ -113,7 +113,7 @@ The schedule defined when to check for updates. If not defined, runs at interval
 
 **Type:** Boolean - Interrupting  
 **Command Line:**  `-o, --run-once`  
-**Environment Variable:** `DOCUPDATER_RUN_ONCE`  
+**Environment Variable:** `RUN_ONCE`  
 **Default:** `False`  
 
 Docupdater will only do a single pass of all container checks, and then exit. This is a great way to granularly control scheduling with an outside scheduler like cron. If during the single pass docupdater has to self-update, it will do another full pass after updating itself to ensure that all containers were checked.
@@ -124,9 +124,9 @@ Docupdater will only do a single pass of all container checks, and then exit. Th
 
 **Type:** List - Space separated
 **Command Line:**  `-d, --docker-sockets`  
-**Environment Variable:** `DOCUPDATER_DOCKER_SOCKETS`  
+**Environment Variable:** `DOCKER_SOCKETS`  
 **Default:** `unix://var/run/docker.sock`  
-**Example:** `-e DOCUPDATER_DOCKER_SOCKETS="unix://var/run/docker.sock tcp://192.168.1.100:2376"`  
+**Example:** `-e DOCKER_SOCKETS="unix://var/run/docker.sock tcp://192.168.1.100:2376"`  
 
 Allows you to define the docker socket.
 
@@ -134,9 +134,9 @@ Allows you to define the docker socket.
 
 **Type:** Boolean  
 **Command Line:**  `-t, --docker-tls`  
-**Environment Variable:** `DOCUPDATER_DOCKER_TLS`  
+**Environment Variable:** `DOCKER_TLS`  
 **Default:** `False`  
-**Example:** `-e DOCUPDATER_DOCKER_TLS=true -v $DOCKER_CERT_FOLDER:/root/.docker/`  
+**Example:** `-e DOCKER_TLS=true -v $DOCKER_CERT_FOLDER:/root/.docker/`  
 
 Enables docker TLS secure client connections by certificate
 
@@ -144,9 +144,9 @@ Enables docker TLS secure client connections by certificate
 
 **Type:** Boolean  
 **Command Line:**  `-T, --docker-tls-verify`  
-**Environment Variable:** `DOCUPDATER_DOCKER_TLS_VERIFY`  
+**Environment Variable:** `DOCKER_TLS_VERIFY`  
 **Default:** `True`  
-**Example:** `-e DOCUPDATER_DOCKER_TLS_VERIFY=false`  
+**Example:** `-e DOCKER_TLS_VERIFY=false`  
 
 Verify CA certificate for docker deamon
 
@@ -154,9 +154,9 @@ Verify CA certificate for docker deamon
 
 **Type:** Boolean  
 **Command Line:**  `-k, --label`  
-**Environment Variable:** `DOCUPDATER_LABEL`  
+**Environment Variable:** `LABEL`  
 **Default:** `False`  
-**Example:** `-e DOCUPDATER_LABEL=true`  
+**Example:** `-e LABEL=true`  
 
 This flag allows a more strict control over docupdater's updates. If the container or service does not have a `docupdater.enable` label, it will be ignored completely. See [Labels](Labels.md) for a list of all available labels.
 
@@ -164,9 +164,9 @@ This flag allows a more strict control over docupdater's updates. If the contain
 
 **Type:** Boolean  
 **Command Line:**  `--disable-services-check`  
-**Environment Variable:** `DOCUPDATER_DISABLE_SERVICES_CHECK`  
+**Environment Variable:** `DISABLE_SERVICES_CHECK`  
 **Default:** `False`  
-**Example:** `-e DOCUPDATER_DISABLE_SERVICES_CHECK=true`  
+**Example:** `-e DISABLE_SERVICES_CHECK=true`  
 
 Disable the scan for services (swarm). With this flag only standalone container will be updated.
 
@@ -174,9 +174,9 @@ Disable the scan for services (swarm). With this flag only standalone container 
 
 **Type:** Boolean  
 **Command Line:**  `--disable-containers-check`  
-**Environment Variable:** `DOCUPDATER_DISABLE_CONTAINERS_CHECK`  
+**Environment Variable:** `DISABLE_CONTAINERS_CHECK`  
 **Default:** `False`  
-**Example:** `-e DOCUPDATER_DISABLE_CONTAINERS_CHECK=true`  
+**Example:** `-e DISABLE_CONTAINERS_CHECK=true`  
 
 Disable the scan for standalone containers.
 
@@ -184,9 +184,9 @@ Disable the scan for standalone containers.
 
 **Type:** Boolean  
 **Command Line:**  `-c, --cleanup`  
-**Environment Variable:** `DOCUPDATER_CLEANUP`  
+**Environment Variable:** `CLEANUP`  
 **Default:** `False`  
-**Example:** `-e DOCUPDATER_CLEANUP=true`  
+**Example:** `-e CLEANUP=true`  
 
 Remove the old images after updating. If you have multiple containers using the same image, it will ensure all containers are updated before successfully removing the image.
 
@@ -194,9 +194,9 @@ Remove the old images after updating. If you have multiple containers using the 
 
 **Type:** Boolean  
 **Command Line:**  `-L, --latest`  
-**Environment Variable:** `DOCUPDATER_LATEST`  
+**Environment Variable:** `LATEST`  
 **Default:** `False`  
-**Example:** `-e DOCUPDATER_LATEST=true`  
+**Example:** `-e LATEST=true`  
 
 Pull the `:latest` tags and update all containers to it, regardless of the current tag the container is running as. Can be override with the label `docupdater.latest`. See [Labels](Labels.md) for a list of all available labels.
 
@@ -204,9 +204,9 @@ Pull the `:latest` tags and update all containers to it, regardless of the curre
 
 **Type:** String  
 **Command Line:**  `-r, --repo-user`  
-**Environment Variable:** `DOCUPDATER_REPO_USER`  
+**Environment Variable:** `REPO_USER`  
 **Default:** `None`  
-**Example:** `-e DOCUPDATER_REPO_USER=johndoe1970`  
+**Example:** `-e REPO_USER=johndoe1970`  
 
 Define a username for repository authentication. Will be ignored without defining a repository password.
 
@@ -214,9 +214,9 @@ Define a username for repository authentication. Will be ignored without definin
 
 **Type:** String  
 **Command Line:**  `-R, --repo-pass`  
-**Environment Variable:** `DOCUPDATER_REPO_PASS`  
+**Environment Variable:** `REPO_PASS`  
 **Default:** `None`  
-**Example:** `-e DOCUPDATER_REPO_PASS=0791eodnhoj`  
+**Example:** `-e REPO_PASS=0791eodnhoj`  
 
 Define a password for repository authentication. Will be ignored without defining a repository username.
 
@@ -224,9 +224,9 @@ Define a password for repository authentication. Will be ignored without definin
 
 **Type:** Int  
 **Command Line:**  `--stop-signal`  
-**Environment Variable:** `DOCUPDATER_STOP_SIGNAL`  
+**Environment Variable:** `STOP_SIGNAL`  
 **Default:** `None`  
-**Example:** `-e DOCUPDATER_STOP_SIGNAL=12`  
+**Example:** `-e STOP_SIGNAL=12`  
 
 Define a stop signal to send to the container instead of SIGKILL. Default behavior is to use default docker stop command. Only for standalone container. Can be override with the label `docupdater.stop_signal`.
 
@@ -234,9 +234,9 @@ Define a stop signal to send to the container instead of SIGKILL. Default behavi
 
 **Type:** Int  
 **Command Line:**  `-w, --wait`  
-**Environment Variable:** `DOCUPDATER_WAIT`  
+**Environment Variable:** `WAIT`  
 **Default:** `0`  
-**Example:** `-e DOCUPDATER_WAIT=60`  
+**Example:** `-e WAIT=60`  
 
 Define a time in seconds to wait after an update before updating any others containers or services. Can be override with the label `docupdater.wait`.
 
@@ -244,9 +244,9 @@ Define a time in seconds to wait after an update before updating any others cont
 
 **Type:** Int  
 **Command Line:**  `-F, --recreate-first`  
-**Environment Variable:** `DOCUPDATER_RECREATE_FIRST`  
+**Environment Variable:** `RECREATE_FIRST`  
 **Default:** `0`  
-**Example:** `-e DOCUPDATER_RECREATE_FIRST=true`  
+**Example:** `-e RECREATE_FIRST=true`  
 
 Work only with standalone container. To minimize application down time, we could create the new container before deleting the old.
 
@@ -260,9 +260,9 @@ Self update of docupdater always use this feature. Can be override with the labe
 
 **Type:** List - Space separated  
 **Command Line:**  `-N, --notifiers`  
-**Environment Variable:** `DOCUPDATER_NOTIFIERS`  
+**Environment Variable:** `NOTIFIERS`  
 **Default:** `None`  
-**Example:** `-e DOCUPDATER_NOTIFIERS="mailtos://myUsername:myPassword@gmail.com?to=receivingAddress@gmail.com jsons://webhook.site/something"`  
+**Example:** `-e NOTIFIERS="mailtos://myUsername:myPassword@gmail.com?to=receivingAddress@gmail.com jsons://webhook.site/something"`  
 
 Docupdater uses [apprise](https://github.com/caronc/apprise) to support a large variety of notification platforms.
 
@@ -274,9 +274,9 @@ More information can be found in the [notifications docs](Notifications.md). Can
 
 **Type:** Path  
 **Command Line:**  `--template-file`  
-**Environment Variable:** `DOCUPDATER_TEMPLATE_FILE`  
+**Environment Variable:** `TEMPLATE_FILE`  
 **Default:** `None`  
-**Example:** `-e DOCUPDATER_TEMPLATE_FILE="/template.j2"`  
+**Example:** `-e TEMPLATE_FILE="/template.j2"`  
 
 Use this template instead of default template file. We use jinja2 template style to parse the template. Must be a valid path, don't forget to mount the template in the container.
 
@@ -291,8 +291,8 @@ Can be override with the label `docupdater.template_file`.
 
 **Type:**  Boolean
 **Command Line:**  `--skip-start-notif`  
-**Environment Variable:** `DOCUPDATER_SKIP_START_NOTIF`  
+**Environment Variable:** `SKIP_START_NOTIF`  
 **Default:** `False`  
-**Example:** `-e DOCUPDATER_SKIP_START_NOTIF=true`  
+**Example:** `-e SKIP_START_NOTIF=true`  
 
 Docupdater send a notification when it start. That option disable this notification.

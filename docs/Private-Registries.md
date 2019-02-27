@@ -14,7 +14,7 @@ docker run -d --name docupdater \
 
 ```
 docker run -d --name docupdater \
-  -e DOCUPDATER_REPO_USER=myUser -e DOCUPDATER_REPO_PASS=myPassword \
+  -e REPO_USER=myUser -e REPO_PASS=myPassword \
   -v /var/run/docker.sock:/var/run/docker.sock \
   docupdater/docupdater
 ```
