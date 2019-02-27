@@ -46,6 +46,10 @@ version: "3.6"
 services:
   docupdater:
     image: docupdater/docupdater
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 ```
 
 > Docupdater need to run on a manager node

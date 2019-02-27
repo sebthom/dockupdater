@@ -30,7 +30,7 @@ docker run -d --name docupdater \
   docupdater/docupdater
 ```
 
-If your run docupdater on a stack:
+If your run docupdater with a stack:
 
 ```bash
 version: "3.6"
