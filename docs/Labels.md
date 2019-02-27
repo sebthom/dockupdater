@@ -26,9 +26,10 @@ services:
 * [Enable update](#enable-update)
 * [Latest](#latest)
 * [Stop signal](#stop-signal)
+* [Wait time](#wait-time)
+* [Recreate first](#recreate-first)
 * [Notifiers](#notifiers)
 * [Template file](#template-file)
-* [Recreate first](#recreate-first)
 
 ***
 
