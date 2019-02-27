@@ -6,7 +6,28 @@ Command line arguments can be viewed by running:
 docker run --rm docupdater/docupdater --help
 ```
 
-> All command line arguments can be substituted with an environment variable. All examples will be given as environment variables for a `docker run -e option=option_value`.
+All command line arguments can be substituted with an environment variable. All examples will be given as environment variables for a `docker run -e option=option_value`.
+
+On a stack file (Docker swarm), you may set the environment variable like so:
+
+```bash
+version: "3.6"
+
+services:
+  docupdater:
+    image: docupdater/docupdater
+    environment:
+        - DOCUPDATER_INTERVAL=30
+        - DOCUPDATER_LABEL=true
+    deploy:
+      labels:
+        docupdater.disable: "true"
+      placement:
+        constraints:
+          - node.role == manager
+```
+
+> On stack mode, environment variables should not be enclosed in quotation marks.
 
 ***
 
@@ -20,8 +41,6 @@ docker run --rm docupdater/docupdater --help
 * [Docker Specifics](#docker-specifics)
   * [Docker Sockets](#docker-sockets)
   * [Docker TLS Verify](#docker-tls-verify)
-  * [Monitor](#monitor)
-  * [Ignore](#ignore)
   * [Label](#label)
   * [Cleanup](#cleanup)
   * [Latest](#latest)
