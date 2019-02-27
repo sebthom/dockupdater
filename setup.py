@@ -23,7 +23,7 @@ setup(
     description='Automatically keep your docker services and your docker containers up-to-date with the latest version',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
-    url='https://github.com/docupdater/docupdater',
+    url='https://docupdater.github.io/docupdater/',
     license='MIT',
     classifiers=['Programming Language :: Python',
                  'Programming Language :: Python :: 3.6',

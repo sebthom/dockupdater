@@ -1,4 +1,4 @@
-# **Doc**ker + **Updater** = **Docupdater**
+# Docker + Updater = Docupdater
 
 [![Release](https://img.shields.io/github/release/docupdater/docupdater.svg?style=flat-square)](https://hub.docker.com/r/docupdater/docupdater/)
 [![Travis (.org)](https://img.shields.io/travis/docupdater/docupdater.svg)](https://travis-ci.org/docupdater/docupdater/)
@@ -12,7 +12,7 @@ Automatically keep your docker services and your docker containers up-to-date wi
 
 ## Overview
 
-**Docupdater** will monitor (all or specified by a label) running docker containers and running service (in docker swarm) and update them to the (latest or tagged) available image in the remote registry.
+**Docupdater** will monitor (all or specified by a label) running docker containers and running service (in Docker swarm) and update them to the (latest or tagged) available image in the remote registry.
 
 - Push your image to your registry and simply wait your defined interval for docupdater to find the new image and redeploy your container autonomously.
 - Notify you via many platforms courtesy of [Apprise](https://github.com/caronc/apprise) 

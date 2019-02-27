@@ -1,5 +1,3 @@
-# **Doc**ker + **Updater** = **Docupdater**
-
 Automatically keep your docker services and your docker containers up-to-date with the latest version.
 
 ## Table of Contents
