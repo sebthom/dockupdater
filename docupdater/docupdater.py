@@ -27,7 +27,7 @@ from .lib.scanner import Scanner
 @click.option("-i", "--interval", "interval", envvar="INTERVAL",
               type=int, default=DefaultConfig.interval, show_default=True,
               help='Interval in seconds between checking for updates')
-@click.option("-C", "--cron", "cron", envar="CRON",
+@click.option("-C", "--cron", "cron", envvar="CRON",
               default=DefaultConfig.cron,
               help='Cron formatted string for scheduling. EXAMPLE: "*/5 * * * *"')
 @click.option("-l", "--log-level", "log_level", envvar="LOG_LEVEL",
