@@ -74,7 +74,7 @@ services:
   docupdater:
     image: docupdater/docupdater
     environment:
-      DOCUPDATER_NOTIFIERS: "slack://${SLACK_TOKEN}/#devops-monitoring"
+      NOTIFIERS: "slack://${SLACK_TOKEN}/#devops-monitoring"
       TZ: "America/Montreal"
       TEMPLATE_FILE: "/template.j2"
     configs:
