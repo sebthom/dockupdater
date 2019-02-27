@@ -4,7 +4,7 @@ Label on container or service can override the default behavior.
 
 You can use the LABEL instruction on the Dockerfile or add label on the run command: `docker run -it -d --label docupdater.disable=true docupdater/docupdater`.
 
-See this example of stack file to add a label on a service (swarm):
+See this example of stack file to add a label on a service (Docker swarm):
 
 ```bash
 version: "3.6"
@@ -15,6 +15,9 @@ services:
     deploy:
       labels:
         docupdater.disable: "true"
+      placement:
+        constraints:
+          - node.role == manager
 ```
 
 ***
