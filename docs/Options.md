@@ -42,6 +42,8 @@ services:
   * [Docker Sockets](#docker-sockets)
   * [Docker TLS Verify](#docker-tls-verify)
   * [Label](#label)
+  * [Disable containers check](#disable-containers-check)
+  * [Disable services check (swarm)](#disable-services-check-swarm)
   * [Cleanup](#cleanup)
   * [Latest](#latest)
   * [Repository User](#repository-user)
