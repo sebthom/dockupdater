@@ -82,6 +82,10 @@ services:
         target: /template.j2
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 
   testA:
     image: myorg/testimage

@@ -30,7 +30,7 @@ docker run -d --name docupdater \
   docupdater/docupdater
 ```
 
-If your run docupdater on a stack:
+If your run docupdater with a stack:
 
 ```bash
 version: "3.6"
@@ -54,3 +54,5 @@ pip install docupdater
 And can then be invoked using the docupdater command:
 
 $ docupdater --interval 300 --log-level debug
+
+> Docupdater need Python 3.6 or up
