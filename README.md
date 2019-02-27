@@ -22,7 +22,7 @@ Automatically keep your docker services and your docker containers up-to-date wi
 
 ## Getting Started
 
-More detailed usage and configuration can be found on [the docs](https://github.com/docupdater/docupdater/blob/master/docs/Home.md).
+More detailed usage and configuration can be found on [the docs](https://docupdater.github.io/docupdater/).
 
 ### Docker container
 
@@ -57,8 +57,8 @@ services:
 ## Getting helps
 
 * [Issues list](https://github.com/docupdater/docupdater/issues)
-* [Documentation](https://github.com/docupdater/docupdater/blob/master/docs/Home.md)
-* [Frequently Asked Questions](https://github.com/docupdater/docupdater/blob/master/docs/Frequently-Asked-Questions.md)
+* [Documentation](https://docupdater.github.io/docupdater/)
+* [Frequently Asked Questions](https://docupdater.github.io/docupdater/Frequently-Asked-Questions.md)
 
 ## Reporting bugs and contributing
 
