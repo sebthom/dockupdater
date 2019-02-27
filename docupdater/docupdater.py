@@ -111,6 +111,7 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
                     latest=latest,
                     wait=wait,
                     recreate_first=recreate_first)
+    config.config_blacklist()  # Configure mask on logger
 
     log.logger.debug("pyupdater configuration: %s", config.options)
 

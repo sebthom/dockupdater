@@ -53,7 +53,6 @@ class Config(object):
         self.logger = getLogger()
         self.compute_args()
         self.filtered_strings = None
-        self.config_blacklist()
 
     @classmethod
     def from_labels(cls, config, labels):
