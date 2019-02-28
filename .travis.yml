@@ -38,14 +38,17 @@ before_deploy:
 deploy:
   - provider: script
     script: bash scripts/deploy.sh
+    skip_cleanup: true
     on:
       branch: master
   - provider: script
     script: bash scripts/release_deploy.sh
+    skip_cleanup: true
     on:
       tags: true
   - provider: pypi
     user: $PYPI_USERNAME
+    skip_cleanup: true
     password:
       secure: l4n2PpkbtiuyEsNkDX4oq5NKjDKYaOyT0HoovJY2QJeJu78/tWihxWYInE40YaExq1SbjXPr3Ufqny/TvaeAsQ43GpooE/4ueyLisR8V8msq6YrGGTmH1TtDFXM7x9rujdWYRuUBG2ry2O2SNWpM3aBXco/U0DeflbTujj3hhrXfjozWt3Hm1a9ToS3Z/saMYozL80G94xdX4LZ4BrJQZutlycsNYpK0LTDl/q/ILBuoOwyMB+/mi2dQD3ex93jWOUfyepff3SGjCMjH4JAbob0yT4Zq7tuyFeNICcNEocVgkt7+2h1Xr+erEbPTybKs46IF4jpu0kq9ln8PeRv8quHqEUUoHAsBoMGN7CHAedGRJTBv9tRXQf0JvkTrHYXsTckrkC11Lpse8OonTXN+QeNyUmbZzeR+y4sZsgt4icRUmutb2d3J0NSqdhfT6YRhPwUPgaSfnkLscwldV+eGi7QlIM1xTeszSY5yFOoJqGMLCIfc3kEkA/Mv/50JgSxpMHjG83+9GeaQ/LvNjuHzY6W1ZFb0PWIanV1OTWwE74QINxt4ngIv9aEuxnSouwTspuZVZScbmSnhJ7+vA3bvFS9ximsZq01eMVFf0qycdsVY+GRGNZ3OGw1CsPfShbQtWf45Ko1aPbXAKOy9DUYobnKt7hsXTZcLezknZBF6Ry8=
     on:
