@@ -16,6 +16,7 @@ before_install:
   - echo '{"experimental":"enabled"}' | sudo tee $HOME/.docker/config.json
   - sudo chown $USER $HOME/.docker/config.json
   - sudo service docker restart
+  - bash scripts/update_version.sh
 
 install:
   - pip install -r requirements.txt
