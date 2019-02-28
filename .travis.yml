@@ -33,6 +33,7 @@ script:
 
 before_deploy:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - bash scripts/update_version.sh
 
 deploy:
   - provider: script
