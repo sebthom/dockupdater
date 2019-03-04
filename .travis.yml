@@ -26,6 +26,7 @@ before_script:
   - python -m flake8 --max-line-length 120 docupdater
   - pip install -e .
   - pytest --cov-report term --cov=docupdate
+  - codecov
 
 script:
   - python setup.py sdist bdist_wheel
@@ -33,9 +34,6 @@ script:
   - docker build --squash -f Dockerfile --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-amd64" .
   - docker build --squash -f Dockerfile.arm --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm" .
   - docker build --squash -f Dockerfile.arm64 --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm64" .
-
-after_success:
-  - codecov
 
 before_deploy:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
