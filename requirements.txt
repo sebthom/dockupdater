@@ -5,3 +5,7 @@ apscheduler>=3.5.3
 jinja2>=2.10
 click>=7.0
 flake8
+pytest>=4.3.0
+pytest-mock=>1.10.1
+pytest-cov>=2.6.1
+codecov

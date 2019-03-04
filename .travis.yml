@@ -5,7 +5,8 @@ python: 3.7
 
 env:
   global:
-    secure: c6wQiwgTIO9NhBEgs3zdvtHQ1OLjXfJ7mPl07apRLBYQjtuyL7YuEgcS3/g90/5v/LIMV6lA9q+oZyG8m9vwS/Sm9nYuaNbaHyfYS1AS7rGzTyaVPZkctD2DtPD00/OSKJGjn64HNEnhHQajpPEHBayBKTnGXoofQyOGlLaAbIFEV/TzO4UV0Aw2cUnRfVIP6at8ESey6JU278dgGdFqBFJLOzpdEiiVLmpCmpUXgJZqQ3PDaLBf2iqFfimXni/tZt4hfDFh3Bz9rnBxKjOqnkjhYueIKz3VtLWiBE0SZ+/GAsbgl/v01IonKzXYo9izhhMK0m1js/taFLUuj13tUKLDBKtRcH4ZGXIaImYI/TG5pk9uGS9odhFiVjTQQ7rQ95ykbiUfSWksnTZB292m4ue1XhqVM8ugY6VuNBFSZc+EDOZZJTDPENP+ZpdOTY/Y5jZhxNruP68xT5O/X0MBF3d7K7O3sVaGlo6+lMDHPjZf0LMdQaOMvOn8RoVnKr8aNn06/ZuNZecmqX2Goo9hYR9bhIuTpXnBAFUF6RtU2A5gBf3rxr+B7efSB8l+8qjKo2aSS6tHeGagARimIThMuKE151F6qPrfamSDWM5axccpdxrbx8PjShw498b+/v4Uyl5Lt0jK4uBf8MVMhmXbVc7m3IbgZHhab1k9z62X8qM=
+  - secure: c6wQiwgTIO9NhBEgs3zdvtHQ1OLjXfJ7mPl07apRLBYQjtuyL7YuEgcS3/g90/5v/LIMV6lA9q+oZyG8m9vwS/Sm9nYuaNbaHyfYS1AS7rGzTyaVPZkctD2DtPD00/OSKJGjn64HNEnhHQajpPEHBayBKTnGXoofQyOGlLaAbIFEV/TzO4UV0Aw2cUnRfVIP6at8ESey6JU278dgGdFqBFJLOzpdEiiVLmpCmpUXgJZqQ3PDaLBf2iqFfimXni/tZt4hfDFh3Bz9rnBxKjOqnkjhYueIKz3VtLWiBE0SZ+/GAsbgl/v01IonKzXYo9izhhMK0m1js/taFLUuj13tUKLDBKtRcH4ZGXIaImYI/TG5pk9uGS9odhFiVjTQQ7rQ95ykbiUfSWksnTZB292m4ue1XhqVM8ugY6VuNBFSZc+EDOZZJTDPENP+ZpdOTY/Y5jZhxNruP68xT5O/X0MBF3d7K7O3sVaGlo6+lMDHPjZf0LMdQaOMvOn8RoVnKr8aNn06/ZuNZecmqX2Goo9hYR9bhIuTpXnBAFUF6RtU2A5gBf3rxr+B7efSB8l+8qjKo2aSS6tHeGagARimIThMuKE151F6qPrfamSDWM5axccpdxrbx8PjShw498b+/v4Uyl5Lt0jK4uBf8MVMhmXbVc7m3IbgZHhab1k9z62X8qM=
+  - secure: 3CGFXs4Qh2qheBSKF3HfSsy7IoT6KXBxNcqH/mSVOgaFWyP3OU77pDkboohq+CrKSf3mjJeAA7fOVj/bVVUhxZHb6M0gf1TqenplhkX9lCIAXRpbwBbAADBbWmVF87seFvNW5mHFfRK30ouFQZsKbIHU2SyvnWa51pJTM/8fr3un4Pz0aiJFFTXjplP2L4poy9zaL4tqG4/zLouF4r/D0sLuNIFlGdZt7ZuW9pLaiRT3hH0CSC5lK6Bnfmo+SRjrZbLrFom5f90+cmgqlBzkM8uGQUgZNQCIf07jCj9ZkhLo+x9578xwvGmDhidrsRmtFCkGQAOZrScmw4C387beEa5y49h17FFFhkzI5vNNqWWxK1TuinlzdeD3TVCRFL6+/0ROm1VY34Rt6eKf9A+XuKhTFatKrxmBIzsxuo4l2GWBlU+I5eZ1NUWGnbrrws07sq8zBdJrjrN2myB3OpwrkoFaFn9QK2HBtBKEi9ckxktDigigGjOGz8b3lLjYk1SP0UZv1o5tADqi6GkQneNv/YHhBhLGyAi8XOfQpm5pM6NLjMtHKscsdLUTI2KSA2K0qfYIVqH4uhSQOIhq4bn7Yi89FaZKLeuedxi2S54ZWM8Fq1QBNegnfocmLrbGzRmrbdKaz1oz57Aiv5LGsR86YCq3kUTxZG6+LmRCp+xdWfA=
 
 services:
   - docker
@@ -20,16 +21,20 @@ before_install:
 
 install:
   - pip install -r requirements.txt
-  - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 
 before_script:
   - python -m flake8 --max-line-length 120 docupdater
+  - pytest --cov-report term --cov=docupdate
 
 script:
   - python setup.py sdist bdist_wheel
+  - docker run --rm --privileged multiarch/qemu-user-static:register --reset
   - docker build --squash -f Dockerfile --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-amd64" .
   - docker build --squash -f Dockerfile.arm --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm" .
   - docker build --squash -f Dockerfile.arm64 --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm64" .
+
+after_success:
+  - codecov
 
 before_deploy:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
@@ -47,7 +52,7 @@ deploy:
     on:
       tags: true
   - provider: pypi
-    user: $PYPI_USERNAME
+    user: "$PYPI_USERNAME"
     skip_cleanup: true
     password:
       secure: l4n2PpkbtiuyEsNkDX4oq5NKjDKYaOyT0HoovJY2QJeJu78/tWihxWYInE40YaExq1SbjXPr3Ufqny/TvaeAsQ43GpooE/4ueyLisR8V8msq6YrGGTmH1TtDFXM7x9rujdWYRuUBG2ry2O2SNWpM3aBXco/U0DeflbTujj3hhrXfjozWt3Hm1a9ToS3Z/saMYozL80G94xdX4LZ4BrJQZutlycsNYpK0LTDl/q/ILBuoOwyMB+/mi2dQD3ex93jWOUfyepff3SGjCMjH4JAbob0yT4Zq7tuyFeNICcNEocVgkt7+2h1Xr+erEbPTybKs46IF4jpu0kq9ln8PeRv8quHqEUUoHAsBoMGN7CHAedGRJTBv9tRXQf0JvkTrHYXsTckrkC11Lpse8OonTXN+QeNyUmbZzeR+y4sZsgt4icRUmutb2d3J0NSqdhfT6YRhPwUPgaSfnkLscwldV+eGi7QlIM1xTeszSY5yFOoJqGMLCIfc3kEkA/Mv/50JgSxpMHjG83+9GeaQ/LvNjuHzY6W1ZFb0PWIanV1OTWwE74QINxt4ngIv9aEuxnSouwTspuZVZScbmSnhJ7+vA3bvFS9ximsZq01eMVFf0qycdsVY+GRGNZ3OGw1CsPfShbQtWf45Ko1aPbXAKOy9DUYobnKt7hsXTZcLezknZBF6Ry8=
