@@ -1,7 +1,8 @@
 # Docker + Updater = Docupdater
 
 [![Release](https://img.shields.io/github/release/docupdater/docupdater.svg?style=flat-square)](https://hub.docker.com/r/docupdater/docupdater/)
-[![Travis (.org)](https://img.shields.io/travis/docupdater/docupdater.svg)](https://travis-ci.org/docupdater/docupdater/)
+[![Travis](https://img.shields.io/travis/docupdater/docupdater/master.svg)](https://travis-ci.org/docupdater/docupdater/)
+[![Codecov](https://img.shields.io/codecov/c/github/docupdater/docupdater/master.svg)](https://codecov.io/gh/docupdater/docupdater)
 [![Python Version](https://img.shields.io/pypi/pyversions/docupdater.svg?style=flat-square)](https://pypi.org/project/docupdater/)
 [![Pypi Version](https://img.shields.io/pypi/v/docupdater.svg?style=flat-square)](https://pypi.org/project/docupdater/)
 [![Latest version](https://images.microbadger.com/badges/version/docupdater/docupdater.svg)](https://microbadger.com/images/docupdater/docupdater)
