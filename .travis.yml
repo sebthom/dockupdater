@@ -24,6 +24,7 @@ install:
 
 before_script:
   - python -m flake8 --max-line-length 120 docupdater
+  - pip install -e .
   - pytest --cov-report term --cov=docupdate
 
 script:
