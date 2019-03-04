@@ -248,17 +248,23 @@ class Service(AbstractObject):
         return self.service.attrs['Spec']['TaskTemplate']['ContainerSpec']['Image'].split(":", 1)[0]
 
     def get_tag(self):
-        tag = self.service.attrs['Spec']['TaskTemplate']['ContainerSpec']['Image'].split(":", 1)[1]
-        if ":" in tag and "@" in tag:
-            tag = tag.split("@")[0]
-        return tag
+        tag = self.service.attrs['Spec']['TaskTemplate']['ContainerSpec']['Image'].split(":", 1)
+        if len(tag) == 2:
+            tag = tag[1]
+            if ":" in tag and "@" in tag:
+                tag = tag.split("@")[0]
+            return tag
+        return "latest"
 
     def get_sha(self):
-        tag = self.service.attrs['Spec']['TaskTemplate']['ContainerSpec']['Image'].split(":", 1)[1]
-        sha = ""
-        if ":" in tag and "@" in tag:
-            sha = tag.split("@")[1]
-        return remove_sha_prefix(sha)
+        tag = self.service.attrs['Spec']['TaskTemplate']['ContainerSpec']['Image'].split(":", 1)
+        if len(tag) == 2:
+            tag = tag[1]
+            sha = ""
+            if ":" in tag and "@" in tag:
+                sha = tag.split("@")[1]
+            return remove_sha_prefix(sha)
+        return ""  # Empty, force to update this service for next time
 
     @property
     def service(self):

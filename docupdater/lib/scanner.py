@@ -59,7 +59,7 @@ class Scanner(object):
 
     def check_swarm_mode(self):
         try:
-            if not self.client.swarm:  # Docker-py client has a bug, that return an exception instead of None
+            if not self.client.swarm or not self.client.swarm.attrs:
                 self.logger.info("Your aren't running in swarm mode, skip services check.")
                 self.config.disable_services_check = True
         except Exception as e:

@@ -5,11 +5,6 @@ import pytest
 from docupdater.lib.config import DefaultConfig, Config, MINIMUM_INTERVAL
 
 
-@pytest.fixture()
-def config():
-    return Config(**{key: value for key, value in DefaultConfig.__dict__.items() if "__" not in key})
-
-
 def _update_config(options, new_options):
     options.update(new_options)
     return Config(**options)
@@ -64,7 +59,7 @@ def test_config_invalid(config):
         config.invalid_option
 
 
-def test_config_set_attribute():
+def test_config_set_attribute(config):
     # Set a attribute
     config.hostname = "MyTestHostname"
     assert config.hostname == "MyTestHostname"

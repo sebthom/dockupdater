@@ -1,9 +1,34 @@
 import pytest
 from docker.client import DockerClient
 
+from docupdater.lib.config import DefaultConfig, Config
+from docupdater.lib.dockerclient import Docker
+from docupdater.lib.notifiers import NotificationManager
+from docupdater.lib.scanner import Scanner
+
 # Global variables for caching fixture
 HELLO_WORLD_IMAGE = None
 HELLO_WORLD_CONTAINER = None
+
+
+@pytest.fixture()
+def config():
+    return Config(**{key: value for key, value in DefaultConfig.__dict__.items() if "__" not in key})
+
+
+@pytest.fixture()
+def notification(config):
+    return NotificationManager(config)
+
+
+@pytest.fixture()
+def docker_client(config, notification):
+    return Docker("unix://var/run/docker.sock", config, notification)
+
+
+@pytest.fixture()
+def scanner(docker_client):
+    return Scanner(docker_client)
 
 
 @pytest.fixture()

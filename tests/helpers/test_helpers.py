@@ -1,8 +1,10 @@
+import pytest
 from docker.client import DockerClient
 
 from docupdater.helpers.helpers import set_properties, remove_sha_prefix, convert_to_boolean, get_id_from_image
 
 
+@pytest.mark.docker
 def test_set_properties(hello_world_container, hello_world_image):
     new = set_properties(hello_world_container, hello_world_image)
     assert new.get("labels", dict()).get("test") == "12345"
@@ -13,6 +15,7 @@ def test_set_properties(hello_world_container, hello_world_image):
     assert all([env for env in new.get("environment") if env == "env1=test1"])
 
 
+@pytest.mark.docker
 def test_set_properties_with_self_update(hello_world_image):
     client = DockerClient.from_env()
 
