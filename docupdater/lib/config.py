@@ -68,6 +68,8 @@ class Config(object):
                         options[LABELS_MAPPING[label]] = value.split(" ")
                     elif label in ["docupdater.latest", "docupdater.cleanup"]:
                         options[LABELS_MAPPING[label]] = convert_to_boolean(value)
+                    elif label in ["docupdater.wait"]:
+                        options[LABELS_MAPPING[label]] = int(value)
                     else:
                         options[LABELS_MAPPING[label]] = value
                     if label == "docupdater.template_file":

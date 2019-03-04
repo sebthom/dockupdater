@@ -1,11 +1,13 @@
 import time
 
+import pytest
 from click.testing import CliRunner
 
 from docupdater.docupdater import cli
 from docupdater.lib.scanner import Scanner
 
 
+@pytest.mark.cli
 def test_cli_default_options(mocker, monkeypatch):
     monkeypatch.setattr(time, 'sleep', lambda s: None)
     monkeypatch.setattr("apscheduler.schedulers.base.BaseScheduler.get_jobs", lambda s: False)
