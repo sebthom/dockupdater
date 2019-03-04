@@ -12,6 +12,7 @@ def set_properties(old, new, self_update=False):
         elif labels.get("docupdater.updater_port"):
             ports = [(int(port.split(",")[0]), port.split(",")[1])
                      for port in labels.get("docupdater.updater_port").split(":")]
+            labels["docupdater.updater_port"] = None
             del labels["docupdater.updater_port"]
 
     properties = {
