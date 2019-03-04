@@ -18,7 +18,7 @@ def read(filename):
 setup(
     name='docupdater',
     version=VERSION,
-    maintainer='Any github maintainer',
+    maintainer='Mathieu Cantin',
     maintainer_email='harcher81@gmail.com',
     description='Automatically keep your docker services and your docker containers up-to-date with the latest version',
     long_description=read('README.md'),
@@ -28,7 +28,7 @@ setup(
     classifiers=['Programming Language :: Python',
                  'Programming Language :: Python :: 3.6',
                  'Programming Language :: Python :: 3.7'],
-    packages=find_packages(),
+    packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     include_package_data=True,
     scripts=['entrypoint'],
     install_requires=requirements,
