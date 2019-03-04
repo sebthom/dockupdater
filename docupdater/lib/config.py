@@ -6,6 +6,8 @@ from pathlib import Path
 from .logger import BlacklistFilter
 from ..helpers.helpers import convert_to_boolean
 
+MINIMUM_INTERVAL = 30
+
 ENABLE_LABEL = "docupdater.enable"
 DISABLE_LABEL = "docupdater.disable"
 
@@ -119,9 +121,9 @@ class Config(object):
         if self.disable_containers_check and self.disable_services_check:
             raise AttributeError("Error you can't disable all monitoring (containers/services).")
 
-        if self.interval < 30:
+        if self.interval < MINIMUM_INTERVAL:
             self.logger.warning('Minimum value for interval was 30 seconds.')
-            self.interval = 30
+            self.interval = MINIMUM_INTERVAL
 
         # Config sanity checks
         if self.cron:
