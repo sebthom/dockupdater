@@ -96,10 +96,12 @@ class Container(AbstractObject):
         return self.object
 
     def get_current_id(self):
-        return self._current_id[10:]
+        return (self._current_id or "")[10:]
 
     def get_latest_id(self):
-        return get_id_from_image(self._latest_image)[10:]
+        if self._latest_image:
+            return get_id_from_image(self._latest_image)[10:]
+        return ""
 
     def is_docupdater(self):
         docupdater = "docupdater" in self.container.attrs.get("Config", dict()).get("Image", self.name)
@@ -271,10 +273,10 @@ class Service(AbstractObject):
         return self.object
 
     def get_current_id(self):
-        return self._current_sha[:10]
+        return (self._current_sha or "")[:10]
 
     def get_latest_id(self):
-        return self._latest_sha[:10]
+        return (self._latest_sha or "")[:10]
 
     def has_new_version(self):
         self.config = Config.from_labels(self.config, self.service.attrs.get('Spec', dict()).get('Labels'))
