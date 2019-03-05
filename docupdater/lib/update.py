@@ -23,25 +23,23 @@ class AbstractObject(ABC):
 
     @abstractmethod
     def get_image_name(self):
-        pass
+        """Get image name"""
 
     @abstractmethod
     def get_tag(self):
-        pass
+        """Get image tag"""
 
     @abstractmethod
     def has_new_version(self):
-        pass
+        """Return true if there are a new version"""
 
     @abstractmethod
     def get_current_id(self):
         """Return the current id for notification"""
-        pass
 
     @abstractmethod
     def get_latest_id(self):
         """Return the latest id for notification"""
-        pass
 
     def _pull(self, name_with_tag):
         """Docker pull image tag"""
@@ -107,7 +105,7 @@ class Container(AbstractObject):
         docupdater = "docupdater" in self.container.attrs.get("Config", dict()).get("Image", self.name)
         if not docupdater:
             for history in self.container.image.history():
-                if "docupdater" in history.get("Tags", list()) or list():
+                if "docupdater" in (history.get("Tags", list()) or list()):
                     docupdater = True
                     break
         if docupdater:
@@ -151,7 +149,7 @@ class Container(AbstractObject):
             new_name = f"{self.name}_old"
             if self.is_docupdater():
                 new_name = f"{self.name}_old_docupdater"
-                self.container.rename(new_name)
+            self.container.rename(new_name)
         else:
             self.stop()
             self.remove()

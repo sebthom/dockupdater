@@ -5,6 +5,7 @@ from docupdater.lib.config import DefaultConfig, Config
 from docupdater.lib.dockerclient import Docker
 from docupdater.lib.notifiers import NotificationManager
 from docupdater.lib.scanner import Scanner
+from docupdater.lib.update import Container, Service
 
 # Global variables for caching fixture
 HELLO_WORLD_IMAGE = None
@@ -29,6 +30,30 @@ def docker_client(config, notification):
 @pytest.fixture()
 def scanner(docker_client):
     return Scanner(docker_client)
+
+
+@pytest.fixture()
+def service(docker_client):
+    if not docker_client.client.swarm.attrs:
+        docker_client.client.swarm.init(force_new_cluster=True)
+    try:
+        service = docker_client.client.services.create(
+            "busybox:latest",
+            name="TestServiceUpdate1"
+        )
+    except:
+        service = docker_client.client.services.get("TestServiceUpdate1")
+    return Service(docker_client, service)
+
+
+@pytest.fixture()
+def container(docker_client):
+    try:
+        container = docker_client.client.containers.run(
+            "busybox:latest", tty=True, detach=True, name="ContainerUpdateTest1")
+    except:
+        container = docker_client.client.containers.get("ContainerUpdateTest1")
+    return Container(docker_client, container)
 
 
 @pytest.fixture()
