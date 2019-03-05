@@ -59,6 +59,7 @@ services:
 
 * [Issues list](https://github.com/docupdater/docupdater/issues)
 * [Documentation](https://docupdater.github.io/docupdater/)
+* [Releases and changelogs](https://github.com/docupdater/docupdater/releases)
 * [Frequently Asked Questions](https://docupdater.github.io/docupdater/Frequently-Asked-Questions.md)
 
 ## Reporting bugs and contributing

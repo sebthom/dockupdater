@@ -52,3 +52,8 @@ services:
 ```
 
 > Docupdater need to run on a manager node
+
+## Getting helps
+
+* [Issues list](https://github.com/docupdater/docupdater/issues)
+* [Releases and changelogs](https://github.com/docupdater/docupdater/releases)
