@@ -1,3 +1,4 @@
+import re
 from copy import deepcopy
 from logging import getLogger
 from os import environ
@@ -5,6 +6,9 @@ from pathlib import Path
 
 from .logger import BlacklistFilter
 from ..helpers.helpers import convert_to_boolean
+
+OPTION_REGEX_PATTERN = r"(?:weight:(?P<weight>\d+),)?(?P<regex>.*)"
+DEFAULT_REGEX_WEIGHT = 100
 
 MINIMUM_INTERVAL = 30
 
@@ -18,7 +22,9 @@ LABELS_MAPPING = {
     "docupdater.cleanup": "cleanup",
     "docupdater.template_file": "template_file",
     "docupdater.wait": "wait",
-    "docupdater.recreate_first": "recreate_first"
+    "docupdater.recreate_first": "recreate_first",
+    "docupdater.starts": "starts",
+    "docupdater.stops": "stops"
 }
 
 
@@ -41,12 +47,29 @@ class DefaultConfig(object):
     wait = 0
     recreate_first = False
 
+    stops = []
+    starts = []
+
     repo_user = None
     repo_pass = None
 
     notifiers = []
     skip_start_notif = False
     template_file = None
+
+
+class OptionRegex(object):
+    def __init__(self, pattern):
+        """pattern may be in these format:
+            - weight:Digit,regex_pattern
+            - regex_pattern
+        """
+        match = re.match(OPTION_REGEX_PATTERN, pattern, re.IGNORECASE).groupdict()
+        try:
+            self.regex = re.compile(match.get("regex"))
+        except re.error:
+            raise AttributeError("Invalid regex {} for option start or stop.".format(match.get("regex")))
+        self.weight = int(match.get("weight") or DEFAULT_REGEX_WEIGHT)
 
 
 class Config(object):
@@ -70,6 +93,8 @@ class Config(object):
                         options[LABELS_MAPPING[label]] = convert_to_boolean(value)
                     elif label in ["docupdater.wait"]:
                         options[LABELS_MAPPING[label]] = int(value)
+                    elif label in ["docupdater.stops", "docupdater.starts"]:
+                        options[LABELS_MAPPING[label]] = [OptionRegex(item) for item in value.split(" ") if item]
                     else:
                         options[LABELS_MAPPING[label]] = value
                     if label == "docupdater.template_file":
@@ -137,6 +162,10 @@ class Config(object):
             if self.interval < MINIMUM_INTERVAL:
                 self.logger.warning('Minimum value for interval was 30 seconds.')
                 self.interval = MINIMUM_INTERVAL
+
+        # Convert parameters to regex object
+        self.stops = [OptionRegex(stop) for stop in self.stops]
+        self.starts = [OptionRegex(start) for start in self.starts]
 
         self.options['template'] = Config.load_template(self.template_file)
 
