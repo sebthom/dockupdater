@@ -108,13 +108,13 @@ class Scanner(object):
         if not self.config.disable_containers_check:
             # Removing old docupdater
             self.logger.debug('Looking for old docupdater on %s', self.socket)
-            for container in self.client.containers.list(all=True, ignore_removed=True):
+            for container in self.client.containers.list(filters={'status': 'running'}, ignore_removed=True):
                 if container.name.endswith("_old_docupdater"):
                     self.logger.debug('Stopping and deleting %s', container.name)
                     container.stop()
                     container.remove()
             # Fix docupdater if they need exposed port
-            for container in self.client.containers.list(all=True, ignore_removed=True):
+            for container in self.client.containers.list(filters={'status': 'running'}, ignore_removed=True):
                 if container.labels.get("docupdater.updater_port"):
                     self.logger.info('Recreate docupdater container with exposed ports')
                     Container(self.docker, container)
