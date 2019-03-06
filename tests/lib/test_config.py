@@ -29,7 +29,7 @@ def test_config_with_option():
     option_dict["recreate_first"] = True
     option_dict["cleanup"] = True
     option_dict["starts"] = ["myRegex"]
-    option_dict["stops"] = ["weight:999,myRegex", "container2"]
+    option_dict["stops"] = ["weight:999,myRegex", "container2", "weight:2,c.*"]
 
     config = Config(**option_dict)
 
@@ -39,9 +39,13 @@ def test_config_with_option():
     assert config.cleanup is True
     assert len(config.starts) == 1
     assert config.starts[0].weight == DEFAULT_REGEX_WEIGHT
-    assert len(config.stops) == 2
-    assert config.stops[0].weight == 999
+    assert len(config.stops) == 3
+    assert config.stops[0].weight == 2
+    assert config.stops[0].regex.pattern == "c.*"
     assert config.stops[1].weight == DEFAULT_REGEX_WEIGHT
+    assert config.stops[1].regex.pattern == "container2"
+    assert config.stops[2].weight == 999
+    assert config.stops[2].regex.pattern == "myRegex"
 
 
 def test_config_load_labels(config):

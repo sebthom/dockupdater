@@ -170,7 +170,9 @@ class Config(object):
 
         # Convert parameters to regex object
         self.stops = [OptionRegex(stop) if not isinstance(stop, OptionRegex) else stop for stop in self.stops]
+        self.stops.sort(key=lambda x: x.weight)
         self.starts = [OptionRegex(start) if not isinstance(start, OptionRegex) else start for start in self.starts]
+        self.starts.sort(key=lambda x: x.weight)
 
         self.options['template'] = Config.load_template(self.template_file)
 
