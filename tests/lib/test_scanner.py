@@ -2,7 +2,8 @@ import time
 
 import pytest
 
-from docupdater.lib.update import Service, Container
+from docupdater.update.container import Container
+from docupdater.update.service import Service
 
 
 def prepare_containers(scanner):
@@ -60,8 +61,8 @@ def test_scanner_scan_monitored(scanner):
 def test_scanner_update(scanner, mocker, monkeypatch):
     prepare_containers(scanner)
 
-    mocker.patch("docupdater.lib.update.Container.update")
-    mocker.patch("docupdater.lib.update.Service.update")
+    mocker.patch("docupdater.update.container.Container.update")
+    mocker.patch("docupdater.update.service.Service.update")
     monkeypatch.setattr(time, 'sleep', lambda s: None)
 
     scanner.update()

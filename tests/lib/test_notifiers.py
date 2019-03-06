@@ -1,5 +1,5 @@
 from docupdater.lib.notifiers import StartupMessage, TemplateMessage
-from docupdater.lib.update import Container
+from docupdater.update.container import Container
 
 
 def test_notifiers_startup_message():

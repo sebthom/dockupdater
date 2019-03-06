@@ -5,7 +5,8 @@ from docupdater.lib.config import DefaultConfig, Config
 from docupdater.lib.dockerclient import Docker
 from docupdater.lib.notifiers import NotificationManager
 from docupdater.lib.scanner import Scanner
-from docupdater.lib.update import Container, Service
+from docupdater.update.container import Container
+from docupdater.update.service import Service
 
 # Global variables for caching fixture
 HELLO_WORLD_IMAGE = None
