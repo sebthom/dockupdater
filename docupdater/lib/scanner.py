@@ -1,3 +1,4 @@
+import re
 from time import sleep
 
 from .config import DISABLE_LABEL, ENABLE_LABEL
@@ -15,11 +16,25 @@ class Scanner(object):
         self.socket = self.docker.socket
         self.notification_manager = self.docker.notification_manager
 
+    def get_containers(self, pattern=None):
+        return [
+            container
+            for container in self.client.containers.list(filters={'status': 'running'}, ignore_removed=True)
+            if not pattern or re.match(pattern, container.name, re.IGNORECASE)
+        ]
+
+    def get_services(self, pattern=None):
+        return [
+            service
+            for service in self.client.services.list()
+            if not pattern or re.match(pattern, service.name, re.IGNORECASE)
+        ]
+
     def _scan_containers(self):
         """Return filtered container objects list"""
         monitored_containers = []
 
-        for container in self.client.containers.list(filters={'status': 'running'}, ignore_removed=True):
+        for container in self.get_containers():
             enable_label = container.labels.get(ENABLE_LABEL, False)
             disable_label = container.labels.get(DISABLE_LABEL, False)
             swarm = container.labels.get('com.docker.stack.namespace', False)
@@ -36,7 +51,7 @@ class Scanner(object):
         """Return filtered service objects list"""
         monitored_services = []
 
-        for service in self.client.services.list():
+        for service in self.get_services():
             enable_label = service.attrs['Spec']['Labels'].get(ENABLE_LABEL, False)
             disable_label = service.attrs['Spec']['Labels'].get(DISABLE_LABEL, False)
             if (not self.config.label or enable_label) and not disable_label:
@@ -108,13 +123,12 @@ class Scanner(object):
         if not self.config.disable_containers_check:
             # Removing old docupdater
             self.logger.debug('Looking for old docupdater on %s', self.socket)
-            for container in self.client.containers.list(filters={'status': 'running'}, ignore_removed=True):
-                if container.name.endswith("_old_docupdater"):
-                    self.logger.debug('Stopping and deleting %s', container.name)
-                    container.stop()
-                    container.remove()
+            for container in self.get_containers(".*_old_docupdater"):
+                self.logger.debug('Stopping and deleting %s', container.name)
+                container.stop()
+                container.remove()
             # Fix docupdater if they need exposed port
-            for container in self.client.containers.list(filters={'status': 'running'}, ignore_removed=True):
+            for container in self.get_containers():
                 if container.labels.get("docupdater.updater_port"):
                     self.logger.info('Recreate docupdater container with exposed ports')
                     Container(self.docker, container)

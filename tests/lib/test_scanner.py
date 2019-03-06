@@ -40,6 +40,28 @@ def prepare_containers(scanner):
 
 
 @pytest.mark.docker
+@pytest.mark.slow
+def test_scanner_get_containers(scanner):
+    prepare_containers(scanner)
+
+    containers = scanner.get_containers("Test[1-2]")
+    assert len(containers) == 2
+    containers = scanner.get_containers("Nomatch")
+    assert len(containers) == 0
+
+
+@pytest.mark.docker
+@pytest.mark.slow
+def test_scanner_get_services(scanner):
+    prepare_containers(scanner)
+
+    services = scanner.get_services("TestService[2-3]")
+    assert len(services) == 1
+    services = scanner.get_services("Nomatch")
+    assert len(services) == 0
+
+
+@pytest.mark.docker
 def test_scanner_scan_monitored(scanner):
     prepare_containers(scanner)
 
