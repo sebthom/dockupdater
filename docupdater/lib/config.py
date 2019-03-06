@@ -7,7 +7,7 @@ from pathlib import Path
 from .logger import BlacklistFilter
 from ..helpers.helpers import convert_to_boolean
 
-OPTION_REGEX_PATTERN = r"(?:weight:(?P<weight>\d+),)?(?P<regex>.*)"
+OPTION_REGEX_PATTERN = r"^(?:weight:(?P<weight>\d+),)?(?P<regex>.*)$"
 DEFAULT_REGEX_WEIGHT = 100
 
 MINIMUM_INTERVAL = 30
@@ -66,10 +66,14 @@ class OptionRegex(object):
         """
         match = re.match(OPTION_REGEX_PATTERN, pattern, re.IGNORECASE).groupdict()
         try:
+            print(match)
             self.regex = re.compile(match.get("regex"))
         except re.error:
             raise AttributeError("Invalid regex {} for option start or stop.".format(match.get("regex")))
         self.weight = int(match.get("weight") or DEFAULT_REGEX_WEIGHT)
+
+    def __repr__(self):
+        return f"<Option {self.regex}[{self.weight}]>"
 
 
 class Config(object):
@@ -94,7 +98,7 @@ class Config(object):
                     elif label in ["docupdater.wait"]:
                         options[LABELS_MAPPING[label]] = int(value)
                     elif label in ["docupdater.stops", "docupdater.starts"]:
-                        options[LABELS_MAPPING[label]] = [OptionRegex(item) for item in value.split(" ") if item]
+                        options[LABELS_MAPPING[label]] = [OptionRegex(item) for item in value.split(" ")]
                     else:
                         options[LABELS_MAPPING[label]] = value
                     if label == "docupdater.template_file":
@@ -165,8 +169,8 @@ class Config(object):
                 self.interval = MINIMUM_INTERVAL
 
         # Convert parameters to regex object
-        self.stops = [OptionRegex(stop) for stop in self.stops]
-        self.starts = [OptionRegex(start) for start in self.starts]
+        self.stops = [OptionRegex(stop) if not isinstance(stop, OptionRegex) else stop for stop in self.stops]
+        self.starts = [OptionRegex(start) if not isinstance(start, OptionRegex) else start for start in self.starts]
 
         self.options['template'] = Config.load_template(self.template_file)
 
