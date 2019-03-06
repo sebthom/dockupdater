@@ -13,6 +13,11 @@ from .lib.notifiers import NotificationManager, StartupMessage
 from .lib.scanner import Scanner
 
 
+def apscheduler_wait(scheduler):
+    while scheduler.get_jobs():
+        sleep(10)
+
+
 @click.command()
 @click.version_option(version=VERSION)
 @click.option("-d", "--docker-sockets", "docker_sockets", envvar="DOCKER_SOCKETS",
@@ -180,9 +185,7 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
     if not config.skip_start_notif:
         notification_manager.send(StartupMessage(config.hostname, next_run=next_run), config.notifiers)
 
-    while scheduler.get_jobs():
-        sleep(10)
-
+    apscheduler_wait(scheduler)
     scheduler.shutdown()
 
 
