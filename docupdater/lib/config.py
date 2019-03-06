@@ -123,10 +123,6 @@ class Config(object):
         if self.disable_containers_check and self.disable_services_check:
             raise AttributeError("Error you can't disable all monitoring (containers/services).")
 
-        if self.interval < MINIMUM_INTERVAL:
-            self.logger.warning('Minimum value for interval was 30 seconds.')
-            self.interval = MINIMUM_INTERVAL
-
         # Config sanity checks
         if self.cron:
             cron_times = self.cron.strip().split(' ')
@@ -137,6 +133,10 @@ class Config(object):
                 self.logger.info("Cron configuration is valid. Using Cron schedule %s", cron_times)
                 self.cron = cron_times
                 self.interval = None
+        else:
+            if self.interval < MINIMUM_INTERVAL:
+                self.logger.warning('Minimum value for interval was 30 seconds.')
+                self.interval = MINIMUM_INTERVAL
 
         self.options['template'] = Config.load_template(self.template_file)
 
