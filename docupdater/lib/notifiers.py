@@ -5,7 +5,7 @@ from logging import getLogger
 import apprise
 from jinja2 import Environment, BaseLoader
 
-from .update import Service
+from ..update.service import Service
 
 
 class BaseMessage(ABC):

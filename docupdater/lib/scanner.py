@@ -2,7 +2,8 @@ from time import sleep
 
 from .config import DISABLE_LABEL, ENABLE_LABEL
 from .notifiers import TemplateMessage
-from .update import Container, Service
+from ..update.container import Container
+from ..update.service import Service
 
 
 class Scanner(object):
