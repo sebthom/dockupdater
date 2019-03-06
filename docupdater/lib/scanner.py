@@ -1,4 +1,3 @@
-import re
 from time import sleep
 
 from .config import DISABLE_LABEL, ENABLE_LABEL
@@ -17,21 +16,34 @@ class Scanner(object):
         self.notification_manager = self.docker.notification_manager
 
     def get_containers(self, pattern=None):
+        """Return a filtered by name list of containers"""
         return [
             container
             for container in self.client.containers.list(filters={'status': 'running'}, ignore_removed=True)
-            if not pattern or re.match(pattern, container.name, re.IGNORECASE)
+            if not pattern or pattern.match(container.name)
         ]
 
     def get_services(self, pattern=None):
+        """Return a filtered by name list of services"""
         return [
             service
             for service in self.client.services.list()
-            if not pattern or re.match(pattern, service.name, re.IGNORECASE)
+            if not pattern or pattern.match(service.name)
         ]
 
+    def get_all_services_containers(self, pattern):
+        all = []
+
+        if not self.config.disable_containers_check:
+            all.extend([Container(self.docker, container) for container in self.get_containers(pattern)])
+
+        if not self.config.disable_services_check:
+            all.extend([Service(self.docker, service) for service in self.get_services(pattern)])
+
+        return all
+
     def _scan_containers(self):
-        """Return filtered container objects list"""
+        """Return filtered container objects list to update"""
         monitored_containers = []
 
         for container in self.get_containers():
@@ -48,7 +60,7 @@ class Scanner(object):
         return monitored_containers
 
     def _scan_services(self):
-        """Return filtered service objects list"""
+        """Return filtered service objects list to update"""
         monitored_services = []
 
         for service in self.get_services():
@@ -95,7 +107,22 @@ class Scanner(object):
         if self.config.disable_containers_check and self.config.disable_services_check:
             raise AttributeError("Error you can't disable all monitoring (containers/services).")
 
+    def stops_before_update(self, container_or_service):
+        """Stop some containers/services before update"""
+        for stop in container_or_service.config.stops:
+            for container_or_service in self.get_all_services_containers(stop):
+                self.logger.info(f"Stopping {container_or_service.name} before update")
+                container_or_service.stop()
+
+    def starts_after_update(self, container_or_service):
+        """start some containers/services after update"""
+        for start in container_or_service.config.starts:
+            for container_or_service in self.get_all_services_containers(start):
+                self.logger.info(f"Staring {container_or_service.name} after update")
+                container_or_service.start()
+
     def update(self):
+        """Get the list of object, check if update is available, update it"""
         monitored = self.scan_monitored()
 
         if not monitored:
@@ -106,20 +133,27 @@ class Scanner(object):
             self.logger.debug("checking object %s", container_or_service.name)
 
             if container_or_service.has_new_version():
+                self.stops_before_update(container_or_service)
+
                 self.logger.info('%s will be updated', container_or_service.name)
                 container_or_service.update()
                 self.logger.debug('%s is updated', container_or_service.name)
+
                 self.notification_manager.send(
                     TemplateMessage(container_or_service),
                     container_or_service.config.notifiers
                 )
+
                 if container_or_service.config.wait:
                     self.logger.info('Waiting %s before next update', container_or_service.config.wait)
                     sleep(container_or_service.config.wait)
+
+                self.starts_after_update(container_or_service)
             else:
                 self.logger.debug("no new version for %s", container_or_service.name)
 
     def self_update(self):
+        """Check for Docupdater update"""
         if not self.config.disable_containers_check:
             # Removing old docupdater
             self.logger.debug('Looking for old docupdater on %s', self.socket)

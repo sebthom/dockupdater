@@ -111,6 +111,10 @@ class Container(AbstractObject):
             except APIError as e:
                 self.logger.error("Could not delete old image for %s, Error: %s", self.container.name, e)
 
+    def start(self):
+        self.logger.debug('Starting container: %s', self.object.name)
+        self.container.start()
+
     def stop(self):
         self.logger.debug('Stopping container: %s', self.object.name)
 

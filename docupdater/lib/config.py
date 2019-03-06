@@ -72,6 +72,9 @@ class OptionRegex(object):
             raise AttributeError("Invalid regex {} for option start or stop.".format(match.get("regex")))
         self.weight = int(match.get("weight") or DEFAULT_REGEX_WEIGHT)
 
+    def match(self, name):
+        return bool(self.regex.match(name))
+
     def __repr__(self):
         return f"<Option {self.regex}[{self.weight}]>"
 

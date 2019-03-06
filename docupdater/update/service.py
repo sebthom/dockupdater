@@ -41,6 +41,32 @@ class Service(AbstractObject):
     def get_latest_id(self):
         return (self._latest_sha or "")[:10]
 
+    def is_replicated(self):
+        return self.service.attrs.get("Spec", {}).get("Mode", {}).get("Replicated", {})
+
+    def start(self):
+        replicated = self.is_replicated()
+        if replicated:
+            labels = self.service.attrs['Spec']['Labels']
+            replicas = labels.get("docupdater._replicas", 1)
+
+            self.logger.debug('Scaling up service %s to %s', self.object.name, replicas)
+
+            self.service.scale(replicas)
+        else:
+            self.logger.warning("Start service is only available on replicated mode, not in global mode. Skip it.")
+
+    def stop(self):
+        replicated = self.is_replicated()
+        if replicated:
+            self.logger.debug('Scaling down service %s to 0', self.object.name)
+            labels = self.service.attrs['Spec']['Labels']
+            labels["docupdater._replicas"] = str(replicated.get("Replicas"))
+            self.service.scale(0)
+            self.service.update(labels=labels)
+        else:
+            self.logger.warning("Stop service is only available on replicated mode, not in global mode. Skip it.")
+
     def has_new_version(self):
         self.config = Config.from_labels(self.config, self.service.attrs.get('Spec', dict()).get('Labels'))
 

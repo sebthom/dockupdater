@@ -37,6 +37,14 @@ class AbstractObject(ABC):
     def get_latest_id(self):
         """Return the latest id for notification"""
 
+    @abstractmethod
+    def start(self):
+        """Start the container or service"""
+
+    @abstractmethod
+    def stop(self):
+        """Stop the container or service"""
+
     def _pull(self, name_with_tag):
         """Docker pull image tag"""
         self.logger.debug('Checking tag: %s', name_with_tag)
