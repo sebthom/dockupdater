@@ -150,14 +150,15 @@ class Config(object):
 
         # Config sanity checks
         if self.cron:
-            cron_times = self.cron.strip().split(' ')
-            if len(cron_times) != 5:
-                self.logger.critical("Cron must be in cron syntax. e.g. * * * * * (5 places).")
-                raise AttributeError("Invalid cron")
-            else:
-                self.logger.info("Cron configuration is valid. Using Cron schedule %s", cron_times)
-                self.cron = cron_times
-                self.interval = None
+            if not isinstance(self.cron, list):
+                cron_times = self.cron.strip().split(' ')
+                if len(cron_times) != 5:
+                    self.logger.critical("Cron must be in cron syntax. e.g. * * * * * (5 places).")
+                    raise AttributeError("Invalid cron")
+                else:
+                    self.logger.info("Cron configuration is valid. Using Cron schedule %s", cron_times)
+                    self.cron = cron_times
+                    self.interval = None
         else:
             if self.interval < MINIMUM_INTERVAL:
                 self.logger.warning('Minimum value for interval was 30 seconds.')
