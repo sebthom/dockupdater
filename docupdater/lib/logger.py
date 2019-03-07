@@ -6,7 +6,7 @@ class BlacklistFilter(Filter):
     Log filter for blacklisted tokens and passwords
     """
 
-    blacklisted_keys = ['repo_user', 'repo_pass', 'auth_json', 'docker_sockets', 'notifiers']
+    blacklisted_keys = ['repo_user', 'repo_pass', 'docker_sockets', 'notifiers']
 
     def __init__(self, filteredstrings):
         super().__init__()
