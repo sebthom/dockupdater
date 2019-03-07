@@ -30,6 +30,8 @@ def test_config_with_option():
     option_dict["cleanup"] = True
     option_dict["starts"] = ["myRegex"]
     option_dict["stops"] = ["weight:999,myRegex", "container2", "weight:2,c.*"]
+    option_dict["repo_user"] = "username"
+    option_dict["repo_pass"] = "password"
 
     config = Config(**option_dict)
 
