@@ -34,7 +34,7 @@ class TemplateMessage(BaseMessage):
         if isinstance(container_or_service, Service):
             title = f'docupdater has updated services!'
         else:
-            title = f'pyupdater has updated containers!'
+            title = f'docupdater has updated containers!'
 
         template = Environment(loader=BaseLoader).from_string(container_or_service.config.template)
         body = template.render(object=container_or_service)
