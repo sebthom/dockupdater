@@ -4,6 +4,7 @@
 * [How to stop Docupdater auto update](#how-to-stop-docupdater-auto-update)
 * [How install Docupdater without docker](#how-install-docupdater-without-docker)
 * [How to remove container after service update](#how-to-remove-container-after-service-update)
+* [How to use with service but without stack](#how-to-use-with-service-but-without-stack)
 
 ***
 
@@ -65,3 +66,27 @@ By default Docker swarm keep 5 stop containers by service. You can configure tha
 The update your docker swarm, run that command on a manager:
 
 $ docker swarm update --task-history-limit=0
+
+
+## How to use with service but without stack
+
+You can start a service with the command line without using stack file :
+
+```bash
+docker service create --name test1 --replicas=2 --tty=true busybox
+```
+
+Unfortunately that cause an issue with Docupdater. They have 2 workarounds:
+
+**Option 1**
+
+Run Docupdater with the option [`--disable-containers-check`](Options.md#disable-containers-check). That will disable update for standalone containers.
+
+**Option 2**
+
+Add label [`docupdater.disable`](Labels.md#disable-update) on the containers, this will disable update for standalone containers, but service will be updated normally.
+
+You can add label for all containers of a service like that:
+```bash
+docker service create --name test1 --replicas=2 --tty=true --container-label="docupdater.disable=true" busybox
+```

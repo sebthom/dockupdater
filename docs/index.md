@@ -12,6 +12,7 @@ Automatically keep your docker services and your docker containers up-to-date wi
   - [How to stop Docupdater auto update](Frequently-Asked-Questions.md#how-to-stop-docupdater-auto-update)
   - [How install Docupdater without docker](Frequently-Asked-Questions.md#how-install-docupdater-without-docker)
   - [How to remove container after service update](Frequently-Asked-Questions.md#how-to-remove-container-after-service-update)
+  - [How to use with service but without stack](Frequently-Asked-Questions.md#how-to-use-with-service-but-without-stack)
 
 ## Overview
 
