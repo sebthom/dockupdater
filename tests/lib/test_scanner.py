@@ -90,25 +90,3 @@ def test_scanner_update(scanner, mocker, monkeypatch):
     scanner.update()
     Service.update.assert_any_call()
     Container.update.assert_not_called()
-
-
-@pytest.mark.docker
-@pytest.mark.slow
-def test_scanner_check_swarm_mode(scanner):
-    assert scanner.config.disable_services_check is False
-
-    if not scanner.client.swarm.attrs:
-        scanner.client.swarm.init(force_new_cluster=True)
-
-    scanner.check_swarm_mode()
-    assert scanner.config.disable_services_check is False
-
-    scanner.client.swarm.leave(force=True)
-
-    scanner.check_swarm_mode()
-    assert scanner.config.disable_services_check is True
-
-    scanner.config.disable_containers_check = True
-
-    with pytest.raises(AttributeError):
-        scanner.check_swarm_mode()

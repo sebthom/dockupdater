@@ -143,7 +143,7 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
             # Always begin to check the self update
             scanner.self_update()
             # Check docker swarm mode is running on a manager
-            scanner.check_swarm_mode()
+            docker.check_swarm_mode()
 
             if config.cron:
                 scheduler.add_job(

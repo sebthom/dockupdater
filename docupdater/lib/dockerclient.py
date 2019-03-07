@@ -51,3 +51,25 @@ class Docker(object):
             client = DockerClient(base_url=self.socket)
 
         return client
+
+    def check_swarm_mode(self):
+        try:
+            if not self.client.swarm or not self.client.swarm.attrs:
+                self.logger.info("Your aren't running in swarm mode, skip services check.")
+                self.config.disable_services_check = True
+        except Exception as e:
+            error_str = str(e).lower()
+            if "this node is not a swarm manager" in error_str:
+                if "worker nodes" in error_str:
+                    raise EnvironmentError(
+                        "Your running on a swarm worker, it isn't working. You must add placement constraints. "
+                        "See docs at https://github.com/docupdater/docupdater for help."
+                    )
+                else:
+                    self.logger.info("Your aren't running in swarm mode, skip services check.")
+                    self.config.disable_services_check = True
+            else:
+                raise e
+
+        if self.config.disable_containers_check and self.config.disable_services_check:
+            raise AttributeError("Error you can't disable all monitoring (containers/services).")
