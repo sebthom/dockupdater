@@ -1,3 +1,4 @@
+import re
 from time import sleep
 
 from .config import DISABLE_LABEL, ENABLE_LABEL
@@ -17,6 +18,8 @@ class Scanner(object):
 
     def get_containers(self, pattern=None):
         """Return a filtered by name list of containers"""
+        if pattern and isinstance(pattern, str):
+            pattern = re.compile(pattern)
         return [
             container
             for container in self.client.containers.list(filters={'status': 'running'}, ignore_removed=True)
@@ -25,6 +28,8 @@ class Scanner(object):
 
     def get_services(self, pattern=None):
         """Return a filtered by name list of services"""
+        if pattern and isinstance(pattern, str):
+            pattern = re.compile(pattern)
         return [
             service
             for service in self.client.services.list()
