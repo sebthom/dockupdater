@@ -33,6 +33,10 @@ class Container(AbstractObject):
     def container(self):
         return self.object
 
+    @property
+    def labels(self):
+        return self.container.labels
+
     def get_current_id(self):
         return (self._current_id or "")[10:]
 
@@ -52,8 +56,11 @@ class Container(AbstractObject):
             return True
         return False
 
-    def has_new_version(self):
+    def load_new_config(self):
         self.config = Config.from_labels(self.config, self.container.labels)
+
+    def has_new_version(self):
+        self.load_new_config()
 
         current_image_name = self.get_image_name()
         current_tag = self.get_tag()

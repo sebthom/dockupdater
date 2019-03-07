@@ -17,9 +17,13 @@ class Scanner(object):
 
     def get_containers(self, option_regex=None):
         """Return a filtered by name list of containers"""
+        if option_regex:
+            args = dict(all=True)
+        else:
+            args = dict(filters={'status': 'running'})
         return [
             container
-            for container in self.client.containers.list(filters={'status': 'running'}, ignore_removed=True)
+            for container in self.client.containers.list(ignore_removed=True, **args)
             if not option_regex or option_regex.match(container.name)
         ]
 
@@ -87,16 +91,18 @@ class Scanner(object):
 
     def stops_before_update(self, container_or_service):
         """Stop some containers/services before update"""
+        self.logger.debug("Checking to stop containers/services")
         for stop in container_or_service.config.stops:
-            stop.tokens = {"stack": container_or_service.stack_name()}
+            stop.tokens = {"stack": container_or_service.stack_name}
             for container_or_service in self.get_all_services_containers(stop):
                 self.logger.info(f"Stopping {container_or_service.name} before update")
                 container_or_service.stop()
 
     def starts_after_update(self, container_or_service):
         """start some containers/services after update"""
+        self.logger.debug("Checking to start containers/services")
         for start in container_or_service.config.starts:
-            start.tokens = {"stack": container_or_service.stack_name()}
+            start.tokens = {"stack": container_or_service.stack_name}
             for container_or_service in self.get_all_services_containers(start):
                 self.logger.info(f"Staring {container_or_service.name} after update")
                 container_or_service.start()

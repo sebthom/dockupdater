@@ -64,7 +64,7 @@ class OptionRegex(object):
             - weight:Digit,regex_pattern
             - regex_pattern
         """
-        match = re.match(OPTION_REGEX_PATTERN, pattern, re.IGNORECASE).groupdict()
+        match = re.fullmatch(OPTION_REGEX_PATTERN, pattern, re.IGNORECASE).groupdict()
         try:
             re.compile(match.get("regex"))  # Test the regex
             self.regex = match.get("regex")
@@ -78,8 +78,8 @@ class OptionRegex(object):
         if self.tokens:
             for token, value in self.tokens.items():
                 if token and value:
-                    regex = regex.replace("{"+ str(token) + "}", value)
-        return bool(re.match(regex, name))
+                    regex = regex.replace("{" + str(token) + "}", value)
+        return bool(re.fullmatch(regex, name))
 
     def __repr__(self):
         return f"<Option {self.regex}[{self.weight}]>"
@@ -113,6 +113,8 @@ class Config(object):
                     if label == "docupdater.template_file":
                         # Reload template
                         options["template"] = Config.load_template(options.get('template_file'))
+                elif label.startswith("docupdater."):
+                    config.logger.warning("Warning label %s doesn't exist", label)
 
         return cls(**options)
 

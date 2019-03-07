@@ -2,7 +2,20 @@ import pytest
 
 
 @pytest.mark.docker
-def test_update_container_has_new_version(monkeypatch, container, hello_world_image):
+@pytest.mark.slow
+def test_container(container):
+    container.load_new_config()
+    assert container.name == "ContainerUpdateTest1"
+    assert container.get_image_name() == "busybox"
+    assert container.get_tag() == "latest"
+    assert container.labels.get("test") == "9876"
+    assert container.stack_name is None
+    container.stop()
+    container.start()
+
+
+@pytest.mark.docker
+def test_container_has_new_version(monkeypatch, container, hello_world_image):
     monkeypatch.setattr("docker.models.images.ImageCollection.pull", lambda *args, **kwargs: hello_world_image)
 
     assert container.has_new_version() is True
@@ -14,7 +27,7 @@ def test_update_container_has_new_version(monkeypatch, container, hello_world_im
 
 @pytest.mark.docker
 @pytest.mark.slow
-def test_update_container_update(monkeypatch, mocker, container, hello_world_image):
+def test_container_update(monkeypatch, mocker, container, hello_world_image):
     monkeypatch.setattr("docker.models.images.ImageCollection.pull", lambda *args, **kwargs: hello_world_image)
     mocker.patch("docupdater.update.container.Container.recreate")
     container.update()

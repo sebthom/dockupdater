@@ -8,6 +8,8 @@ from docupdater.update.service import Service
 
 
 def prepare_containers(scanner):
+    print("creating containers and services")
+
     if not scanner.client.swarm.attrs:
         scanner.client.swarm.init(force_new_cluster=True)
 
@@ -15,33 +17,55 @@ def prepare_containers(scanner):
         scanner.client.services.create(
             "busybox:latest",
             name="TestService1",
+            tty=True,
             labels={
                 "docupdater.wait": "1"
+            },
+            container_labels={
+                "docupdater.disable": "true"
             }
         )
-        scanner.client.services.create("busybox", name="TestService2")
+        scanner.client.services.create(
+            "busybox",
+            tty=True,
+            name="TestService2",
+            container_labels={
+                "docupdater.disable": "true"
+            }
+        )
 
-        scanner.client.containers.run("busybox", tty=True, detach=True, name="Test1")
+        scanner.client.containers.run(
+            "busybox",
+            tty=True,
+            detach=True,
+            name="Test1"
+        )
         scanner.client.containers.run(
             "busybox",
             tty=True,
             detach=True,
             name="Test2",
-            labels={"docupdater.disable": "true"}
+            labels={
+                "docupdater.disable": "true",
+                "docupdater.stops": "Test1",
+                "docupdater.starts": "Test1"
+            }
         )
         scanner.client.containers.run(
             "busybox",
             tty=True,
             detach=True,
             name="Test3",
-            labels={"docupdater.enable": "false"}
+            labels={
+                "docupdater.enable": "false"
+            }
         )
     except:
         print("Tests containers already exist")
+    print("Done")
 
 
 @pytest.mark.docker
-@pytest.mark.slow
 def test_scanner_get_containers(scanner):
     prepare_containers(scanner)
 
@@ -52,7 +76,6 @@ def test_scanner_get_containers(scanner):
 
 
 @pytest.mark.docker
-@pytest.mark.slow
 def test_scanner_get_services(scanner):
     prepare_containers(scanner)
 
@@ -60,6 +83,26 @@ def test_scanner_get_services(scanner):
     assert len(services) == 1
     services = scanner.get_services(OptionRegex("Nomatch"))
     assert len(services) == 0
+
+
+@pytest.mark.docker
+def test_scanner_starts_stops_before_update(docker_client, scanner):
+    prepare_containers(scanner)
+    container = Container(docker_client, scanner.get_containers(OptionRegex("Test2"))[0])
+
+    container.load_new_config()
+
+    assert container.name == "Test2"
+    assert container.config.stops[0].regex == "Test1"
+    assert container.config.starts[0].regex == "Test1"
+
+    assert docker_client, scanner.get_containers(OptionRegex("Test1"))[0].status == "running"
+
+    scanner.stops_before_update(container)
+    assert docker_client, scanner.get_containers(OptionRegex("Test1"))[0].status != "running"
+
+    scanner.starts_after_update(container)
+    assert docker_client, scanner.get_containers(OptionRegex("Test1"))[0].status == "running"
 
 
 @pytest.mark.docker

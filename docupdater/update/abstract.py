@@ -17,6 +17,11 @@ class AbstractObject(ABC):
     def name(self):
         return self.object.name
 
+    @property
+    @abstractmethod
+    def labels(self):
+        """Return a dict with labels"""
+
     @abstractmethod
     def get_image_name(self):
         """Get image name"""
@@ -24,6 +29,10 @@ class AbstractObject(ABC):
     @abstractmethod
     def get_tag(self):
         """Get image tag"""
+
+    @abstractmethod
+    def load_new_config(self):
+        """Load config with labels"""
 
     @abstractmethod
     def has_new_version(self):
@@ -45,6 +54,7 @@ class AbstractObject(ABC):
     def stop(self):
         """Stop the container or service"""
 
+    @property
     def stack_name(self):
         return None
 

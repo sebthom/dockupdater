@@ -154,7 +154,7 @@ def test_config_option_regex_object():
         OptionRegex("InvalidRegex[")
 
     option = OptionRegex("{stack}_hello-world")
-    option.tokens = {"stack": "test"}
+    option.tokens = {"stack": "test", "invalid": None}
     assert option.match("test_hello-world")
     assert not option.match("test1_hello-world")
     assert not option.match("test_hello")
