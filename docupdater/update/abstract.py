@@ -45,6 +45,9 @@ class AbstractObject(ABC):
     def stop(self):
         """Stop the container or service"""
 
+    def stack_name(self):
+        return None
+
     def _pull(self, name_with_tag):
         """Docker pull image tag"""
         self.logger.debug('Checking tag: %s', name_with_tag)

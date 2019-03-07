@@ -47,8 +47,7 @@ class Service(AbstractObject):
     def start(self):
         replicated = self.is_replicated()
         if replicated:
-            labels = self.service.attrs['Spec']['Labels']
-            replicas = labels.get("docupdater._replicas", 1)
+            replicas = self.labels.get("docupdater._replicas", 1)
 
             self.logger.debug('Scaling up service %s to %s', self.object.name, replicas)
 
@@ -60,15 +59,22 @@ class Service(AbstractObject):
         replicated = self.is_replicated()
         if replicated:
             self.logger.debug('Scaling down service %s to 0', self.object.name)
-            labels = self.service.attrs['Spec']['Labels']
+            labels = self.labels
             labels["docupdater._replicas"] = str(replicated.get("Replicas"))
             self.service.scale(0)
             self.service.update(labels=labels)
         else:
             self.logger.warning("Stop service is only available on replicated mode, not in global mode. Skip it.")
 
+    @property
+    def labels(self):
+        return self.service.attrs.get('Spec', dict()).get('Labels', dict())
+
+    def stack_name(self):
+        return self.labels.get("com.docker.stack.namespace")
+
     def has_new_version(self):
-        self.config = Config.from_labels(self.config, self.service.attrs.get('Spec', dict()).get('Labels'))
+        self.config = Config.from_labels(self.config, self.labels)
 
         current_image_name = self.get_image_name()
         current_tag = self.get_tag()
