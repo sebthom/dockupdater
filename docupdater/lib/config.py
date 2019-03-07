@@ -102,7 +102,7 @@ class Config(object):
                 self.filtered_strings.extend(self.filtered_strings.pop(index))
                 self.filtered_strings.insert(index, self.filtered_strings[-1:][0])
         # Filter out no string item
-        self.filtered_strings = [item for item in self.filtered_strings if isinstance(item, bytes)]
+        self.filtered_strings = [item for item in self.filtered_strings if isinstance(item, str)]
         # Added matching for ports
         ports = [string.split(':')[0] for string in self.filtered_strings if ':' in string]
         self.filtered_strings.extend(ports)
