@@ -43,11 +43,11 @@ def test_config_with_option():
     assert config.starts[0].weight == DEFAULT_REGEX_WEIGHT
     assert len(config.stops) == 3
     assert config.stops[0].weight == 2
-    assert config.stops[0].regex.pattern == "c.*"
+    assert config.stops[0].regex == "c.*"
     assert config.stops[1].weight == DEFAULT_REGEX_WEIGHT
-    assert config.stops[1].regex.pattern == "container2"
+    assert config.stops[1].regex == "container2"
     assert config.stops[2].weight == 999
-    assert config.stops[2].regex.pattern == "myRegex"
+    assert config.stops[2].regex == "myRegex"
 
 
 def test_config_load_labels(config):
@@ -146,9 +146,15 @@ def test_config_invalid_template(config):
 
 
 def test_config_option_regex_object():
-    assert OptionRegex("hello-.*").regex.pattern == "hello-.*"
+    assert OptionRegex("hello-.*").regex == "hello-.*"
     assert OptionRegex("hello-.*").weight == DEFAULT_REGEX_WEIGHT
     assert OptionRegex("weight:1,myregex").weight == 1
     assert OptionRegex("weight:999,myregex").weight == 999
     with pytest.raises(AttributeError):
         OptionRegex("InvalidRegex[")
+
+    option = OptionRegex("{stack}_hello-world")
+    option.tokens = {"stack": "test"}
+    assert option.match("test_hello-world")
+    assert not option.match("test1_hello-world")
+    assert not option.match("test_hello")

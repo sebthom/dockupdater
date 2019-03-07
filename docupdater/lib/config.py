@@ -66,14 +66,20 @@ class OptionRegex(object):
         """
         match = re.match(OPTION_REGEX_PATTERN, pattern, re.IGNORECASE).groupdict()
         try:
-            print(match)
-            self.regex = re.compile(match.get("regex"))
+            re.compile(match.get("regex"))  # Test the regex
+            self.regex = match.get("regex")
         except re.error:
             raise AttributeError("Invalid regex {} for option start or stop.".format(match.get("regex")))
         self.weight = int(match.get("weight") or DEFAULT_REGEX_WEIGHT)
+        self.tokens = None
 
     def match(self, name):
-        return bool(self.regex.match(name))
+        regex = self.regex
+        if self.tokens:
+            for token, value in self.tokens.items():
+                if token and value:
+                    regex = regex.replace("{"+ str(token) + "}", value)
+        return bool(re.match(regex, name))
 
     def __repr__(self):
         return f"<Option {self.regex}[{self.weight}]>"

@@ -2,6 +2,7 @@ import time
 
 import pytest
 
+from docupdater.lib.config import OptionRegex
 from docupdater.update.container import Container
 from docupdater.update.service import Service
 
@@ -44,9 +45,9 @@ def prepare_containers(scanner):
 def test_scanner_get_containers(scanner):
     prepare_containers(scanner)
 
-    containers = scanner.get_containers("Test[1-2]")
+    containers = scanner.get_containers(OptionRegex("Test[1-2]"))
     assert len(containers) == 2
-    containers = scanner.get_containers("Nomatch")
+    containers = scanner.get_containers(OptionRegex("Nomatch"))
     assert len(containers) == 0
 
 
@@ -55,9 +56,9 @@ def test_scanner_get_containers(scanner):
 def test_scanner_get_services(scanner):
     prepare_containers(scanner)
 
-    services = scanner.get_services("TestService[2-3]")
+    services = scanner.get_services(OptionRegex("TestService[2-3]"))
     assert len(services) == 1
-    services = scanner.get_services("Nomatch")
+    services = scanner.get_services(OptionRegex("Nomatch"))
     assert len(services) == 0
 
 

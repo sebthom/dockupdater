@@ -1,7 +1,6 @@
-import re
 from time import sleep
 
-from .config import DISABLE_LABEL, ENABLE_LABEL
+from .config import OptionRegex, DISABLE_LABEL, ENABLE_LABEL
 from .notifiers import TemplateMessage
 from ..update.container import Container
 from ..update.service import Service
@@ -16,34 +15,30 @@ class Scanner(object):
         self.socket = self.docker.socket
         self.notification_manager = self.docker.notification_manager
 
-    def get_containers(self, pattern=None):
+    def get_containers(self, option_regex=None):
         """Return a filtered by name list of containers"""
-        if pattern and isinstance(pattern, str):
-            pattern = re.compile(pattern)
         return [
             container
             for container in self.client.containers.list(filters={'status': 'running'}, ignore_removed=True)
-            if not pattern or pattern.match(container.name)
+            if not option_regex or option_regex.match(container.name)
         ]
 
-    def get_services(self, pattern=None):
+    def get_services(self, option_regex=None):
         """Return a filtered by name list of services"""
-        if pattern and isinstance(pattern, str):
-            pattern = re.compile(pattern)
         return [
             service
             for service in self.client.services.list()
-            if not pattern or pattern.match(service.name)
+            if not option_regex or option_regex.match(service.name)
         ]
 
-    def get_all_services_containers(self, pattern):
+    def get_all_services_containers(self, option_regex):
         all = []
 
         if not self.config.disable_containers_check:
-            all.extend([Container(self.docker, container) for container in self.get_containers(pattern)])
+            all.extend([Container(self.docker, container) for container in self.get_containers(option_regex)])
 
         if not self.config.disable_services_check:
-            all.extend([Service(self.docker, service) for service in self.get_services(pattern)])
+            all.extend([Service(self.docker, service) for service in self.get_services(option_regex)])
 
         return all
 
@@ -93,6 +88,7 @@ class Scanner(object):
     def stops_before_update(self, container_or_service):
         """Stop some containers/services before update"""
         for stop in container_or_service.config.stops:
+            stop.tokens = {"stack": container_or_service.stack_name()}
             for container_or_service in self.get_all_services_containers(stop):
                 self.logger.info(f"Stopping {container_or_service.name} before update")
                 container_or_service.stop()
@@ -100,6 +96,7 @@ class Scanner(object):
     def starts_after_update(self, container_or_service):
         """start some containers/services after update"""
         for start in container_or_service.config.starts:
+            start.tokens = {"stack": container_or_service.stack_name()}
             for container_or_service in self.get_all_services_containers(start):
                 self.logger.info(f"Staring {container_or_service.name} after update")
                 container_or_service.start()
@@ -140,7 +137,7 @@ class Scanner(object):
         if not self.config.disable_containers_check:
             # Removing old docupdater
             self.logger.debug('Looking for old docupdater on %s', self.socket)
-            for container in self.get_containers(".*_old_docupdater"):
+            for container in self.get_containers(OptionRegex(".*_old_docupdater")):
                 self.logger.debug('Stopping and deleting %s', container.name)
                 container.stop()
                 container.remove()
