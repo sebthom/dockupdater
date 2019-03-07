@@ -127,7 +127,7 @@ class Config(object):
 
         # Config sanity checks
         if self.cron:
-            if not isinstance(self.cron,list):
+            if not isinstance(self.cron, list):
                 cron_times = self.cron.strip().split(' ')
                 if len(cron_times) != 5:
                     self.logger.critical("Cron must be in cron syntax. e.g. * * * * * (5 places).")
