@@ -1,4 +1,5 @@
 import pytest
+from docker.errors import APIError
 
 
 @pytest.mark.docker
@@ -12,6 +13,10 @@ def test_container(container):
     assert container.stack_name is None
     container.stop()
     container.start()
+    with pytest.raises(APIError):
+        container.remove()
+    container.stop()
+    container.remove()
 
 
 @pytest.mark.docker
