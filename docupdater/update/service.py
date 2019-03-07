@@ -48,19 +48,15 @@ class Service(AbstractObject):
         self.object = self.client.services.get(self.service.name)
 
     def start(self):
-        replicated = self.is_replicated()
-        if replicated:
-            replicas_label = self.labels.get("docupdater._replicas")
-            if replicas_label or replicated.get("Replicas") == 0:  # Scale up
-                replicas = int(replicas_label) if replicas_label else 1
-                self.logger.debug('Scaling up service %s to %s', self.object.name, replicas)
+        replicas_label = self.labels.get("docupdater._replicas")
+        if replicas_label or self.is_replicated().get("Replicas") == 0:  # Scale up
+            replicas = int(replicas_label) if replicas_label else 1
+            self.logger.debug('Scaling up service %s to %s', self.object.name, replicas)
 
-                self.service.scale(replicas)
-                self._reload_object()
-            else:  # Force update
-                self.service.force_update()
-        else:
-            self.logger.warning("Start service is only available on replicated mode, not in global mode. Skip it.")
+            self.service.scale(replicas)
+            self._reload_object()
+        else:  # Force update
+            self.service.force_update()
 
     def stop(self):
         replicated = self.is_replicated()
