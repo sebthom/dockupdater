@@ -3,7 +3,7 @@
 Command line arguments can be viewed by running:
 
 ```bash
-docker run --rm docupdater/docupdater --help
+docker run --rm dockupdater/dockupdater --help
 ```
 
 All command line arguments can be substituted with an environment variable. All examples will be given as environment variables for a `docker run -e option=option_value`.
@@ -14,14 +14,14 @@ On a stack file (Docker swarm), you may set the environment variable like so:
 version: "3.6"
 
 services:
-  docupdater:
-    image: docupdater/docupdater
+  dockupdater:
+    image: dockupdater/dockupdater
     environment:
         - INTERVAL=30
         - LABEL=true
     deploy:
       labels:
-        docupdater.disable: "true"
+        dockupdater.disable: "true"
       placement:
         constraints:
           - node.role == manager
@@ -118,7 +118,7 @@ The schedule defined when to check for updates. If not defined, runs at interval
 **Environment Variable:** `RUN_ONCE`  
 **Default:** `False`  
 
-Docupdater will only do a single pass of all container checks, and then exit. This is a great way to granularly control scheduling with an outside scheduler like cron. If during the single pass docupdater has to self-update, it will do another full pass after updating itself to ensure that all containers were checked.
+Dockupdater will only do a single pass of all container checks, and then exit. This is a great way to granularly control scheduling with an outside scheduler like cron. If during the single pass dockupdater has to self-update, it will do another full pass after updating itself to ensure that all containers were checked.
 
 ## Docker Specifics
 
@@ -160,7 +160,7 @@ Verify CA certificate for docker deamon
 **Default:** `False`  
 **Example:** `-e LABEL=true`  
 
-This flag allows a more strict control over docupdater's updates. If the container or service does not have a `docupdater.enable` label, it will be ignored completely. See [Labels](Labels.md) for a list of all available labels.
+This flag allows a more strict control over dockupdater's updates. If the container or service does not have a `dockupdater.enable` label, it will be ignored completely. See [Labels](Labels.md) for a list of all available labels.
 
 ### Disable services check (swarm)
 
@@ -200,7 +200,7 @@ Remove the old images after updating. If you have multiple containers using the 
 **Default:** `False`  
 **Example:** `-e LATEST=true`  
 
-Pull the `:latest` tags and update all containers to it, regardless of the current tag the container is running as. Can be override with the label `docupdater.latest`. See [Labels](Labels.md) for a list of all available labels.
+Pull the `:latest` tags and update all containers to it, regardless of the current tag the container is running as. Can be override with the label `dockupdater.latest`. See [Labels](Labels.md) for a list of all available labels.
 
 ### Repository User
 
@@ -230,7 +230,7 @@ Define a password for repository authentication. Will be ignored without definin
 **Default:** `None`  
 **Example:** `-e STOP_SIGNAL=12`  
 
-Define a stop signal to send to the container instead of SIGKILL. Default behavior is to use default docker stop command. Only for standalone container. Can be override with the label `docupdater.stop_signal`.
+Define a stop signal to send to the container instead of SIGKILL. Default behavior is to use default docker stop command. Only for standalone container. Can be override with the label `dockupdater.stop_signal`.
 
 ### Wait time
 
@@ -240,7 +240,7 @@ Define a stop signal to send to the container instead of SIGKILL. Default behavi
 **Default:** `0`  
 **Example:** `-e WAIT=60`  
 
-Define a time in seconds to wait after an update before updating any others containers or services. Can be override with the label `docupdater.wait`.
+Define a time in seconds to wait after an update before updating any others containers or services. Can be override with the label `dockupdater.wait`.
 
 ### Recreate first
 
@@ -252,9 +252,9 @@ Define a time in seconds to wait after an update before updating any others cont
 
 Work only with standalone container. To minimize application down time, we could create the new container before deleting the old.
 
-Warning: This feature doesn't work if you have exposed ports. We highly recommend to use a load balancer like [Traefik](https://traefik.io/) if you need to use exposed ports with docupdater.
+Warning: This feature doesn't work if you have exposed ports. We highly recommend to use a load balancer like [Traefik](https://traefik.io/) if you need to use exposed ports with dockupdater.
 
-Self update of docupdater always use this feature. Can be override with the label `docupdater.recreate_first`.
+Self update of dockupdater always use this feature. Can be override with the label `dockupdater.recreate_first`.
 
 ## Notifications
 
@@ -266,11 +266,11 @@ Self update of docupdater always use this feature. Can be override with the labe
 **Default:** `None`  
 **Example:** `-e NOTIFIERS="mailtos://myUsername:myPassword@gmail.com?to=receivingAddress@gmail.com jsons://webhook.site/something"`  
 
-Docupdater uses [apprise](https://github.com/caronc/apprise) to support a large variety of notification platforms.
+Dockupdater uses [apprise](https://github.com/caronc/apprise) to support a large variety of notification platforms.
 
 Notifications are sent for every update. The notification contains the container/service updated.
 
-More information can be found in the [notifications docs](Notifications.md). Can be override or disable with the label `docupdater.notifiers`.
+More information can be found in the [notifications docs](Notifications.md). Can be override or disable with the label `dockupdater.notifiers`.
 
 ### Template file
 
@@ -287,7 +287,7 @@ See this example of template file:
 {{ object.name }} ({{ object.get_image_name() }}:{{ object.get_tag() }}) updated from {{ object.get_current_id() }} to {{ object.get_latest_id() }}
 ```
 
-Can be override with the label `docupdater.template_file`.
+Can be override with the label `dockupdater.template_file`.
 
 ### Skip start notification
 
@@ -297,7 +297,7 @@ Can be override with the label `docupdater.template_file`.
 **Default:** `False`  
 **Example:** `-e SKIP_START_NOTIF=true`  
 
-Docupdater send a notification when it start. That option disable this notification.
+Dockupdater send a notification when it start. That option disable this notification.
 
 ***
 

@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-from docupdater import VERSION
+from dockupdater import VERSION
 
 requirements = ['docker>=3.7.0',
                 'apscheduler>=3.5.3',
@@ -16,14 +16,14 @@ def read(filename):
 
 
 setup(
-    name='docupdater',
+    name='dockupdater',
     version=VERSION,
     maintainer='Mathieu Cantin',
     maintainer_email='harcher81@gmail.com',
     description='Automatically keep your docker services and your docker containers up-to-date with the latest version',
     long_description=read('README.md'),
     long_description_content_type='text/markdown',
-    url='https://docupdater.github.io/docupdater/',
+    url='https://dockupdater.dev',
     license='MIT',
     classifiers=['Programming Language :: Python',
                  'Programming Language :: Python :: 3.6',

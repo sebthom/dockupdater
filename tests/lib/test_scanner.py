@@ -2,8 +2,8 @@ import time
 
 import pytest
 
-from docupdater.update.container import Container
-from docupdater.update.service import Service
+from dockupdater.update.container import Container
+from dockupdater.update.service import Service
 
 
 def prepare_containers(scanner):
@@ -15,7 +15,7 @@ def prepare_containers(scanner):
             "busybox:latest",
             name="TestService1",
             labels={
-                "docupdater.wait": "1"
+                "dockupdater.wait": "1"
             }
         )
         scanner.client.services.create("busybox", name="TestService2")
@@ -26,14 +26,14 @@ def prepare_containers(scanner):
             tty=True,
             detach=True,
             name="Test2",
-            labels={"docupdater.disable": "true"}
+            labels={"dockupdater.disable": "true"}
         )
         scanner.client.containers.run(
             "busybox",
             tty=True,
             detach=True,
             name="Test3",
-            labels={"docupdater.enable": "false"}
+            labels={"dockupdater.enable": "false"}
         )
     except:
         print("Tests containers already exist")
@@ -61,8 +61,8 @@ def test_scanner_scan_monitored(scanner):
 def test_scanner_update(scanner, mocker, monkeypatch):
     prepare_containers(scanner)
 
-    mocker.patch("docupdater.update.container.Container.update")
-    mocker.patch("docupdater.update.service.Service.update")
+    mocker.patch("dockupdater.update.container.Container.update")
+    mocker.patch("dockupdater.update.service.Service.update")
     monkeypatch.setattr(time, 'sleep', lambda s: None)
 
     scanner.update()

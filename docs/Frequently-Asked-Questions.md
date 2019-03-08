@@ -1,62 +1,62 @@
 # Frequently Asked Questions
 
 * [How to configure Timezone](#how-to-configure-timezone)
-* [How to stop Docupdater auto update](#how-to-stop-docupdater-auto-update)
-* [How install Docupdater without docker](#how-install-docupdater-without-docker)
+* [How to stop Dockupdater auto update](#how-to-stop-dockupdater-auto-update)
+* [How install Dockupdater without docker](#how-install-dockupdater-without-docker)
 * [How to remove container after service update](#how-to-remove-container-after-service-update)
 
 ***
 
 ## How to configure Timezone
 
-To more closely monitor docupdater' actions and for accurate log ingestion, you can change the timezone of the container from UTC by setting the [`TZ`](http://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html) environment variable like so:
+To more closely monitor dockupdater' actions and for accurate log ingestion, you can change the timezone of the container from UTC by setting the [`TZ`](http://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html) environment variable like so:
 
 ```bash
-docker run -d --name docupdater \
+docker run -d --name dockupdater \
   -e TZ=America/Chicago \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  docupdater/docupdater
+  dockupdater/dockupdater
 ```
 
-## How to stop Docupdater auto update
+## How to stop Dockupdater auto update
 
-Your can add label `docupdater.disable="true"` on the container or service to disable auto update.
+Your can add label `dockupdater.disable="true"` on the container or service to disable auto update.
 
-If your run a standalone container for docupdater:
+If your run a standalone container for dockupdater:
 
 ```bash
-docker run -d --name docupdater \
+docker run -d --name dockupdater \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  --label docupdater.disable="true"
-  docupdater/docupdater
+  --label dockupdater.disable="true"
+  dockupdater/dockupdater
 ```
 
-If your run docupdater with a stack:
+If your run dockupdater with a stack:
 
 ```bash
 version: "3.6"
 
 services:
-  docupdater:
-    image: docupdater/docupdater
+  dockupdater:
+    image: dockupdater/dockupdater
     deploy:
       labels:
-        docupdater.disable: "true"
+        dockupdater.disable: "true"
 ```
 
-## How install Docupdater without docker
+## How install Dockupdater without docker
 
-docupdater can also be installed via pip:
+dockupdater can also be installed via pip:
 
 ```bash
-pip install docupdater
+pip install dockupdater
 ```
 
-And can then be invoked using the docupdater command:
+And can then be invoked using the dockupdater command:
 
-$ docupdater --interval 300 --log-level debug
+$ dockupdater --interval 300 --log-level debug
 
-> Docupdater need Python 3.6 or up
+> Dockupdater need Python 3.6 or up
 
 ## How to remove containers after service update
 

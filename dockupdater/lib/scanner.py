@@ -69,7 +69,7 @@ class Scanner(object):
                 if "worker nodes" in error_str:
                     raise EnvironmentError(
                         "Your running on a swarm worker, it isn't working. You must add placement constraints. "
-                        "See docs at https://github.com/docupdater/docupdater for help."
+                        "See docs at https://github.com/dockupdater/dockupdater for help."
                     )
                 else:
                     self.logger.info("Your aren't running in swarm mode, skip services check.")
@@ -106,16 +106,16 @@ class Scanner(object):
 
     def self_update(self):
         if not self.config.disable_containers_check:
-            # Removing old docupdater
-            self.logger.debug('Looking for old docupdater on %s', self.socket)
+            # Removing old dockupdater
+            self.logger.debug('Looking for old dockupdater on %s', self.socket)
             for container in self.client.containers.list(all=True, ignore_removed=True):
-                if container.name.endswith("_old_docupdater"):
+                if container.name.endswith("_old_dockupdater"):
                     self.logger.debug('Stopping and deleting %s', container.name)
                     container.stop()
                     container.remove()
-            # Fix docupdater if they need exposed port
+            # Fix dockupdater if they need exposed port
             for container in self.client.containers.list(all=True, ignore_removed=True):
-                if container.labels.get("docupdater.updater_port"):
-                    self.logger.info('Recreate docupdater container with exposed ports')
+                if container.labels.get("dockupdater.updater_port"):
+                    self.logger.info('Recreate dockupdater container with exposed ports')
                     Container(self.docker, container)
                     container.update()

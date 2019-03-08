@@ -41,14 +41,14 @@ class Container(AbstractObject):
             return get_id_from_image(self._latest_image)[10:]
         return ""
 
-    def is_docupdater(self):
-        docupdater = "docupdater" in self.container.attrs.get("Config", dict()).get("Image", self.name)
-        if not docupdater:
+    def is_dockupdater(self):
+        dockupdater = "dockupdater" in self.container.attrs.get("Config", dict()).get("Image", self.name)
+        if not dockupdater:
             for history in self.container.image.history():
-                if "docupdater" in (history.get("Tags", list()) or list()):
-                    docupdater = True
+                if "dockupdater" in (history.get("Tags", list()) or list()):
+                    dockupdater = True
                     break
-        if docupdater:
+        if dockupdater:
             return True
         return False
 
@@ -73,9 +73,9 @@ class Container(AbstractObject):
         return self._current_id != latest_id
 
     def update(self):
-        if self.is_docupdater():
-            self.logger.info("Docupdater container is ready to update")
-            self.config.recreate_first = True  # Always recreate docupdater container first
+        if self.is_dockupdater():
+            self.logger.info("Dockupdater container is ready to update")
+            self.config.recreate_first = True  # Always recreate dockupdater container first
         elif self.container.attrs['Config'].get('ExposedPorts') and self.config.recreate_first:
             self.config.recreate_first = False
             self.logger.warning(
@@ -87,8 +87,8 @@ class Container(AbstractObject):
 
         if self.config.recreate_first:
             new_name = f"{self.name}_old"
-            if self.is_docupdater():
-                new_name = f"{self.name}_old_docupdater"
+            if self.is_dockupdater():
+                new_name = f"{self.name}_old_dockupdater"
             self.container.rename(new_name)
         else:
             self.stop()
@@ -97,8 +97,8 @@ class Container(AbstractObject):
         self.logger.info('%s will be updated', self.container.name)
         self.recreate()
 
-        if self.is_docupdater():
-            self.logger.info('Waiting for new docupdater container')
+        if self.is_dockupdater():
+            self.logger.info('Waiting for new dockupdater container')
             sleep(600)
 
         if self.config.recreate_first:
@@ -144,7 +144,7 @@ class Container(AbstractObject):
         new_config = set_properties(
             old=self.container,
             new=self._latest_image,
-            self_update=self.is_docupdater()
+            self_update=self.is_dockupdater()
         )
         created = self.client.api.create_container(**new_config)
         new_container = self.client.containers.get(created.get("Id"))

@@ -8,7 +8,7 @@ from requests.exceptions import ConnectionError
 from . import VERSION, BRANCH
 from .lib.config import DefaultConfig, Config
 from .lib.dockerclient import Docker
-from .lib.logger import DocupdaterLogger
+from .lib.logger import DockupdaterLogger
 from .lib.notifiers import NotificationManager, StartupMessage
 from .lib.scanner import Scanner
 
@@ -46,13 +46,13 @@ from .lib.scanner import Scanner
                    'mailto://user:pass@gmail.com')
 @click.option("--skip-start-notif", "skip_start_notif", envvar="SKIP_START_NOTIF",
               default=DefaultConfig.skip_start_notif, is_flag=True, show_default=True,
-              help='Skip notification of docupdater has started')
+              help='Skip notification of dockupdater has started')
 @click.option("--template-file", "template_file", envvar="TEMPLATE_FILE",
               default=DefaultConfig.template_file, type=click.Path(),
               help='Use a custom template for notification')
 @click.option("-k", "--label", "label", envvar="LABEL",
               default=DefaultConfig.label, is_flag=True, show_default=True,
-              help='Enable label monitoring for docupdater instead of monitoring all containers/services')
+              help='Enable label monitoring for dockupdater instead of monitoring all containers/services')
 @click.option("-c", "--cleanup", "cleanup", envvar="CLEANUP",
               default=DefaultConfig.cleanup, is_flag=True, show_default=True,
               help='Remove old images after updating')
@@ -87,7 +87,7 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
     """Declare command line options"""
 
     # Create App logger
-    log = DocupdaterLogger(level=log_level)
+    log = DockupdaterLogger(level=log_level)
     log.logger.info('Version: %s-%s', VERSION, BRANCH)
 
     config = Config(docker_sockets=docker_sockets,
@@ -113,7 +113,7 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
                     recreate_first=recreate_first)
     config.config_blacklist()  # Configure mask on logger
 
-    log.logger.debug("docupdater configuration: %s", config.options)
+    log.logger.debug("dockupdater configuration: %s", config.options)
 
     notification_manager = NotificationManager(config)
     scheduler = BackgroundScheduler()

@@ -24,15 +24,15 @@ install:
   - pip install -e .
 
 before_script:
-  - python -m flake8 --max-line-length 120 docupdater
+  - python -m flake8 --max-line-length 120 dockupdater
   - pytest -m "slow or not slow or docker or not docker"
 
 script:
   - python setup.py sdist bdist_wheel
   - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-  - docker build --squash -f Dockerfile --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-amd64" .
-  - docker build --squash -f Dockerfile.arm --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm" .
-  - docker build --squash -f Dockerfile.arm64 --pull --tag "docupdater/docupdater:$TRAVIS_BRANCH-arm64" .
+  - docker build --squash -f Dockerfile --pull --tag "dockupdater/dockupdater:$TRAVIS_BRANCH-amd64" .
+  - docker build --squash -f Dockerfile.arm --pull --tag "dockupdater/dockupdater:$TRAVIS_BRANCH-arm" .
+  - docker build --squash -f Dockerfile.arm64 --pull --tag "dockupdater/dockupdater:$TRAVIS_BRANCH-arm64" .
 
 after_script:
   - codecov

@@ -14,11 +14,11 @@ A clear and concise description of what the bug is.
 A clear and concise description of what you expected to happened
 
 **Logs**
-Log from the container (eg. docker log docupdater)
+Log from the container (eg. docker log dockupdater)
 
 **Technical details:**
 
-* Docupdater version:
+* Dockupdater version:
 * Docker version:
 * Platform (windows/linux):
 

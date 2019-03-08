@@ -1,7 +1,7 @@
 import pytest
 from docker.client import DockerClient
 
-from docupdater.helpers.helpers import set_properties, remove_sha_prefix, convert_to_boolean, get_id_from_image
+from dockupdater.helpers.helpers import set_properties, remove_sha_prefix, convert_to_boolean, get_id_from_image
 
 
 @pytest.mark.docker
@@ -33,7 +33,7 @@ def test_set_properties_with_self_update(hello_world_image):
 
     new = set_properties(client.containers.get(container.get("Id")), hello_world_image, self_update=True)
     assert new.get("labels", dict()).get("test") == "12345"
-    assert new.get("labels", dict()).get("docupdater.updater_port") == "4567,tcp:9876,tcp"
+    assert new.get("labels", dict()).get("dockupdater.updater_port") == "4567,tcp:9876,tcp"
     assert not new.get("ports")
 
     container_dict["labels"] = new.get("labels")
@@ -41,7 +41,7 @@ def test_set_properties_with_self_update(hello_world_image):
     container2 = client.api.create_container("hello-world:latest", **container_dict)
     new2 = set_properties(client.containers.get(container2.get("Id")), hello_world_image, self_update=True)
     assert new2.get("labels").get("test") == "12345"
-    assert new2.get("labels").get("docupdater.updater_port") is None
+    assert new2.get("labels").get("dockupdater.updater_port") is None
     assert all([(a, b) for a, b in new2.get("ports") if a in [4567, 9876]])
 
 

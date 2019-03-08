@@ -8,17 +8,17 @@ from ..helpers.helpers import convert_to_boolean
 
 MINIMUM_INTERVAL = 30
 
-ENABLE_LABEL = "docupdater.enable"
-DISABLE_LABEL = "docupdater.disable"
+ENABLE_LABEL = "dockupdater.enable"
+DISABLE_LABEL = "dockupdater.disable"
 
 LABELS_MAPPING = {
-    "docupdater.latest": "latest",
-    "docupdater.notifiers": "notifiers",
-    "docupdater.stop_signal": "stop_signal",
-    "docupdater.cleanup": "cleanup",
-    "docupdater.template_file": "template_file",
-    "docupdater.wait": "wait",
-    "docupdater.recreate_first": "recreate_first"
+    "dockupdater.latest": "latest",
+    "dockupdater.notifiers": "notifiers",
+    "dockupdater.stop_signal": "stop_signal",
+    "dockupdater.cleanup": "cleanup",
+    "dockupdater.template_file": "template_file",
+    "dockupdater.wait": "wait",
+    "dockupdater.recreate_first": "recreate_first"
 }
 
 
@@ -64,15 +64,15 @@ class Config(object):
         if labels:
             for label, value in labels.items():
                 if label in LABELS_MAPPING:
-                    if label in ["docupdater.notifiers"]:
+                    if label in ["dockupdater.notifiers"]:
                         options[LABELS_MAPPING[label]] = value.split(" ")
-                    elif label in ["docupdater.latest", "docupdater.cleanup"]:
+                    elif label in ["dockupdater.latest", "dockupdater.cleanup"]:
                         options[LABELS_MAPPING[label]] = convert_to_boolean(value)
-                    elif label in ["docupdater.wait"]:
+                    elif label in ["dockupdater.wait"]:
                         options[LABELS_MAPPING[label]] = int(value)
                     else:
                         options[LABELS_MAPPING[label]] = value
-                    if label == "docupdater.template_file":
+                    if label == "dockupdater.template_file":
                         # Reload template
                         options["template"] = Config.load_template(options.get('template_file'))
 
@@ -148,7 +148,7 @@ class Config(object):
         # Load default template file
         if not template_file:
             dir_path = Path().absolute()
-            template_file = dir_path.joinpath("docupdater/templates/notification.j2")
+            template_file = dir_path.joinpath("dockupdater/templates/notification.j2")
 
         if Path(template_file).exists():
             with open(template_file) as f:

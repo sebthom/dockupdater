@@ -19,7 +19,7 @@ class BaseMessage(ABC):
 class StartupMessage(BaseMessage):
     def __init__(self, hostname, next_run=None):
         now = datetime.now(timezone.utc).astimezone()
-        title = f'docupdater has started'
+        title = f'dockupdater has started'
         body_fields = [
             f'Host: {hostname}',
             f'Time: {now.strftime("%Y-%m-%d %H:%M:%S")}',
@@ -32,9 +32,9 @@ class TemplateMessage(BaseMessage):
 
     def __init__(self, container_or_service):
         if isinstance(container_or_service, Service):
-            title = f'docupdater has updated services!'
+            title = f'dockupdater has updated services!'
         else:
-            title = f'docupdater has updated containers!'
+            title = f'dockupdater has updated containers!'
 
         template = Environment(loader=BaseLoader).from_string(container_or_service.config.template)
         body = template.render(object=container_or_service)
@@ -48,9 +48,9 @@ class NotificationManager(object):
 
     def build_apprise(self, notifiers):
         asset = apprise.AppriseAsset()
-        asset.app_id = "docupdater"
-        asset.app_desc = "docupdater"
-        asset.app_url = "https://github.com/docupdater/docupdater"
+        asset.app_id = "dockupdater"
+        asset.app_desc = "dockupdater"
+        asset.app_url = "https://github.com/dockupdater/dockupdater"
         asset.html_notify_map['info'] = '#5F87C6'
 
         apprise_obj = apprise.Apprise(asset=asset)

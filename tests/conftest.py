@@ -1,12 +1,12 @@
 import pytest
 from docker.client import DockerClient
 
-from docupdater.lib.config import DefaultConfig, Config
-from docupdater.lib.dockerclient import Docker
-from docupdater.lib.notifiers import NotificationManager
-from docupdater.lib.scanner import Scanner
-from docupdater.update.container import Container
-from docupdater.update.service import Service
+from dockupdater.lib.config import DefaultConfig, Config
+from dockupdater.lib.dockerclient import Docker
+from dockupdater.lib.notifiers import NotificationManager
+from dockupdater.lib.scanner import Scanner
+from dockupdater.update.container import Container
+from dockupdater.update.service import Service
 
 # Global variables for caching fixture
 HELLO_WORLD_IMAGE = None
