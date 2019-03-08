@@ -35,25 +35,25 @@ services:
 * [Version](#version)
 * [Log Level](#log-level)
 * [Scheduler](#scheduler)
-  * [Interval](#interval)
   * [Cron](#cron)
+  * [Interval](#interval)
   * [Run Once](#run-once)
 * [Docker Specifics](#docker-specifics)
+  * [Cleanup](#cleanup)
+  * [Disable containers check](#disable-containers-check)
+  * [Disable services check (swarm)](#disable-services-check-swarm)
   * [Docker Sockets](#docker-sockets)
   * [Docker TLS Verify](#docker-tls-verify)
   * [Label](#label)
-  * [Disable containers check](#disable-containers-check)
-  * [Disable services check (swarm)](#disable-services-check-swarm)
-  * [Cleanup](#cleanup)
   * [Latest](#latest)
+  * [Recreate first](#recreate-first)
   * [Repository User](#repository-user)
   * [Repository Password](#repository-password)
   * [Wait time](#wait-time)
-  * [Recreate first](#recreate-first)
 * [Notifications](#notifications)
   * [Notifiers](#notifiers)
-  * [Template file](#template-file)
   * [Skip start notification](#skip-start-notification)
+  * [Template file](#template-file)
 
 ***
 
@@ -91,16 +91,6 @@ Sets your logging verbosity level.
 
 ## Scheduler
 
-### Interval
-
-**Type:** `Integer`  
-**Command Line:**  `-i, --interval`  
-**Environment Variable:** `INTERVAL`
-**Default**: `300`  
-**Example:** `-e INTERVAL=300`  
-
-The interval in seconds between checking for updates. There is a hard-coded 30 second minimum. Anything lower than that will set to 30. 
-
 ### Cron
 
 **Type:** `String`  
@@ -110,6 +100,16 @@ The interval in seconds between checking for updates. There is a hard-coded 30 s
 **Example:** `-e CRON="*/5 * * * *"`   
 
 The schedule defined when to check for updates. If not defined, runs at interval.
+
+### Interval
+
+**Type:** `Integer`  
+**Command Line:**  `-i, --interval`  
+**Environment Variable:** `INTERVAL`
+**Default**: `300`  
+**Example:** `-e INTERVAL=300`  
+
+The interval in seconds between checking for updates. There is a hard-coded 30 second minimum. Anything lower than that will set to 30. 
 
 ### Run Once
 
@@ -121,6 +121,40 @@ The schedule defined when to check for updates. If not defined, runs at interval
 Dockupdater will only do a single pass of all container checks, and then exit. This is a great way to granularly control scheduling with an outside scheduler like cron. If during the single pass dockupdater has to self-update, it will do another full pass after updating itself to ensure that all containers were checked.
 
 ## Docker Specifics
+
+### Cleanup
+
+**Type:** `Boolean`  
+**Command Line:**  `-c, --cleanup`  
+**Environment Variable:** `CLEANUP`  
+**Default:** `False`  
+**Availability:** `containers`  
+**Override label:** [`dockupdater.cleamup`](Labels.md#cleanup)
+**Example:** `-e CLEANUP=true`  
+
+Remove the old images after updating. If you have multiple containers using the same image, it will ensure all containers are updated before successfully removing the image.
+
+### Disable services check (swarm)
+
+**Type:** `Boolean`  
+**Command Line:**  `--disable-services-check`  
+**Environment Variable:** `DISABLE_SERVICES_CHECK`  
+**Default:** `False`  
+**Availability:** `services`  
+**Example:** `-e DISABLE_SERVICES_CHECK=true`  
+
+Disable the scan for services (swarm). With this flag only standalone container will be updated.
+
+### Disable containers check
+
+**Type:** `Boolean`  
+**Command Line:**  `--disable-containers-check`  
+**Environment Variable:** `DISABLE_CONTAINERS_CHECK`  
+**Default:** `False`  
+**Availability:** `containers`  
+**Example:** `-e DISABLE_CONTAINERS_CHECK=true`  
+
+Disable the scan for standalone containers.
 
 ### Docker Socket
 
@@ -166,40 +200,6 @@ Verify CA certificate for docker deamon
 
 This flag allows a more strict control over Dockupdater's updates. If the container or service does not have a `dockupdater.enable` label, it will be ignored completely.
 
-### Disable services check (swarm)
-
-**Type:** `Boolean`  
-**Command Line:**  `--disable-services-check`  
-**Environment Variable:** `DISABLE_SERVICES_CHECK`  
-**Default:** `False`  
-**Availability:** `services`  
-**Example:** `-e DISABLE_SERVICES_CHECK=true`  
-
-Disable the scan for services (swarm). With this flag only standalone container will be updated.
-
-### Disable containers check
-
-**Type:** `Boolean`  
-**Command Line:**  `--disable-containers-check`  
-**Environment Variable:** `DISABLE_CONTAINERS_CHECK`  
-**Default:** `False`  
-**Availability:** `containers`  
-**Example:** `-e DISABLE_CONTAINERS_CHECK=true`  
-
-Disable the scan for standalone containers.
-
-### Cleanup
-
-**Type:** `Boolean`  
-**Command Line:**  `-c, --cleanup`  
-**Environment Variable:** `CLEANUP`  
-**Default:** `False`  
-**Availability:** `containers`  
-**Override label:** [`dockupdater.cleamup`](Labels.md#cleanup)
-**Example:** `-e CLEANUP=true`  
-
-Remove the old images after updating. If you have multiple containers using the same image, it will ensure all containers are updated before successfully removing the image.
-
 ### Latest
 
 **Type:** `Boolean`  
@@ -211,6 +211,22 @@ Remove the old images after updating. If you have multiple containers using the 
 **Example:** `-e LATEST=true`  
 
 Pull the `:latest` tags and update all containers to it, regardless of the current tag the container is running as.
+
+### Recreate first
+
+**Type:** `Integer`  
+**Command Line:**  `-F, --recreate-first`  
+**Environment Variable:** `RECREATE_FIRST`  
+**Default:** `0`  
+**Availability:** `containers`  
+**Override label:** [`dockupdater.recreate_first`](Labels.md#recreate-first)
+**Example:** `-e RECREATE_FIRST=true`  
+
+Work only with standalone container. To minimize application down time, we could create the new container before deleting the old.
+
+Warning: This feature doesn't work if you have exposed ports. We highly recommend to use a load balancer like [Traefik](https://traefik.io/) if you need to use exposed ports with dockupdater.
+
+Self update of dockupdater always use this feature.
 
 ### Repository User
 
@@ -258,22 +274,6 @@ Define a stop signal to send to the container instead of SIGKILL. Default behavi
 
 Define a time in seconds to wait after an update before updating any others containers or services.
 
-### Recreate first
-
-**Type:** `Integer`  
-**Command Line:**  `-F, --recreate-first`  
-**Environment Variable:** `RECREATE_FIRST`  
-**Default:** `0`  
-**Availability:** `containers`  
-**Override label:** [`dockupdater.recreate_first`](Labels.md#recreate-first)
-**Example:** `-e RECREATE_FIRST=true`  
-
-Work only with standalone container. To minimize application down time, we could create the new container before deleting the old.
-
-Warning: This feature doesn't work if you have exposed ports. We highly recommend to use a load balancer like [Traefik](https://traefik.io/) if you need to use exposed ports with dockupdater.
-
-Self update of dockupdater always use this feature.
-
 ## Notifications
 
 ### Notifiers
@@ -291,6 +291,20 @@ Notifications are sent for every update. The notification contains the container
 
 More information can be found in the [notifications docs](Notifications.md).
 
+### Skip start notification
+
+**Type:**  `Boolean`
+**Command Line:**  `--skip-start-notif`  
+**Environment Variable:** `SKIP_START_NOTIF`  
+**Default:** `False`  
+**Example:** `-e SKIP_START_NOTIF=true`  
+
+Dockupdater send a notification when it start. That option disable this notification.
+
+***
+
+Next: [Customize usage with labels](Labels.md)
+
 ### Template file
 
 **Type:** `Path`  
@@ -306,17 +320,3 @@ See this example of template file:
 ```
 {{ object.name }} ({{ object.get_image_name() }}:{{ object.get_tag() }}) updated from {{ object.get_current_id() }} to {{ object.get_latest_id() }}
 ```
-
-### Skip start notification
-
-**Type:**  `Boolean`
-**Command Line:**  `--skip-start-notif`  
-**Environment Variable:** `SKIP_START_NOTIF`  
-**Default:** `False`  
-**Example:** `-e SKIP_START_NOTIF=true`  
-
-Dockupdater send a notification when it start. That option disable this notification.
-
-***
-
-Next: [Customize usage with labels](Labels.md)
