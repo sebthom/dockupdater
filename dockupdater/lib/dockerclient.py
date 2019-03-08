@@ -63,7 +63,7 @@ class Docker(object):
                 if "worker nodes" in error_str:
                     raise EnvironmentError(
                         "Your running on a swarm worker, it isn't working. You must add placement constraints. "
-                        "See docs at https://github.com/docupdater/docupdater for help."
+                        "See docs at https://github.com/dockupdater/dockupdater for help."
                     )
                 else:
                     self.logger.info("Your aren't running in swarm mode, skip services check.")

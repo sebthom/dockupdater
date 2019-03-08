@@ -2,9 +2,9 @@ import time
 
 import pytest
 
-from docupdater.lib.config import OptionRegex
-from docupdater.update.container import Container
-from docupdater.update.service import Service
+from dockupdater.lib.config import OptionRegex
+from dockupdater.update.container import Container
+from dockupdater.update.service import Service
 
 
 def prepare_containers(scanner):
@@ -19,10 +19,10 @@ def prepare_containers(scanner):
             name="TestService1",
             tty=True,
             labels={
-                "docupdater.wait": "1"
+                "dockupdater.wait": "1"
             },
             container_labels={
-                "docupdater.disable": "true"
+                "dockupdater.disable": "true"
             }
         )
         scanner.client.services.create(
@@ -30,7 +30,7 @@ def prepare_containers(scanner):
             tty=True,
             name="TestService2",
             container_labels={
-                "docupdater.disable": "true"
+                "dockupdater.disable": "true"
             }
         )
 
@@ -46,9 +46,9 @@ def prepare_containers(scanner):
             detach=True,
             name="Test2",
             labels={
-                "docupdater.disable": "true",
-                "docupdater.stops": "Test1",
-                "docupdater.starts": "Test1"
+                "dockupdater.disable": "true",
+                "dockupdater.stops": "Test1",
+                "dockupdater.starts": "Test1"
             }
         )
         scanner.client.containers.run(
@@ -57,7 +57,7 @@ def prepare_containers(scanner):
             detach=True,
             name="Test3",
             labels={
-                "docupdater.enable": "false"
+                "dockupdater.enable": "false"
             }
         )
     except:
@@ -127,8 +127,8 @@ def test_scanner_scan_monitored(scanner):
 def test_scanner_update(scanner, mocker, monkeypatch):
     prepare_containers(scanner)
 
-    mocker.patch("docupdater.update.container.Container.update")
-    mocker.patch("docupdater.update.service.Service.update")
+    mocker.patch("dockupdater.update.container.Container.update")
+    mocker.patch("dockupdater.update.service.Service.update")
     monkeypatch.setattr(time, 'sleep', lambda s: None)
 
     scanner.update()

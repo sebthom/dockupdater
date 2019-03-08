@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from docupdater.lib.config import DefaultConfig, Config, DEFAULT_REGEX_WEIGHT, MINIMUM_INTERVAL, OptionRegex
+from dockupdater.lib.config import DefaultConfig, Config, DEFAULT_REGEX_WEIGHT, MINIMUM_INTERVAL, OptionRegex
 
 
 def _update_config(options, new_options):
@@ -62,17 +62,17 @@ def test_config_load_labels(config):
     assert new_config.recreate_first is True
 
     dir_path = Path().absolute()
-    template_file = dir_path.joinpath("docupdater/templates/notification.j2")
+    template_file = dir_path.joinpath("dockupdater/templates/notification.j2")
 
     config2 = Config.from_labels(new_config, {
-        "docupdater.latest": True,
-        "docupdater.notifiers": "slack://token slack://token2",
-        "docupdater.cleanup": True,
-        "docupdater.wait": 60,
-        "docupdater.recreate_first": False,
-        "docupdater.template_file": template_file,
-        "docupdater.starts": "Container1",
-        "docupdater.stops": "weight:1,Container1 Container2"
+        "dockupdater.latest": True,
+        "dockupdater.notifiers": "slack://token slack://token2",
+        "dockupdater.cleanup": True,
+        "dockupdater.wait": 60,
+        "dockupdater.recreate_first": False,
+        "dockupdater.template_file": template_file,
+        "dockupdater.starts": "Container1",
+        "dockupdater.stops": "weight:1,Container1 Container2"
     })
 
     assert config2.hostname == config.hostname

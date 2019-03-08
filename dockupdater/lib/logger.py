@@ -25,7 +25,7 @@ class BlacklistFilter(Filter):
         return True
 
 
-class DocupdaterLogger(object):
+class DockupdaterLogger(object):
     def __init__(self, level='INFO'):
         # Create the Logger
         self.logger = getLogger()

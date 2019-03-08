@@ -1,25 +1,25 @@
 #!/usr/bin/env bash
 
-docker tag docupdater/docupdater:$TRAVIS_BRANCH-amd64 docupdater/docupdater:$TRAVIS_TAG-amd64
-docker tag docupdater/docupdater:$TRAVIS_BRANCH-arm docupdater/docupdater:$TRAVIS_TAG-arm
-docker tag docupdater/docupdater:$TRAVIS_BRANCH-arm64 docupdater/docupdater:$TRAVIS_TAG-arm64
+docker tag dockupdater/dockupdater:$TRAVIS_BRANCH-amd64 dockupdater/dockupdater:$TRAVIS_TAG-amd64
+docker tag dockupdater/dockupdater:$TRAVIS_BRANCH-arm dockupdater/dockupdater:$TRAVIS_TAG-arm
+docker tag dockupdater/dockupdater:$TRAVIS_BRANCH-arm64 dockupdater/dockupdater:$TRAVIS_TAG-arm64
 
-docker push docupdater/docupdater:$TRAVIS_TAG-amd64
-docker push docupdater/docupdater:$TRAVIS_TAG-arm
-docker push docupdater/docupdater:$TRAVIS_TAG-arm64
+docker push dockupdater/dockupdater:$TRAVIS_TAG-amd64
+docker push dockupdater/dockupdater:$TRAVIS_TAG-arm
+docker push dockupdater/dockupdater:$TRAVIS_TAG-arm64
 
-docker manifest create docupdater/docupdater:$TRAVIS_TAG docupdater/docupdater:$TRAVIS_TAG-amd64 docupdater/docupdater:$TRAVIS_TAG-arm64 docupdater/docupdater:$TRAVIS_TAG-arm
-docker manifest inspect docupdater/docupdater:$TRAVIS_TAG
-docker manifest push docupdater/docupdater:$TRAVIS_TAG
+docker manifest create dockupdater/dockupdater:$TRAVIS_TAG dockupdater/dockupdater:$TRAVIS_TAG-amd64 dockupdater/dockupdater:$TRAVIS_TAG-arm64 dockupdater/dockupdater:$TRAVIS_TAG-arm
+docker manifest inspect dockupdater/dockupdater:$TRAVIS_TAG
+docker manifest push dockupdater/dockupdater:$TRAVIS_TAG
 
-docker tag docupdater/docupdater:$TRAVIS_BRANCH-amd64 docupdater/docupdater:latest-amd64
-docker tag docupdater/docupdater:$TRAVIS_BRANCH-arm docupdater/docupdater:latest-arm
-docker tag docupdater/docupdater:$TRAVIS_BRANCH-arm64 docupdater/docupdater:latest-arm64
+docker tag dockupdater/dockupdater:$TRAVIS_BRANCH-amd64 dockupdater/dockupdater:latest-amd64
+docker tag dockupdater/dockupdater:$TRAVIS_BRANCH-arm dockupdater/dockupdater:latest-arm
+docker tag dockupdater/dockupdater:$TRAVIS_BRANCH-arm64 dockupdater/dockupdater:latest-arm64
 
-docker push docupdater/docupdater:latest-amd64
-docker push docupdater/docupdater:latest-arm
-docker push docupdater/docupdater:latest-arm64
+docker push dockupdater/dockupdater:latest-amd64
+docker push dockupdater/dockupdater:latest-arm
+docker push dockupdater/dockupdater:latest-arm64
 
-docker manifest create docupdater/docupdater:latest docupdater/docupdater:latest-amd64 docupdater/docupdater:latest-arm64 docupdater/docupdater:latest-arm
-docker manifest inspect docupdater/docupdater:latest
-docker manifest push docupdater/docupdater:latest
+docker manifest create dockupdater/dockupdater:latest dockupdater/dockupdater:latest-amd64 dockupdater/dockupdater:latest-arm64 dockupdater/dockupdater:latest-arm
+docker manifest inspect dockupdater/dockupdater:latest
+docker manifest push dockupdater/dockupdater:latest

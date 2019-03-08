@@ -34,5 +34,5 @@ def test_container_has_new_version(monkeypatch, container, hello_world_image):
 @pytest.mark.slow
 def test_container_update(monkeypatch, mocker, container, hello_world_image):
     monkeypatch.setattr("docker.models.images.ImageCollection.pull", lambda *args, **kwargs: hello_world_image)
-    mocker.patch("docupdater.update.container.Container.recreate")
+    mocker.patch("dockupdater.update.container.Container.recreate")
     container.update()

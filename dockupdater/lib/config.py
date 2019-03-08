@@ -12,19 +12,19 @@ DEFAULT_REGEX_WEIGHT = 100
 
 MINIMUM_INTERVAL = 30
 
-ENABLE_LABEL = "docupdater.enable"
-DISABLE_LABEL = "docupdater.disable"
+ENABLE_LABEL = "dockupdater.enable"
+DISABLE_LABEL = "dockupdater.disable"
 
 LABELS_MAPPING = {
-    "docupdater.latest": "latest",
-    "docupdater.notifiers": "notifiers",
-    "docupdater.stop_signal": "stop_signal",
-    "docupdater.cleanup": "cleanup",
-    "docupdater.template_file": "template_file",
-    "docupdater.wait": "wait",
-    "docupdater.recreate_first": "recreate_first",
-    "docupdater.starts": "starts",
-    "docupdater.stops": "stops"
+    "dockupdater.latest": "latest",
+    "dockupdater.notifiers": "notifiers",
+    "dockupdater.stop_signal": "stop_signal",
+    "dockupdater.cleanup": "cleanup",
+    "dockupdater.template_file": "template_file",
+    "dockupdater.wait": "wait",
+    "dockupdater.recreate_first": "recreate_first",
+    "dockupdater.starts": "starts",
+    "dockupdater.stops": "stops"
 }
 
 
@@ -100,20 +100,20 @@ class Config(object):
         if labels:
             for label, value in labels.items():
                 if label in LABELS_MAPPING:
-                    if label in ["docupdater.notifiers"]:
+                    if label in ["dockupdater.notifiers"]:
                         options[LABELS_MAPPING[label]] = value.split(" ")
-                    elif label in ["docupdater.latest", "docupdater.cleanup"]:
+                    elif label in ["dockupdater.latest", "dockupdater.cleanup"]:
                         options[LABELS_MAPPING[label]] = convert_to_boolean(value)
-                    elif label in ["docupdater.wait"]:
+                    elif label in ["dockupdater.wait"]:
                         options[LABELS_MAPPING[label]] = int(value)
-                    elif label in ["docupdater.stops", "docupdater.starts"]:
+                    elif label in ["dockupdater.stops", "dockupdater.starts"]:
                         options[LABELS_MAPPING[label]] = [OptionRegex(item) for item in value.split(" ")]
                     else:
                         options[LABELS_MAPPING[label]] = value
-                    if label == "docupdater.template_file":
+                    if label == "dockupdater.template_file":
                         # Reload template
                         options["template"] = Config.load_template(options.get('template_file'))
-                elif label.startswith("docupdater."):
+                elif label.startswith("dockupdater."):
                     config.logger.warning("Warning label %s doesn't exist", label)
 
         return cls(**options)
@@ -141,6 +141,8 @@ class Config(object):
             if isinstance(value, list) or isinstance(value, tuple):
                 self.filtered_strings.extend(self.filtered_strings.pop(index))
                 self.filtered_strings.insert(index, self.filtered_strings[-1:][0])
+        # Filter out no string item
+        self.filtered_strings = [item for item in self.filtered_strings if isinstance(item, str)]
         # Added matching for ports
         ports = [string.split(':')[0] for string in self.filtered_strings if ':' in string]
         self.filtered_strings.extend(ports)
@@ -192,7 +194,7 @@ class Config(object):
         # Load default template file
         if not template_file:
             dir_path = Path().absolute()
-            template_file = dir_path.joinpath("docupdater/templates/notification.j2")
+            template_file = dir_path.joinpath("dockupdater/templates/notification.j2")
 
         if Path(template_file).exists():
             with open(template_file) as f:

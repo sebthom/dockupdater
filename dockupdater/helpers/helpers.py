@@ -7,13 +7,13 @@ def set_properties(old, new, self_update=False):
 
     if self_update:
         if ports:
-            labels["docupdater.updater_port"] = ":".join(["{},{}".format(a, b) for a, b in ports])
+            labels["dockupdater.updater_port"] = ":".join(["{},{}".format(a, b) for a, b in ports])
             ports = None
-        elif labels.get("docupdater.updater_port"):
+        elif labels.get("dockupdater.updater_port"):
             ports = [(int(port.split(",")[0]), port.split(",")[1])
-                     for port in labels.get("docupdater.updater_port").split(":")]
-            labels["docupdater.updater_port"] = None
-            del labels["docupdater.updater_port"]
+                     for port in labels.get("dockupdater.updater_port").split(":")]
+            labels["dockupdater.updater_port"] = None
+            del labels["dockupdater.updater_port"]
 
     properties = {
         'name': old.name,

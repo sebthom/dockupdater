@@ -10,7 +10,7 @@ def test_service(service):
     assert service.stack_name is None
     assert service.is_replicated()
     service.stop()
-    assert service.labels.get("docupdater._replicas") == "1"
+    assert service.labels.get("dockupdater._replicas") == "1"
     assert service.is_replicated().get("Replicas") == 0
     service.start()
     assert service.is_replicated().get("Replicas") == 1

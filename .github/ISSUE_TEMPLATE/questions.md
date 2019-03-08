@@ -1,6 +1,6 @@
 ---
 name: Questions
-about: Ask us a question about Docupdater usage or deployment
+about: Ask us a question about Dockupdater usage or deployment
 title: ''
 labels: help wanted
 assignees: ''

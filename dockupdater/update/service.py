@@ -48,7 +48,7 @@ class Service(AbstractObject):
         self.object = self.client.services.get(self.service.name)
 
     def start(self):
-        replicas_label = self.labels.get("docupdater._replicas")
+        replicas_label = self.labels.get("dockupdater._replicas")
         if replicas_label or self.is_replicated().get("Replicas") == 0:  # Scale up
             replicas = int(replicas_label) if replicas_label else 1
             self.logger.debug('Scaling up service %s to %s', self.object.name, replicas)
@@ -67,7 +67,7 @@ class Service(AbstractObject):
             self._reload_object()
 
             labels = self.labels
-            labels["docupdater._replicas"] = str(replicated.get("Replicas"))
+            labels["dockupdater._replicas"] = str(replicated.get("Replicas"))
 
             self.service.update(labels=labels)
             self._reload_object()

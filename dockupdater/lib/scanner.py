@@ -139,17 +139,18 @@ class Scanner(object):
                 self.logger.debug("no new version for %s", container_or_service.name)
 
     def self_update(self):
-        """Check for Docupdater update"""
+        """Check for Dockupdater update"""
         if not self.config.disable_containers_check:
-            # Removing old docupdater
-            self.logger.debug('Looking for old docupdater on %s', self.socket)
-            for container in self.get_containers(OptionRegex(".*_old_docupdater")):
+            # Removing old dockupdater
+            self.logger.debug('Looking for old dockupdater on %s', self.socket)
+            for container in self.get_containers(OptionRegex(".*_old_dockupdater")):
                 self.logger.debug('Stopping and deleting %s', container.name)
                 container.stop()
                 container.remove()
-            # Fix docupdater if they need exposed port
+            # Fix dockupdater if they need exposed port
             for container in self.get_containers():
-                if container.labels.get("docupdater.updater_port"):
-                    self.logger.info('Recreate docupdater container with exposed ports')
+                if container.labels.get("dockupdater.updater_port"):
+                    self.logger.info(
+                        'Recreate dockupdater container with exposed ports')
                     Container(self.docker, container)
                     container.update()

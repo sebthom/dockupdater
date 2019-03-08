@@ -9,7 +9,7 @@ COPY /requirements.txt /setup.py /entrypoint /README.md /app/
 RUN apk add --no-cache tzdata && \
     pip install --no-cache-dir -r requirements.txt
 
-COPY docupdater /app/docupdater
+COPY dockupdater /app/dockupdater
 
 RUN pip install --no-cache-dir .
 

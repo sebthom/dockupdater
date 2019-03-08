@@ -1,6 +1,6 @@
 # Notifications
 
-Docupdater uses [apprise](https://github.com/caronc/apprise) to support a large variety of notification platforms.
+Dockupdater uses [apprise](https://github.com/caronc/apprise) to support a large variety of notification platforms.
 
 ***
 
@@ -20,25 +20,25 @@ Docupdater uses [apprise](https://github.com/caronc/apprise) to support a large 
 ### Email
 
 ```shell
-docker run -d --name docupdater \
+docker run -d --name dockupdater \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  docupdater/docupdater -N 'mailtos://myUsername:myPassword@gmail.com?to=receivingAddress@gmail.com'
+  dockupdater/dockupdater -N 'mailtos://myUsername:myPassword@gmail.com?to=receivingAddress@gmail.com'
 ```
 
 ### Webhooks
 
 ```shell
-docker run -d --name docupdater \
+docker run -d --name dockupdater \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  docupdater/docupdater -N 'jsons://webhook.site/something'
+  dockupdater/dockupdater -N 'jsons://webhook.site/something'
 ```
 
 ### Slack
 
 ```shell
-docker run -d --name docupdater \
+docker run -d --name dockupdater \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  docupdater/docupdater -N 'slack://botName@TOKEN1/TOKEN2/TOKEN3/#mychannel'
+  dockupdater/dockupdater -N 'slack://botName@TOKEN1/TOKEN2/TOKEN3/#mychannel'
 ```
 
 ## More integrations
@@ -47,16 +47,16 @@ See all notification integrations [supported by apprise](https://github.com/caro
 
 ## Startup notifications
 
-By default, if notifications are enabled, all notification platforms will be fired with a body stating that docupdater has started with the current time set in the container and the timestamp of when docupdater will next check for updates. We can disable this bahevior with option [--skip-start-notif](Options.md#skip-start-notifation).
+By default, if notifications are enabled, all notification platforms will be fired with a body stating that dockupdater has started with the current time set in the container and the timestamp of when dockupdater will next check for updates. We can disable this bahevior with option [--skip-start-notif](Options.md#skip-start-notifation).
 
 ## Multiple notifications channels
 
 You can specify multiple notifications by separate each with a space. Example, to send 3 notifications:
 
 ```shell
-docker run -d --name docupdater \
+docker run -d --name dockupdater \
   -v /var/run/docker.sock:/var/run/docker.sock \
-  docupdater/docupdater -N 'jsons://webhook.site/something jsons://webhook.site/otherthing slack://TOKEN1/TOKEN2/TOKEN3/#devops'
+  dockupdater/dockupdater -N 'jsons://webhook.site/something jsons://webhook.site/otherthing slack://TOKEN1/TOKEN2/TOKEN3/#devops'
 ```
 
 ## Override notifications with labels
@@ -67,18 +67,18 @@ Here a complete example of docker swarm with multiple notifications and multiple
 version: "3.6"
 
 configs:
-  docupdater-template:
+  dockupdater-template:
     file: template.j2
 
 services:
-  docupdater:
-    image: docupdater/docupdater
+  dockupdater:
+    image: dockupdater/dockupdater
     environment:
       NOTIFIERS: "slack://${SLACK_TOKEN}/#devops-monitoring"
       TZ: "America/Montreal"
       TEMPLATE_FILE: "/template.j2"
     configs:
-      - source: docupdater-template
+      - source: dockupdater-template
         target: /template.j2
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -94,13 +94,13 @@ services:
     image: myorg/testimage
     deploy:
       labels:
-        docupdater.notifiers: "slack://${SLACK_TOKEN}/#devops-monitoring slack://${SLACK_TOKEN}/#teamB"
+        dockupdater.notifiers: "slack://${SLACK_TOKEN}/#devops-monitoring slack://${SLACK_TOKEN}/#teamB"
 
   testC:
     image: myorg/testimage
     deploy:
       labels:
-        docupdater.notifiers: ""
+        dockupdater.notifiers: ""
 ```
 
 With the template file `template.j2`:
