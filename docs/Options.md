@@ -49,6 +49,8 @@ services:
   * [Recreate first](#recreate-first)
   * [Repository User](#repository-user)
   * [Repository Password](#repository-password)
+  * [Start](#start)
+  * [Stop](#stop)
   * [Wait time](#wait-time)
 * [Notifications](#notifications)
   * [Notifiers](#notifiers)
@@ -158,7 +160,7 @@ Disable the scan for standalone containers.
 
 ### Docker Socket
 
-**Type:** `List - Space separated`
+**Type:** `List - Multiple`
 **Command Line:**  `-d, --docker-sockets`  
 **Environment Variable:** `DOCKER_SOCKETS`  
 **Default:** `unix://var/run/docker.sock`  
@@ -262,6 +264,44 @@ Define a password for repository authentication. Will be ignored without definin
 
 Define a stop signal to send to the container instead of SIGKILL. Default behavior is to use default docker stop command.
 
+### Start
+
+**Type:** `List String - Multiple/Space separated`  
+**Command Line:**  `-S, --start`  
+**Environment Variable:** `STARTS`  
+**Default:** `None`  
+**Availability:** `containers` `services`  
+**Override label:** [`dockupdater.starts`](Labels.md#starts)
+**Example:** `-e STARTS="weight:1,MyContainerName MyRegex[0-9]+"`  
+
+Define witch containers/services to start after an update. Docupdater will check for every container/service matching this name or [regex pattern](https://pythex.org/).
+
+You can define a weight for each pattern. The container will start in the weight order, lower will start before higher. If the weight is omit, the value 100 is used.
+
+When it use with **service**:
+
+* If the service is stop by the option [`--stop`](#stop), the service will scale to the old number of replicas.
+* If the service replicas is 0, Dockupdater will scale it to 1.
+* If the service replicas is higher than 1, the service will be force updated. All containers in the service will restart.
+
+> Warning: A bad configuration of this option may cause outage.
+
+### Stop
+
+**Type:** `List string - Multiple/Space separated`  
+**Command Line:**  `-s, --stop`  
+**Environment Variable:** `STOPS`  
+**Default:** `0`  
+**Availability:** `containers` `services`  
+**Override label:** [`dockupdater.stops`](Labels.md#stops)
+**Example:** `-e STOPS="weight:999,MyContainerName MyRegex[0-9]+"`  
+
+Define witch containers/services to stop before an update. Docupdater will check for every container/service matching this name or [regex pattern](https://pythex.org/).
+
+You can define a weight for each pattern. The container will stop in the weight order, lower will stop before higher. If the weight is omit, the value 100 is used.
+
+On stop, service will scale to 0. If you use with option `--start`, on the start the replicas number will be restored.
+
 ### Wait time
 
 **Type:** `Integer`  
@@ -278,7 +318,7 @@ Define a time in seconds to wait after an update before updating any others cont
 
 ### Notifiers
 
-**Type:** `List - Space separated`  
+**Type:** `List - Multiple/Space separated`  
 **Command Line:**  `-N, --notifiers`  
 **Environment Variable:** `NOTIFIERS`  
 **Default:** `None`  
