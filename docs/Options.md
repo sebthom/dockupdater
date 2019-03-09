@@ -302,7 +302,7 @@ Define witch containers/services to stop before an update. Docupdater will check
 
 You can define a weight for each pattern. The container will stop in the weight order, lower will stop before higher. If the weight is omit, the value 100 is used.
 
-On stop, service will scale to 0. If you use with option `--start`, on the start the replicas number will be restored.
+On stop, service will scale to 0. If you use with option `--start`, on the start the replicas number will be restored. This doesn't work with service replicated in global mode.
 
 See [`--start` option](#start) documentation for more example.
 
