@@ -13,6 +13,7 @@ Automatically keep your docker services and your docker containers up-to-date wi
   - [How install Dockupdater without docker](Frequently-Asked-Questions.md#how-install-dockupdater-without-docker)
   - [How to remove container after service update](Frequently-Asked-Questions.md#how-to-remove-container-after-service-update)
   - [How to use with service but without stack](Frequently-Asked-Questions.md#how-to-use-with-service-but-without-stack)
+  - [How to use special token {stack}](Frequently-Asked-Questions.md#how-to-use-special-token-stack)
 
 ## Overview
 
