@@ -41,8 +41,52 @@ class Service(AbstractObject):
     def get_latest_id(self):
         return (self._latest_sha or "")[:10]
 
+    def is_replicated(self):
+        return self.service.attrs.get("Spec", {}).get("Mode", {}).get("Replicated", {})
+
+    def _reload_object(self):
+        self.object = self.client.services.get(self.service.name)
+
+    def start(self):
+        replicas_label = self.labels.get("dockupdater._replicas")
+        if replicas_label or self.is_replicated().get("Replicas") == 0:  # Scale up
+            replicas = int(replicas_label) if replicas_label else 1
+            self.logger.debug('Scaling up service %s to %s', self.object.name, replicas)
+
+            self.service.scale(replicas)
+            self._reload_object()
+        else:  # Force update
+            self.service.force_update()
+
+    def stop(self):
+        replicated = self.is_replicated()
+        if replicated:
+            self.logger.debug('Scaling down service %s to 0', self.object.name)
+
+            self.service.scale(0)
+            self._reload_object()
+
+            labels = self.labels
+            labels["dockupdater._replicas"] = str(replicated.get("Replicas"))
+
+            self.service.update(labels=labels)
+            self._reload_object()
+        else:
+            self.logger.warning("Stop service is only available on replicated mode, not in global mode. Skip it.")
+
+    @property
+    def labels(self):
+        return self.service.attrs.get('Spec', dict()).get('Labels', dict())
+
+    @property
+    def stack_name(self):
+        return self.labels.get("com.docker.stack.namespace")
+
+    def load_new_config(self):
+        self.config = Config.from_labels(self.config, self.labels)
+
     def has_new_version(self):
-        self.config = Config.from_labels(self.config, self.service.attrs.get('Spec', dict()).get('Labels'))
+        self.load_new_config()
 
         current_image_name = self.get_image_name()
         current_tag = self.get_tag()

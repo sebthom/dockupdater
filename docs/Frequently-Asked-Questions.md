@@ -4,6 +4,8 @@
 * [How to stop Dockupdater auto update](#how-to-stop-dockupdater-auto-update)
 * [How install Dockupdater without docker](#how-install-dockupdater-without-docker)
 * [How to remove container after service update](#how-to-remove-container-after-service-update)
+* [How to use with service but without stack](#how-to-use-with-service-but-without-stack)
+* [How to use special token {stack}](#how-to-use-special-token-stack)
 
 ***
 
@@ -65,3 +67,69 @@ By default Docker swarm keep 5 stop containers by service. You can configure tha
 The update your docker swarm, run that command on a manager:
 
 $ docker swarm update --task-history-limit=0
+
+## How to use with service but without stack
+
+You can start a service with the command line without using stack file :
+
+```bash
+docker service create --name test1 --replicas=2 --tty=true busybox
+```
+
+Unfortunately that cause an issue with Dockupdater. They have 2 workarounds:
+
+**Option 1**
+
+Run Dockupdater with the option [`--disable-containers-check`](Options.md#disable-containers-check). That will disable update for standalone containers.
+
+**Option 2**
+
+Add label [`dockupdater.disable`](Labels.md#disable-update) on the containers, this will disable update for standalone containers, but service will be updated normally.
+
+You can add label for all containers of a service like that:
+```bash
+docker service create --name test1 --replicas=2 --tty=true --container-label="dockupdater.disable=true" busybox
+```
+
+## How to use special token {stack}
+
+When you run use services, you can use a token {stack} with the [`--start`](Options.md#start) and [`--stop`](Options.md#stop) options.
+
+`dockupdater.yml`
+
+```bash
+version: "3.6"
+
+services:
+  dockupdater:
+    image: dockupdater/dockupdater
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+```
+
+`stack.yml`
+
+```bash
+  service1:
+    image: image1:${TAG}
+    deploy:
+      labels:
+        STOPS: "{stack}_service2"
+        STARTS: "{stack}_service2"
+
+  service2:
+    image: image2:${TAG}
+```
+
+And start all stack:
+
+```bash
+docker stack deploy -c dockupdater.yml dockupdater
+TAG=latest docker stack deploy -c stack.yml test1
+TAG=test1 docker stack deploy -c stack.yml test2
+TAG=test2 docker stack deploy -c stack.yml test3
+```
+
+On update of `image1` this will restart `service2`, but only on the same stack of the `image1` update.

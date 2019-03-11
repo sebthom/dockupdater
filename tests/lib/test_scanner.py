@@ -2,11 +2,14 @@ import time
 
 import pytest
 
+from dockupdater.lib.config import OptionRegex
 from dockupdater.update.container import Container
 from dockupdater.update.service import Service
 
 
 def prepare_containers(scanner):
+    print("creating containers and services")
+
     if not scanner.client.swarm.attrs:
         scanner.client.swarm.init(force_new_cluster=True)
 
@@ -14,29 +17,92 @@ def prepare_containers(scanner):
         scanner.client.services.create(
             "busybox:latest",
             name="TestService1",
+            tty=True,
             labels={
                 "dockupdater.wait": "1"
+            },
+            container_labels={
+                "dockupdater.disable": "true"
             }
         )
-        scanner.client.services.create("busybox", name="TestService2")
+        scanner.client.services.create(
+            "busybox",
+            tty=True,
+            name="TestService2",
+            container_labels={
+                "dockupdater.disable": "true"
+            }
+        )
 
-        scanner.client.containers.run("busybox", tty=True, detach=True, name="Test1")
+        scanner.client.containers.run(
+            "busybox",
+            tty=True,
+            detach=True,
+            name="Test1"
+        )
         scanner.client.containers.run(
             "busybox",
             tty=True,
             detach=True,
             name="Test2",
-            labels={"dockupdater.disable": "true"}
+            labels={
+                "dockupdater.disable": "true",
+                "dockupdater.stops": "Test1",
+                "dockupdater.starts": "Test1"
+            }
         )
         scanner.client.containers.run(
             "busybox",
             tty=True,
             detach=True,
             name="Test3",
-            labels={"dockupdater.enable": "false"}
+            labels={
+                "dockupdater.enable": "false"
+            }
         )
     except:
         print("Tests containers already exist")
+    print("Done")
+
+
+@pytest.mark.docker
+def test_scanner_get_containers(scanner):
+    prepare_containers(scanner)
+
+    containers = scanner.get_containers(OptionRegex("Test[1-2]"))
+    assert len(containers) == 2
+    containers = scanner.get_containers(OptionRegex("Nomatch"))
+    assert len(containers) == 0
+
+
+@pytest.mark.docker
+def test_scanner_get_services(scanner):
+    prepare_containers(scanner)
+
+    services = scanner.get_services(OptionRegex("TestService[2-3]"))
+    assert len(services) == 1
+    services = scanner.get_services(OptionRegex("Nomatch"))
+    assert len(services) == 0
+
+
+@pytest.mark.docker
+def test_scanner_starts_stops_before_update(docker_client, scanner):
+    prepare_containers(scanner)
+    container = Container(docker_client, scanner.get_containers(OptionRegex("Test2"))[0])
+
+    container.load_new_config()
+
+    assert container.name == "Test2"
+    assert container.config.stops[0].regex == "Test1"
+    assert container.config.starts[0].regex == "Test1"
+
+    assert docker_client, scanner.get_containers(OptionRegex("Test1"))[0].status == "running"
+
+    scanner.stops_before_update(container)
+    assert docker_client, scanner.get_containers(OptionRegex("Test1"))[0].status != "running"
+
+    scanner.starts_after_update(container)
+    assert docker_client, scanner.get_containers(OptionRegex("Test1"))[0].status == "running"
 
 
 @pytest.mark.docker
@@ -68,25 +134,3 @@ def test_scanner_update(scanner, mocker, monkeypatch):
     scanner.update()
     Service.update.assert_any_call()
     Container.update.assert_not_called()
-
-
-@pytest.mark.docker
-@pytest.mark.slow
-def test_scanner_check_swarm_mode(scanner):
-    assert scanner.config.disable_services_check is False
-
-    if not scanner.client.swarm.attrs:
-        scanner.client.swarm.init(force_new_cluster=True)
-
-    scanner.check_swarm_mode()
-    assert scanner.config.disable_services_check is False
-
-    scanner.client.swarm.leave(force=True)
-
-    scanner.check_swarm_mode()
-    assert scanner.config.disable_services_check is True
-
-    scanner.config.disable_containers_check = True
-
-    with pytest.raises(AttributeError):
-        scanner.check_swarm_mode()

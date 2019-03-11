@@ -37,13 +37,23 @@ def scanner(docker_client):
 def service(docker_client):
     if not docker_client.client.swarm.attrs:
         docker_client.client.swarm.init(force_new_cluster=True)
-    try:
-        service = docker_client.client.services.create(
-            "busybox:latest",
-            name="TestServiceUpdate1"
-        )
-    except:
-        service = docker_client.client.services.get("TestServiceUpdate1")
+    while True:
+        try:
+            service = docker_client.client.services.create(
+                "busybox:latest",
+                tty=True,
+                name="TestServiceUpdate1",
+                labels={
+                    "test": "1234"
+                },
+                container_labels={
+                    "dockupdater.disable": "true"
+                }
+            )
+            break
+        except:
+            service = docker_client.client.services.get("TestServiceUpdate1")
+            service.remove()
     return Service(docker_client, service)
 
 
@@ -51,7 +61,14 @@ def service(docker_client):
 def container(docker_client):
     try:
         container = docker_client.client.containers.run(
-            "busybox:latest", tty=True, detach=True, name="ContainerUpdateTest1")
+            "busybox:latest",
+            tty=True,
+            detach=True,
+            name="ContainerUpdateTest1",
+            labels={
+                "test": "9876"
+            }
+        )
     except:
         container = docker_client.client.containers.get("ContainerUpdateTest1")
     return Container(docker_client, container)

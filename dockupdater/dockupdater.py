@@ -13,6 +13,11 @@ from .lib.notifiers import NotificationManager, StartupMessage
 from .lib.scanner import Scanner
 
 
+def apscheduler_wait(scheduler):
+    while scheduler.get_jobs():
+        sleep(10)
+
+
 @click.command()
 @click.version_option(version=VERSION)
 @click.option("-d", "--docker-sockets", "docker_sockets", envvar="DOCKER_SOCKETS",
@@ -81,9 +86,18 @@ from .lib.scanner import Scanner
 @click.option("-F", "--recreate-first", "recreate_first", envvar="RECREATE_FIRST",
               default=DefaultConfig.recreate_first, type=click.INT,
               help='Create a new container before stopping the old container.')
+@click.option("-s", "--stop", "stops", envvar="STOPS",
+              default=DefaultConfig.stops, multiple=True,
+              help='Regex to match Containers/Services to stop before update. May have a weight, '
+                   'lower will be stop first, of omit the default weight is 100. Example: --stop "weight:999,hello.*"')
+@click.option("-S", "--start", "starts", envvar="STARTS",
+              default=DefaultConfig.starts, multiple=True,
+              help='Regex to match Containers/Services to start after update. May have a weight, '
+                   'lower will be start first, of omit the default weight is 100 Example: --start "weight:1,hello.*')
 def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level, run_once, notifiers,
         skip_start_notif, label, cleanup, repo_user, repo_pass, stop_signal, disable_services_check,
-        disable_containers_check, template_file, hostname, latest, wait, recreate_first):
+        disable_containers_check, template_file, hostname, latest, wait, recreate_first,
+        starts, stops):
     """Declare command line options"""
 
     # Create App logger
@@ -110,7 +124,9 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
                     hostname=hostname,
                     latest=latest,
                     wait=wait,
-                    recreate_first=recreate_first)
+                    recreate_first=recreate_first,
+                    starts=starts,
+                    stops=stops)
     config.config_blacklist()  # Configure mask on logger
 
     log.logger.debug("dockupdater configuration: %s", config.options)
@@ -127,7 +143,7 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
             # Always begin to check the self update
             scanner.self_update()
             # Check docker swarm mode is running on a manager
-            scanner.check_swarm_mode()
+            docker.check_swarm_mode()
 
             if config.cron:
                 scheduler.add_job(
@@ -169,9 +185,7 @@ def cli(docker_sockets, docker_tls, docker_tls_verify, interval, cron, log_level
     if not config.skip_start_notif:
         notification_manager.send(StartupMessage(config.hostname, next_run=next_run), config.notifiers)
 
-    while scheduler.get_jobs():
-        sleep(10)
-
+    apscheduler_wait(scheduler)
     scheduler.shutdown()
 
 

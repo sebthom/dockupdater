@@ -1,3 +1,4 @@
+import re
 from copy import deepcopy
 from logging import getLogger
 from os import environ
@@ -5,6 +6,9 @@ from pathlib import Path
 
 from .logger import BlacklistFilter
 from ..helpers.helpers import convert_to_boolean
+
+OPTION_REGEX_PATTERN = r"^(?:weight:(?P<weight>\d+),)?(?P<regex>.*)$"
+DEFAULT_REGEX_WEIGHT = 100
 
 MINIMUM_INTERVAL = 30
 
@@ -18,7 +22,9 @@ LABELS_MAPPING = {
     "dockupdater.cleanup": "cleanup",
     "dockupdater.template_file": "template_file",
     "dockupdater.wait": "wait",
-    "dockupdater.recreate_first": "recreate_first"
+    "dockupdater.recreate_first": "recreate_first",
+    "dockupdater.starts": "starts",
+    "dockupdater.stops": "stops"
 }
 
 
@@ -41,12 +47,42 @@ class DefaultConfig(object):
     wait = 0
     recreate_first = False
 
+    stops = []
+    starts = []
+
     repo_user = None
     repo_pass = None
 
     notifiers = []
     skip_start_notif = False
     template_file = None
+
+
+class OptionRegex(object):
+    def __init__(self, pattern):
+        """pattern may be in these format:
+            - weight:Digit,regex_pattern
+            - regex_pattern
+        """
+        match = re.fullmatch(OPTION_REGEX_PATTERN, pattern, re.IGNORECASE).groupdict()
+        try:
+            re.compile(match.get("regex"))  # Test the regex
+            self.regex = match.get("regex")
+        except re.error:
+            raise AttributeError("Invalid regex {} for option start or stop.".format(match.get("regex")))
+        self.weight = int(match.get("weight") or DEFAULT_REGEX_WEIGHT)
+        self.tokens = None
+
+    def match(self, name):
+        regex = self.regex
+        if self.tokens:
+            for token, value in self.tokens.items():
+                if token and value:
+                    regex = regex.replace("{" + str(token) + "}", value)
+        return bool(re.fullmatch(regex, name))
+
+    def __repr__(self):
+        return f"<Option {self.regex}[{self.weight}]>"
 
 
 class Config(object):
@@ -70,11 +106,15 @@ class Config(object):
                         options[LABELS_MAPPING[label]] = convert_to_boolean(value)
                     elif label in ["dockupdater.wait"]:
                         options[LABELS_MAPPING[label]] = int(value)
+                    elif label in ["dockupdater.stops", "dockupdater.starts"]:
+                        options[LABELS_MAPPING[label]] = [OptionRegex(item) for item in value.split(" ")]
                     else:
                         options[LABELS_MAPPING[label]] = value
                     if label == "dockupdater.template_file":
                         # Reload template
                         options["template"] = Config.load_template(options.get('template_file'))
+                elif label.startswith("dockupdater."):
+                    config.logger.warning("Warning label %s doesn't exist", label)
 
         return cls(**options)
 
@@ -140,6 +180,12 @@ class Config(object):
             if self.interval < MINIMUM_INTERVAL:
                 self.logger.warning('Minimum value for interval was 30 seconds.')
                 self.interval = MINIMUM_INTERVAL
+
+        # Convert parameters to regex object
+        self.stops = [OptionRegex(stop) if not isinstance(stop, OptionRegex) else stop for stop in self.stops]
+        self.stops.sort(key=lambda x: x.weight)
+        self.starts = [OptionRegex(start) if not isinstance(start, OptionRegex) else start for start in self.starts]
+        self.starts.sort(key=lambda x: x.weight)
 
         self.options['template'] = Config.load_template(self.template_file)
 

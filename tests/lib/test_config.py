@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pytest
 
-from dockupdater.lib.config import DefaultConfig, Config, MINIMUM_INTERVAL
+from dockupdater.lib.config import DefaultConfig, Config, DEFAULT_REGEX_WEIGHT, MINIMUM_INTERVAL, OptionRegex
 
 
 def _update_config(options, new_options):
@@ -19,6 +19,35 @@ def test_config(config):
     assert all([check(key, value) for key, value in DefaultConfig.__dict__.items() if "__" not in key])
     assert config.template is not None
     assert config.auth_json is None
+
+
+def test_config_with_option():
+    option_dict = {key: value for key, value in DefaultConfig.__dict__.items() if "__" not in key}
+
+    option_dict["run_once"] = True
+    option_dict["latest"] = True
+    option_dict["recreate_first"] = True
+    option_dict["cleanup"] = True
+    option_dict["starts"] = ["myRegex"]
+    option_dict["stops"] = ["weight:999,myRegex", "container2", "weight:2,c.*"]
+    option_dict["repo_user"] = "username"
+    option_dict["repo_pass"] = "password"
+
+    config = Config(**option_dict)
+
+    assert config.run_once is True
+    assert config.latest is True
+    assert config.recreate_first is True
+    assert config.cleanup is True
+    assert len(config.starts) == 1
+    assert config.starts[0].weight == DEFAULT_REGEX_WEIGHT
+    assert len(config.stops) == 3
+    assert config.stops[0].weight == 2
+    assert config.stops[0].regex == "c.*"
+    assert config.stops[1].weight == DEFAULT_REGEX_WEIGHT
+    assert config.stops[1].regex == "container2"
+    assert config.stops[2].weight == 999
+    assert config.stops[2].regex == "myRegex"
 
 
 def test_config_load_labels(config):
@@ -41,7 +70,9 @@ def test_config_load_labels(config):
         "dockupdater.cleanup": True,
         "dockupdater.wait": 60,
         "dockupdater.recreate_first": False,
-        "dockupdater.template_file": template_file
+        "dockupdater.template_file": template_file,
+        "dockupdater.starts": "Container1",
+        "dockupdater.stops": "weight:1,Container1 Container2"
     })
 
     assert config2.hostname == config.hostname
@@ -50,6 +81,11 @@ def test_config_load_labels(config):
     assert config2.cleanup is True
     assert config2.wait == 60
     assert config2.recreate_first is False
+    assert config2.starts
+    assert config2.starts[0].weight == DEFAULT_REGEX_WEIGHT, config2.starts
+    assert config2.stops
+    assert config2.stops[0].weight == 1, config2.stops
+    assert config2.stops[1].weight == DEFAULT_REGEX_WEIGHT, config2.stops
     assert config2.template is not None
 
 
@@ -107,3 +143,18 @@ def test_config_invalid_template(config):
         new_config = _update_config(config.options, {
             "template_file": "/invalid.j2"
         })
+
+
+def test_config_option_regex_object():
+    assert OptionRegex("hello-.*").regex == "hello-.*"
+    assert OptionRegex("hello-.*").weight == DEFAULT_REGEX_WEIGHT
+    assert OptionRegex("weight:1,myregex").weight == 1
+    assert OptionRegex("weight:999,myregex").weight == 999
+    with pytest.raises(AttributeError):
+        OptionRegex("InvalidRegex[")
+
+    option = OptionRegex("{stack}_hello-world")
+    option.tokens = {"stack": "test", "invalid": None}
+    assert option.match("test_hello-world")
+    assert not option.match("test1_hello-world")
+    assert not option.match("test_hello")
