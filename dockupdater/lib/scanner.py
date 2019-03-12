@@ -2,6 +2,7 @@ from time import sleep
 
 from .config import OptionRegex, DISABLE_LABEL, ENABLE_LABEL
 from .notifiers import TemplateMessage
+from ..helpers.helpers import convert_to_boolean
 from ..update.container import Container
 from ..update.service import Service
 
@@ -51,8 +52,8 @@ class Scanner(object):
         monitored_containers = []
 
         for container in self.get_containers():
-            enable_label = container.labels.get(ENABLE_LABEL, False)
-            disable_label = container.labels.get(DISABLE_LABEL, False)
+            enable_label = convert_to_boolean(container.labels.get(ENABLE_LABEL, False))
+            disable_label = convert_to_boolean(container.labels.get(DISABLE_LABEL, False))
             swarm = container.labels.get('com.docker.stack.namespace', False)
             if (not self.config.label or enable_label) and not disable_label and not swarm:
                 monitored_containers.append(Container(self.docker, container))
@@ -68,8 +69,8 @@ class Scanner(object):
         monitored_services = []
 
         for service in self.get_services():
-            enable_label = service.attrs['Spec']['Labels'].get(ENABLE_LABEL, False)
-            disable_label = service.attrs['Spec']['Labels'].get(DISABLE_LABEL, False)
+            enable_label = convert_to_boolean(service.attrs['Spec']['Labels'].get(ENABLE_LABEL, False))
+            disable_label = convert_to_boolean(service.attrs['Spec']['Labels'].get(DISABLE_LABEL, False))
             if (not self.config.label or enable_label) and not disable_label:
                 monitored_services.append(Service(self.docker, service))
 

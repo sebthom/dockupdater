@@ -45,7 +45,7 @@ def remove_sha_prefix(digest):
 
 
 def convert_to_boolean(value):
-    return str(value).lower() in ["yes", "y", "true"]
+    return str(value).lower() in ["yes", "y", "true", "1"]
 
 
 def get_id_from_image(image):

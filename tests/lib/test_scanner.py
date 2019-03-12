@@ -60,6 +60,15 @@ def prepare_containers(scanner):
                 "dockupdater.enable": "false"
             }
         )
+        scanner.client.containers.run(
+            "busybox",
+            tty=True,
+            detach=True,
+            name="Test4",
+            labels={
+                "dockupdater.enable": "true"
+            }
+        )
     except:
         print("Tests containers already exist")
     print("Done")
@@ -111,14 +120,14 @@ def test_scanner_scan_monitored(scanner):
 
     monitored = scanner.scan_monitored()
 
-    assert len([object.name for object in monitored if object.name in ["Test1", "Test3"]]) == 2
+    assert len([object.name for object in monitored if object.name in ["Test1", "Test3", "Test4"]]) == 3
     assert len([object.name for object in monitored if object.name in ["Test2"]]) == 0
     assert len([object.name for object in monitored if object.name in ["TestService1", "TestService2"]]) == 2
 
     scanner.config.label = True
     monitored = scanner.scan_monitored()
-    assert len([object.name for object in monitored if object.name in ["Test3"]]) == 1
-    assert len([object.name for object in monitored if object.name in ["Test1", "Test2"]]) == 0
+    assert len([object.name for object in monitored if object.name in ["Test4"]]) == 1
+    assert len([object.name for object in monitored if object.name in ["Test1", "Test2", "Test3"]]) == 0
     assert len([object.name for object in monitored if object.name in ["TestService1", "TestService2"]]) == 0
 
 
