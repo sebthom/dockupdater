@@ -2,7 +2,11 @@ from pathlib import Path
 
 import pytest
 
-from dockupdater.lib.config import DefaultConfig, Config, DEFAULT_REGEX_WEIGHT, MINIMUM_INTERVAL, OptionRegex
+from dockupdater.lib.config import Config
+from dockupdater.lib.config import DEFAULT_REGEX_WEIGHT
+from dockupdater.lib.config import DefaultConfig
+from dockupdater.lib.config import MINIMUM_INTERVAL
+from dockupdater.lib.config import OptionRegex
 
 
 def _update_config(options, new_options):

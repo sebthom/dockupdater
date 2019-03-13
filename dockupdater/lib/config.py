@@ -4,8 +4,8 @@ from logging import getLogger
 from os import environ
 from pathlib import Path
 
-from .logger import BlacklistFilter
 from ..helpers.helpers import convert_to_boolean
+from .logger import BlacklistFilter
 
 OPTION_REGEX_PATTERN = r"^(?:weight:(?P<weight>\d+),)?(?P<regex>.*)$"
 DEFAULT_REGEX_WEIGHT = 100

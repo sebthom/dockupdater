@@ -1,4 +1,5 @@
-from dockupdater.lib.notifiers import StartupMessage, TemplateMessage
+from dockupdater.lib.notifiers import StartupMessage
+from dockupdater.lib.notifiers import TemplateMessage
 from dockupdater.update.container import Container
 
 

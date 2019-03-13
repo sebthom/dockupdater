@@ -1,4 +1,7 @@
-from logging import Filter, getLogger, Formatter, StreamHandler
+from logging import Filter
+from logging import Formatter
+from logging import getLogger
+from logging import StreamHandler
 
 
 class BlacklistFilter(Filter):

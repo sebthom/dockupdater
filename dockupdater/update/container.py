@@ -1,10 +1,13 @@
 from time import sleep
 
-from docker.errors import APIError, NotFound
+from docker.errors import APIError
+from docker.errors import NotFound
 
-from .abstract import AbstractObject
-from ..helpers.helpers import set_properties, remove_sha_prefix, get_id_from_image
+from ..helpers.helpers import get_id_from_image
+from ..helpers.helpers import remove_sha_prefix
+from ..helpers.helpers import set_properties
 from ..lib.config import Config
+from .abstract import AbstractObject
 
 
 class Container(AbstractObject):

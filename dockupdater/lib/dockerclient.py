@@ -1,7 +1,10 @@
 from logging import getLogger
-from os.path import isdir, isfile, join
+from os.path import isdir
+from os.path import isfile
+from os.path import join
 
-from docker import DockerClient, tls
+from docker import DockerClient
+from docker import tls
 
 
 class Docker(object):

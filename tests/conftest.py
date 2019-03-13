@@ -1,7 +1,8 @@
 import pytest
 from docker.client import DockerClient
 
-from dockupdater.lib.config import DefaultConfig, Config
+from dockupdater.lib.config import Config
+from dockupdater.lib.config import DefaultConfig
 from dockupdater.lib.dockerclient import Docker
 from dockupdater.lib.notifiers import NotificationManager
 from dockupdater.lib.scanner import Scanner

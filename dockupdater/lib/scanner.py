@@ -1,10 +1,12 @@
 from time import sleep
 
-from .config import OptionRegex, DISABLE_LABEL, ENABLE_LABEL
-from .notifiers import TemplateMessage
 from ..helpers.helpers import convert_to_boolean
 from ..update.container import Container
 from ..update.service import Service
+from .config import DISABLE_LABEL
+from .config import ENABLE_LABEL
+from .config import OptionRegex
+from .notifiers import TemplateMessage
 
 
 class Scanner(object):

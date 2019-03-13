@@ -1,6 +1,6 @@
-from .abstract import AbstractObject
 from ..helpers.helpers import remove_sha_prefix
 from ..lib.config import Config
+from .abstract import AbstractObject
 
 
 class Service(AbstractObject):

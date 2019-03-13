@@ -1,7 +1,10 @@
 import pytest
 from docker.client import DockerClient
 
-from dockupdater.helpers.helpers import set_properties, remove_sha_prefix, convert_to_boolean, get_id_from_image
+from dockupdater.helpers.helpers import convert_to_boolean
+from dockupdater.helpers.helpers import get_id_from_image
+from dockupdater.helpers.helpers import remove_sha_prefix
+from dockupdater.helpers.helpers import set_properties
 
 
 @pytest.mark.docker

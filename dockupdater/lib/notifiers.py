@@ -1,9 +1,11 @@
 from abc import ABC
-from datetime import datetime, timezone
+from datetime import datetime
+from datetime import timezone
 from logging import getLogger
 
 import apprise
-from jinja2 import Environment, BaseLoader
+from jinja2 import BaseLoader
+from jinja2 import Environment
 
 from ..update.service import Service
 

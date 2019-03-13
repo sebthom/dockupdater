@@ -1,15 +1,20 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
+from datetime import timedelta
+from datetime import timezone
 from time import sleep
 
 import click
 from apscheduler.schedulers.background import BackgroundScheduler
 from requests.exceptions import ConnectionError
 
-from . import VERSION, BRANCH
-from .lib.config import DefaultConfig, Config
+from . import BRANCH
+from . import VERSION
+from .lib.config import Config
+from .lib.config import DefaultConfig
 from .lib.dockerclient import Docker
 from .lib.logger import DockupdaterLogger
-from .lib.notifiers import NotificationManager, StartupMessage
+from .lib.notifiers import NotificationManager
+from .lib.notifiers import StartupMessage
 from .lib.scanner import Scanner
 
 
