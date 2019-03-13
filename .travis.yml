@@ -24,8 +24,8 @@ install:
   - pip install -e .
 
 before_script:
-  - python -m flake8 --max-line-length 120 dockupdater
   - pytest -m "slow or not slow or docker or not docker"
+  - pre-commit run --all-files
 
 script:
   - python setup.py sdist bdist_wheel
