@@ -3,12 +3,14 @@ from setuptools import setup
 
 from dockupdater import VERSION
 
-requirements = ['docker>=3.7.0',
-                'apscheduler>=3.5.3',
-                'requests>=2.21.0',
-                'apprise>=0.5.2',
-                'jinja2>=2.10',
-                'click>=7.0']
+requirements = [
+    'docker>=3.7.0',
+    'apscheduler>=3.5.3',
+    'requests>=2.21.0',
+    'apprise>=0.5.2',
+    'jinja2>=2.10',
+    'click>=7.0',
+]
 
 
 def read(filename):
@@ -26,12 +28,14 @@ setup(
     long_description_content_type='text/markdown',
     url='https://dockupdater.dev',
     license='MIT',
-    classifiers=['Programming Language :: Python',
-                 'Programming Language :: Python :: 3.6',
-                 'Programming Language :: Python :: 3.7'],
+    classifiers=[
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+    ],
     packages=find_packages(exclude=["*.tests", "*.tests.*", "tests.*", "tests"]),
     include_package_data=True,
     scripts=['entrypoint'],
     install_requires=requirements,
-    python_requires='>=3.6.2'
+    python_requires='>=3.6.2',
 )

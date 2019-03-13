@@ -119,9 +119,9 @@ class Service(AbstractObject):
 
     def _get_digest(self, image):
         digest = image.attrs.get(
-            "Descriptor", {}
+            "Descriptor", {},
         ).get("digest") or image.attrs.get(
-            "RepoDigests"
+            "RepoDigests",
         )[0].split('@')[1] or image.id
 
         return remove_sha_prefix(digest)

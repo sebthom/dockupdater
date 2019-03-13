@@ -21,8 +21,10 @@ class BlacklistFilter(Filter):
                 if item in record.msg:
                     record.msg = record.msg.replace(item, 8 * '*' + item[-5:])
                 if any(item in str(arg) for arg in record.args):
-                    record.args = tuple(arg.replace(item, 8 * '*' + item[-5:]) if isinstance(arg, str) else arg
-                                        for arg in record.args)
+                    record.args = tuple(
+                        arg.replace(item, 8 * '*' + item[-5:]) if isinstance(arg, str) else arg
+                        for arg in record.args
+                    )
             except TypeError:
                 pass
         return True

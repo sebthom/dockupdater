@@ -28,9 +28,9 @@ def test_set_properties_with_self_update(hello_world_image):
         environment={
             "env1": "test1",
             "env2": "test2",
-            "env3": "test3"
+            "env3": "test3",
         },
-        ports=[(4567, "tcp"), (9876, "tcp")]
+        ports=[(4567, "tcp"), (9876, "tcp")],
     )
     container = client.api.create_container("hello-world:latest", **container_dict)
 

@@ -130,7 +130,7 @@ class Scanner(object):
 
                 self.notification_manager.send(
                     TemplateMessage(container_or_service),
-                    container_or_service.config.notifiers
+                    container_or_service.config.notifiers,
                 )
 
                 if container_or_service.config.wait:
@@ -154,6 +154,7 @@ class Scanner(object):
             for container in self.get_containers():
                 if container.labels.get("dockupdater.updater_port"):
                     self.logger.info(
-                        'Recreate dockupdater container with exposed ports')
+                        'Recreate dockupdater container with exposed ports',
+                    )
                     Container(self.docker, container)
                     container.update()

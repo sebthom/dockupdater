@@ -19,26 +19,26 @@ def prepare_containers(scanner):
             name="TestService1",
             tty=True,
             labels={
-                "dockupdater.wait": "1"
+                "dockupdater.wait": "1",
             },
             container_labels={
-                "dockupdater.disable": "true"
-            }
+                "dockupdater.disable": "true",
+            },
         )
         scanner.client.services.create(
             "busybox",
             tty=True,
             name="TestService2",
             container_labels={
-                "dockupdater.disable": "true"
-            }
+                "dockupdater.disable": "true",
+            },
         )
 
         scanner.client.containers.run(
             "busybox",
             tty=True,
             detach=True,
-            name="Test1"
+            name="Test1",
         )
         scanner.client.containers.run(
             "busybox",
@@ -48,8 +48,8 @@ def prepare_containers(scanner):
             labels={
                 "dockupdater.disable": "true",
                 "dockupdater.stops": "Test1",
-                "dockupdater.starts": "Test1"
-            }
+                "dockupdater.starts": "Test1",
+            },
         )
         scanner.client.containers.run(
             "busybox",
@@ -57,8 +57,8 @@ def prepare_containers(scanner):
             detach=True,
             name="Test3",
             labels={
-                "dockupdater.enable": "false"
-            }
+                "dockupdater.enable": "false",
+            },
         )
         scanner.client.containers.run(
             "busybox",
@@ -66,8 +66,8 @@ def prepare_containers(scanner):
             detach=True,
             name="Test4",
             labels={
-                "dockupdater.enable": "true"
-            }
+                "dockupdater.enable": "true",
+            },
         )
     except:
         print("Tests containers already exist")

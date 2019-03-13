@@ -23,13 +23,13 @@ class Docker(object):
             try:
                 cert_paths = {
                     'cert_top_dir': '/etc/docker/certs.d/',
-                    'clean_socket': self.socket.split('//')[1]
+                    'clean_socket': self.socket.split('//')[1],
                 }
                 cert_paths['cert_dir'] = join(cert_paths['cert_top_dir'], cert_paths['clean_socket'])
                 cert_paths['cert_files'] = {
                     'client_cert': join(cert_paths['cert_dir'], 'client.cert'),
                     'client_key': join(cert_paths['cert_dir'], 'client.key'),
-                    'ca_crt': join(cert_paths['cert_dir'], 'ca.crt')
+                    'ca_crt': join(cert_paths['cert_dir'], 'ca.crt'),
                 }
 
                 if not isdir(cert_paths['cert_dir']):
@@ -44,7 +44,7 @@ class Docker(object):
                 tls_config = tls.TLSConfig(
                     ca_cert=cert_paths['cert_files']['ca_crt'],
                     verify=cert_paths['cert_files']['ca_crt'] if self.config.docker_tls_verify else False,
-                    client_cert=(cert_paths['cert_files']['client_cert'], cert_paths['cert_files']['client_key'])
+                    client_cert=(cert_paths['cert_files']['client_cert'], cert_paths['cert_files']['client_key']),
                 )
                 client = DockerClient(base_url=self.socket, tls=tls_config)
             except ValueError:
@@ -66,7 +66,7 @@ class Docker(object):
                 if "worker nodes" in error_str:
                     raise EnvironmentError(
                         "Your running on a swarm worker, it isn't working. You must add placement constraints. "
-                        "See docs at https://github.com/dockupdater/dockupdater for help."
+                        "See docs at https://github.com/dockupdater/dockupdater for help.",
                     )
                 else:
                     self.logger.info("Your aren't running in swarm mode, skip services check.")

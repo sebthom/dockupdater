@@ -89,7 +89,7 @@ class Container(AbstractObject):
         elif self.container.attrs['Config'].get('ExposedPorts') and self.config.recreate_first:
             self.config.recreate_first = False
             self.logger.warning(
-                "Option recreate_first isn't compatible when container has exposed ports. Option is set to False."
+                "Option recreate_first isn't compatible when container has exposed ports. Option is set to False.",
             )
 
         if not self._current_id or not self._latest_image:
@@ -132,8 +132,10 @@ class Container(AbstractObject):
             try:
                 self.container.kill(signal=self.config.stop_signal)
             except APIError as e:
-                self.logger.error('Cannot kill container using signal %s. stopping normally. Error: %s',
-                                  self.object.stop_signal, e)
+                self.logger.error(
+                    'Cannot kill container using signal %s. stopping normally. Error: %s',
+                    self.object.stop_signal, e,
+                )
                 self.container.stop()
         else:
             self.container.stop()
@@ -158,7 +160,7 @@ class Container(AbstractObject):
         new_config = set_properties(
             old=self.container,
             new=self._latest_image,
-            self_update=self.is_dockupdater()
+            self_update=self.is_dockupdater(),
         )
         created = self.client.api.create_container(**new_config)
         new_container = self.client.containers.get(created.get("Id"))
@@ -175,7 +177,7 @@ class Container(AbstractObject):
                 'aliases': network_config['Aliases'],
                 'links': network_config['Links'],
                 'ipv4_address': network_config['IPAddress'],
-                'ipv6_address': network_config['GlobalIPv6Address']
+                'ipv6_address': network_config['GlobalIPv6Address'],
             }
             try:
                 network.connect(**new_network_config)

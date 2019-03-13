@@ -32,7 +32,7 @@ def set_properties(old, new, self_update=False):
         'host_config': old.attrs['HostConfig'],
         'labels': labels,
         'entrypoint': old.attrs['Config']['Entrypoint'],
-        'environment': old.attrs['Config']['Env']
+        'environment': old.attrs['Config']['Env'],
     }
 
     return properties

@@ -25,7 +25,8 @@ class StartupMessage(BaseMessage):
         body_fields = [
             f'Host: {hostname}',
             f'Time: {now.strftime("%Y-%m-%d %H:%M:%S")}',
-            f'Next Run: {next_run}']
+            f'Next Run: {next_run}',
+        ]
         super().__init__(title, '\n'.join(body_fields))
 
 

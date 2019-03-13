@@ -24,7 +24,7 @@ LABELS_MAPPING = {
     "dockupdater.wait": "wait",
     "dockupdater.recreate_first": "recreate_first",
     "dockupdater.starts": "starts",
-    "dockupdater.stops": "stops"
+    "dockupdater.stops": "stops",
 }
 
 
@@ -132,8 +132,10 @@ class Config(object):
 
     def config_blacklist(self):
         """Mask sensitive data from logs"""
-        filtered_strings = [getattr(self, key.lower()) for key, value in self.options.items()
-                            if key.lower() in BlacklistFilter.blacklisted_keys]
+        filtered_strings = [
+            getattr(self, key.lower()) for key, value in self.options.items()
+            if key.lower() in BlacklistFilter.blacklisted_keys
+        ]
         # Clear None values
         self.filtered_strings = list(filter(None, filtered_strings))
         # take lists inside of list and append to list

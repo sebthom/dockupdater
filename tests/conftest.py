@@ -45,11 +45,11 @@ def service(docker_client):
                 tty=True,
                 name="TestServiceUpdate1",
                 labels={
-                    "test": "1234"
+                    "test": "1234",
                 },
                 container_labels={
-                    "dockupdater.disable": "true"
-                }
+                    "dockupdater.disable": "true",
+                },
             )
             break
         except:
@@ -67,8 +67,8 @@ def container(docker_client):
             detach=True,
             name="ContainerUpdateTest1",
             labels={
-                "test": "9876"
-            }
+                "test": "9876",
+            },
         )
     except:
         container = docker_client.client.containers.get("ContainerUpdateTest1")
@@ -96,8 +96,8 @@ def hello_world_container(hello_world_image):
             environment={
                 "env1": "test1",
                 "env2": "test2",
-                "env3": "test3"
-            }
+                "env3": "test3",
+            },
         )
     return HELLO_WORLD_CONTAINER
 
@@ -114,9 +114,9 @@ def hello_world_container_with_port():
             environment={
                 "env1": "test1",
                 "env2": "test2",
-                "env3": "test3"
+                "env3": "test3",
             },
-            ports=[(4567, "tcp"), (9876, "tcp")]
+            ports=[(4567, "tcp"), (9876, "tcp")],
         )
         HELLO_WORLD_CONTAINER_WITH_PORT = client.containers.get(container.get("Id"))
     return HELLO_WORLD_CONTAINER_WITH_PORT
