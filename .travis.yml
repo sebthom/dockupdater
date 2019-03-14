@@ -20,6 +20,7 @@ before_install:
   - bash scripts/update_version.sh
 
 install:
+  - sudo curl https://github.com/hadolint/hadolint/releases/download/v1.16.0/hadolint-Linux-x86_64 > /usr/local/bin/hadolint
   - pip install -r requirements.txt
   - pip install -e .
 
