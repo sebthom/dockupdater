@@ -4,6 +4,7 @@ click>=7.0
 codecov
 docker>=3.7.0
 flake8
+hadolint
 jinja2>=2.10
 pre-commit>=1.14.4
 pytest-cov>=2.6.1
