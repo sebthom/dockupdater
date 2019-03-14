@@ -32,3 +32,7 @@ repos:
   sha: v1.1.0
   hooks:
   - id: python-safety-dependencies-check
+- repo: https://github.com/petalmd/dockerfile-pre-commit
+  rev: v1.0
+  hooks:
+  - id: dockerlint
