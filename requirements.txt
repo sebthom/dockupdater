@@ -1,4 +1,4 @@
-apprise>=0.5.2
+apprise>=0.7.5
 apscheduler>=3.5.3
 click>=7.0
 codecov
