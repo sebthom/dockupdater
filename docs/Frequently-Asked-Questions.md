@@ -1,17 +1,18 @@
 # Frequently Asked Questions
 
-* [How to configure Timezone](#how-to-configure-timezone)
-* [How to stop Dockupdater auto update](#how-to-stop-dockupdater-auto-update)
-* [How install Dockupdater without docker](#how-install-dockupdater-without-docker)
-* [How to remove container after service update](#how-to-remove-container-after-service-update)
-* [How to use with service but without stack](#how-to-use-with-service-but-without-stack)
-* [How to use special token {stack}](#how-to-use-special-token-stack)
+- [Frequently Asked Questions](#frequently-asked-questions)
+  - [How to configure Timezone](#how-to-configure-timezone)
+  - [How to stop Dockupdater auto update](#how-to-stop-dockupdater-auto-update)
+  - [How install Dockupdater without docker](#how-install-dockupdater-without-docker)
+  - [How to remove containers after service update](#how-to-remove-containers-after-service-update)
+  - [How to use with service but without stack](#how-to-use-with-service-but-without-stack)
+  - [How to use special token {stack}](#how-to-use-special-token-stack)
 
 ***
 
 ## How to configure Timezone
 
-To more closely monitor dockupdater' actions and for accurate log ingestion, you can change the timezone of the container from UTC by setting the [`TZ`](http://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html) environment variable like so:
+To more closely monitor dockupdater actions and for accurate log ingestion, you can change the timezone of the container from UTC by setting the [`TZ`](http://www.gnu.org/software/libc/manual/html_node/TZ-Variable.html) environment variable like so:
 
 ```bash
 docker run -d --name dockupdater \
@@ -48,7 +49,7 @@ services:
 
 ## How install Dockupdater without docker
 
-dockupdater can also be installed via pip:
+Dockupdater can also be installed via pip:
 
 ```bash
 pip install dockupdater
