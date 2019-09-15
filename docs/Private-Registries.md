@@ -1,6 +1,6 @@
 # Private registries
 
-If your running containers' docker images are stored in a secure registry that requires a username and password, simply run dockupdater with 2 arguments or the equivalent environment variables.
+If your running docker images stored in a secure registry that requires a username and password, simply run dockupdater with 2 arguments or the equivalent environment variables.
 
 ## Command line arguments
 
