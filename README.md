@@ -39,7 +39,7 @@ docker run -d --name dockupdater \
 
 ### Docker swarm (service)
 
-**Dockupdater** can be deploy on a service like that:
+**Dockupdater** can be deploy on a service like this:
 
 ```bash
 version: "3.6"
@@ -53,7 +53,7 @@ services:
           - node.role == manager
 ```
 
-> Dockupdater need to run on a manager node
+> Dockupdater needs to run on a manager node
 
 ## Getting helps
 
