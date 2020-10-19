@@ -108,7 +108,6 @@ class Scanner(object):
             start.tokens = {"stack": container_or_service.stack_name}
             for container_or_service in self.get_all_services_containers(start):
                 self.logger.info(f"Starting {container_or_service.name} after update")
-                container_or_service.update()
                 container_or_service.start()
 
     def update(self):
