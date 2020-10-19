@@ -21,7 +21,7 @@ class BaseMessage(ABC):
 class StartupMessage(BaseMessage):
     def __init__(self, hostname, next_run=None):
         now = datetime.now(timezone.utc).astimezone()
-        title = f'dockupdater has started'
+        title = 'dockupdater has started'
         body_fields = [
             f'Host: {hostname}',
             f'Time: {now.strftime("%Y-%m-%d %H:%M:%S")}',
@@ -35,9 +35,9 @@ class TemplateMessage(BaseMessage):
 
     def __init__(self, container_or_service):
         if isinstance(container_or_service, Service):
-            title = f'dockupdater has updated services!'
+            title = 'dockupdater has updated services!'
         else:
-            title = f'dockupdater has updated containers!'
+            title = 'dockupdater has updated containers!'
 
         template = Environment(loader=BaseLoader).from_string(container_or_service.config.template)
         body = template.render(object=container_or_service)
