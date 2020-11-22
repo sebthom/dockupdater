@@ -118,6 +118,7 @@ class Scanner(object):
             self.logger.info('No containers/services are running or monitored on %s', self.socket)
             return
 
+        updates = 0
         for container_or_service in monitored:
             self.logger.debug("checking object %s", container_or_service.name)
 
@@ -126,6 +127,7 @@ class Scanner(object):
 
                 self.logger.info('%s will be updated', container_or_service.name)
                 container_or_service.update()
+                updates += 1
                 self.logger.debug('%s is updated', container_or_service.name)
 
                 self.notification_manager.send(
@@ -140,6 +142,11 @@ class Scanner(object):
                 self.starts_after_update(container_or_service)
             else:
                 self.logger.debug("no new version for %s", container_or_service.name)
+
+        if updates == 0:
+            self.logger.info('No updates found')
+        else:
+            self.logger.info('%s containers/services updated', updates)
 
     def self_update(self):
         """Check for Dockupdater update"""
