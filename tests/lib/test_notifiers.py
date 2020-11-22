@@ -11,7 +11,7 @@ def test_notifiers_startup_message():
 
 def test_notifiers_template_message(docker_client, hello_world_container):
     message = TemplateMessage(Container(docker_client, hello_world_container))
-    assert message.title
+    assert message.title == f"dockupdater has updated container [{hello_world_container.name}]!"
     assert message.body
 
 

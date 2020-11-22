@@ -34,10 +34,8 @@ class TemplateMessage(BaseMessage):
     """Load and parse message to send from template file"""
 
     def __init__(self, container_or_service):
-        if isinstance(container_or_service, Service):
-            title = 'dockupdater has updated services!'
-        else:
-            title = 'dockupdater has updated containers!'
+        kind = "service" if isinstance(container_or_service, Service) else "container"
+        title = f"dockupdater has updated {kind} [{container_or_service.name}]!"
 
         template = Environment(loader=BaseLoader).from_string(container_or_service.config.template)
         body = template.render(object=container_or_service)
