@@ -7,7 +7,7 @@ requirements = [
     'docker>=3.7.0',
     'apscheduler>=3.5.3',
     'requests>=2.21.0',
-    'apprise>=0.8.9',
+    'apprise>=0.9.0',
     'jinja2>=2.10',
     'click>=7.0',
 ]
